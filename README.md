@@ -91,7 +91,7 @@ the generation and installation of the assets.
     ``` {.sourceCode .bash}
     $ apt-get install build-essential kernel-package debconf-utils dpkg-dev \
     debhelper ncurses-dev fakeroot zlib1g-dev \
-    libqt4-dev libsdl2-dev libsdl2-ttf-dev libfontconfig1-dev linux-source
+    libqt4-dev libsdl2-dev libsdl2-ttf-dev libfontconfig1-dev git
     ```
 
 2.  `git clone` this repository
