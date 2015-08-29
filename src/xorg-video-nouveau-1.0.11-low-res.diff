@@ -1,0 +1,11 @@
+--- drmmode_display.c	2014-09-03 21:29:04.000000000 +0200
++++ drmmode_display.c	2015-06-26 07:29:55.672524086 +0200
+@@ -1423,7 +1423,7 @@
+ 	if (!drmmode->mode_res)
+ 		return FALSE;
+ 
+-	xf86CrtcSetSizeRange(pScrn, 320, 200, drmmode->mode_res->max_width,
++	xf86CrtcSetSizeRange(pScrn, 160, 100, drmmode->mode_res->max_width,
+ 			     drmmode->mode_res->max_height);
+ 
+ 	if (!drmmode->mode_res->count_connectors ||

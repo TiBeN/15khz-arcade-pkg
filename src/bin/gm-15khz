@@ -1,0 +1,20 @@
+#!/bin/bash
+
+rootPath=$(readlink -f `dirname $0`)
+
+# Prevent SDL to choose de wrong
+# screen during in-game switchres operations
+export SDL_VIDEO_X11_XRANDR=0
+export SDL_VIDEO_X11_XVIDMODE=0
+
+# Prevent SDL to disable joystick
+# Because of Zaphodhead mode
+export SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS=1 
+
+# Tell X to use the second screen
+export DISPLAY=:0.1
+
+# Tell MESA to use the patched nouveau_dri.so
+export LIBGL_DRIVERS_PATH=$rootPath/../lib/15khz-arcade-pkg
+
+$rootPath/../lib/15khz-arcade-pkg/groovymame64/mame64 $@
