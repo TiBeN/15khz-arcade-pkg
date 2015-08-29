@@ -97,7 +97,7 @@ the generation and installation of the assets.
 2.  `git clone` this repository
 
     ``` {.sourceCode .bash}
-    $ git clone git@github.com:TiBeN/15khz-arcade-pkg.git ./15khz-arcade-package
+    $ git clone git@github.com:TiBeN/15khz-arcade-pkg.git
     ```
 
 3.  Go the source dir of the project and launch the generation of the
