@@ -230,14 +230,16 @@ this. Next are the instructions to do this on Ubuntu.
 
 2.  Edit the following file
     `xserver-xorg-video-nouveau-<version>/src/drmmode_display.c` and
-    apply theses changes: \`\`\`c
+    apply theses changes: 
 
--   xf86CrtcSetSizeRange(pScrn, 320, 200,
-    drmmode-\>mode\_res-\>max\_width,
-    drmmode-\>mode\_res-\>max\_height);
--   xf86CrtcSetSizeRange(pScrn, 160, 100,
-    drmmode-\>mode\_res-\>max\_width,
-    drmmode-\>mode\_res-\>max\_height); \`\`\`
+    ```c
+    - xf86CrtcSetSizeRange(pScrn, 320, 200,
+    -    drmmode->mode_res->max_width,
+    -    drmmode->mode_res->max_height);
+    + xf86CrtcSetSizeRange(pScrn, 160, 100,
+    +   drmmode->mode_res->max_width,
+    +   drmmode->mode_res->max_height);
+    ```
 
 3.  Compile the patched sources and create the deb package:
 
