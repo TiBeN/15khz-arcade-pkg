@@ -22,6 +22,7 @@ LINUX_UBUNTU_GIT_REPO_URL = git://kernel.ubuntu.com/ubuntu/ubuntu-$(UBUNTU_VERSI
 
 LINUX_KERNEL_SRC_PKG = $(BUILDDIR)/pkg/kernel/ubuntu-$(UBUNTU_VERSION).tar.gz
 LINUX_KERNEL_PATCH_PKG = $(BUILDDIR)/pkg/kernel/kernel-patch-$(LINUX_SHORT_VERSION).zip
+LINUX_KERNEL_PATCH_PKG_URL = http://forum.arcadecontrols.com/index.php?action=dlattach;topic=107620.0;attach=324731
 LINUX_KERNEL_DEB_PKG = $(BUILDDIR)/linux-image-patched15khz-10.00.Custom_amd64.deb
 
 MAME_SRC_PKG = $(BUILDDIR)/pkg/mame/mame0164s.zip
@@ -157,8 +158,7 @@ $(LINUX_KERNEL_SRC_PKG):
 
 $(LINUX_KERNEL_PATCH_PKG):
 	mkdir -p $(dir $(LINUX_KERNEL_PATCH_PKG))
-	wget -O $(LINUX_KERNEL_PATCH_PKG) \
-		"http://forum.arcadecontrols.com/index.php?action=dlattach;topic=107620.0;attach=324731"
+	wget -O $(LINUX_KERNEL_PATCH_PKG) "$(LINUX_KERNEL_PATCH_PKG_URL)"
 	touch $(LINUX_KERNEL_PATCH_PKG)
 
 $(XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC_DIR):

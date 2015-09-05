@@ -169,25 +169,106 @@ on your computer having an Nvidia card using Ubuntu.
 
 ### Allowing the Linux Kernel for 15khz modelines.
 
-Linux kernels prevents 15khz modelines to preserve monitors healths.
+Linux kernels disallows 15khz modelines to preserve monitors healths.
 Patchs for the kernel are made for bypassing this security. Here are the
-steps to follow for patching a kernel and boot it.
+steps to follow to patch a kernel, compil and boot it.
 
-1.  Knowing the version of the installed Kernel:
+1.  Know the version of the installed Kernel:
 
     ``` {.sourceCode .bash}
     $ uname -r
     ```
 
-2.  Getting the patch for the kernel matching the actual version of the
+2.  Get the patch for the kernel matching the actual version of the
     Kernel, if available, at this url:
     <http://forum.arcadecontrols.com/index.php/topic,107620.280.html>.
     New versions of the patch are frequently posted on this topic as new
     versions of the kernel are available.
 
-3.  Follow the instruction of the following resource to patch, compile
-    and boot from the patched Kernel:
-    <http://burogu.makotoworkshop.org/index.php?post/2012/12/26/borne-arcade-40>
+3.  Grab the linux source. Here's two possibilities. If the kernel version
+    of the system matches the patch found in step two, the package manager
+    of the system can be used:
+
+    ``` {.soureCode .bash}
+    $ sudo apt-get install linux-source
+    $ mkdir ~/kernel-15khz      # This is our working dir. It can be anywhere
+    $ cd ~/kernel-15khz         
+    $ tar xvf /usr/src/linux-source-<version>.tar.bz2
+    $ mv linux-source-<version> linux-source    
+    ```
+
+    Otherwise, a specific version can be retrieved from the official
+    Ubuntu GIT repository — this method is used by the Makefile to freeze 
+    the version:
+
+    ``` {.sourceCode .bash}
+    $ mkdir ~/kernel-15khz      # This is our working dir. It can be anything
+    $ cd ~/kernel-15khz
+    $ git clone git://kernel.ubuntu.com/ubuntu/ubuntu-<distrib-codename>.git \
+        ./linux-source
+    ```
+
+    <distrib-codename> must be replaced by the first name of the ubuntu version
+    eg: `vivid` for Ubuntu 15.04 Vivit Vervet. Now, the source tree needs to be
+    set at the git tag to the desired kernel version — the versions can be 
+    listed using `git tag`:
+    
+    ``` {.sourceCode .bash}
+    $ cd ~/kernel-15khz/linux-source
+    $ git tag               # List the available version of the repository
+    $ git checkout <tag>    # Set the source tree at the specified version
+    ```
+    
+4.  Patch the kernel sources:
+
+    ``` bash 
+    $ cd ~/kernel-15khz
+    $ unzip /path/to/download/kernel-patch-<linux-version>.zip
+    $ cd linux-source
+    $ patch -p1 < ../patch-<linux-version>/ati9200_pllfix-<linux-version>.diff
+    $ patch -p1 < ../patch-<linux-version>/avga3000-<linux-version>.diff
+    $ patch -p1 < ../patch-<linux-version>/linux-<linux-version>.diff
+    ```
+
+    If one of theses steps fail, consider using an older kernel minor version 
+    — the major must be the same.
+
+5.  Install some required packages for the compilation:
+
+    ``` bash
+    $ apt-get install build-essential kernel-package debconf-utils dpkg-dev \
+        debhelper ncurses-dev fakeroot zlib1g-dev
+    ```
+
+6.  Launch the compilation and deb package generation of the kernel:
+
+    ``` bash
+    $ cd ~/kernel-15khz/linux-source
+    $ cp -vi /boot/config-`uname -r` .config
+    $ make oldconfig
+    $ KERN_DIR=~/kernel-15khz/linux-source make-kpkg clean
+    $ KERN_DIR=~/kernel-15khz/linux-source fakeroot make-kpkg \
+        --initrd \
+        --append-to-version "-patched15khz" \
+        kernel-image kernel-headers
+    ```
+    
+    Depend of the power of your cpus this can take some hours. Some versions
+    of the kernel asked me some question at the beginning of the process. I advice 
+    to wait one or two minutes before going AFK.
+
+7.  Deploy the generated packages:
+
+    ```bash
+    $ cd ~/kernel-15khz
+    $ sudo dpkg -i linux-image-<linux-version>-patched15khz_<linux-version>-patched15khz-10.00.Custom_amd64.deb
+    $ sudo dpkg -i linux-headers-<linux-version>-patched15khz_<linux-version>-patched15khz-10.00.Custom_amd64.deb
+    ```
+
+8.  Reboot on the new patched kernel. Hold <shift> key at the start 
+    of the boot to make appear the GRUB boot menu. Select 
+    *Advanced options for Ubuntu* -> *Ubuntu, with <linux-version>-patched15kz*
+
 
 ### Bypassing EDID detection by KMS
 
