@@ -18,17 +18,12 @@ Doing this is actually harder than it sounds because:
 -   Using 15khz monitors require the use of custom
     [modelines](https://en.wikipedia.org/wiki/XFree86_Modeline)
     unhandled by Xorg nor Mame.
--   The Xorg `ZaphodHead` mode used to achieve the setup of two separate
-    X screens at the same time triggers various nasty SDL/Mesa/OpenGL
-    bugs and behaviors with Mame.
 
 This project helps to resolve theses issues by providing instructions
 and a `Makefile` which help generating:
 
 -   A patched Linux kernel wich allows 15Khz modelines as a deb package
 -   Patched nouveau drivers allowing low resolutions as a deb package
--   Patched `nouveau_dri.so` lib from libgl-mesa-dri package which
-    resolves a bug related to ZaphodHeads mode
 -   Patched Mame binary using GroovyMame patch allowing Mame to generate
     good 15khz compatible modelines on the fly
 -   A Groovymame bash launcher which sets custom SDL env vars resolving
@@ -51,9 +46,9 @@ know.
 Assets versions
 ---------------
 
--   **Ubuntu**: Vidid
--   **Linux kernel**: Ubuntu-3.19.0-25.26
--   **Groovymame**: 0.164
+-   **Ubuntu**: Wily
+-   **Linux kernel**: Ubuntu-4.2.0-22.27
+-   **Groovymame**: 0.168
 
 Hardware setup
 --------------
@@ -89,9 +84,8 @@ the generation and installation of the assets.
 1.  Install the following packages using APT:
 
     ``` {.sourceCode .bash}
-    $ apt-get install build-essential kernel-package debconf-utils dpkg-dev \
-    debhelper ncurses-dev fakeroot zlib1g-dev \
-    libqt4-dev libsdl2-dev libsdl2-ttf-dev libfontconfig1-dev git
+    $ sudo apt-get build-dep linux-image mame
+    $ sudo apt-get install fakeroot
     ```
 
 2.  `git clone` this repository
@@ -110,6 +104,8 @@ the generation and installation of the assets.
 
     Be warned that this step will take hours because it triggers the
     compilation of the Linux Kernel and the MAME emulator among others.
+    The `-j<number-of-cpu+1>` option can be used to paralelise the build 
+    and speed up things a little.
 
 Once done, all assets are available inside the `build` directory.
 
@@ -129,21 +125,25 @@ do.
 
 6.  Reboot your computer to the newly installed patched kernel. To be
     sure to boot on the new kernel, hold `<shift>` during boot to make
-    appear the Grub boot menu and select the good kernel which name
-    contains `patched-15khz`.
+    appear the Grub boot menu and select the good kernel. Once done, you
+    check if you have booted on the good kernel by type `uname -a`. It 
+    should contain a suffix `patched15khz`.
 
 The assets can be uninstalled by doing `sudo make uninstall`. While
 running the patched kernel can't be automatically removed safely. First,
 reboot to another kernel, then once rebooted, do
 
 ``` {.sourceCode .bash}
-sudo apt-get remove linux-image-<version>-patched15khz linux-headers-<version>-patched15khz
+sudo apt-get remove linux-image-<version>-patched15khz \
+    linux-headers-<version>-patched15khz
 ```
 
 Usage
 -----
 
-The 15Khz screen is made available as a separate X screen numbered :0.1.
+The 15Khz screen is made available as a separate X screen numbered `:0.1` — 
+On Ubuntu Wily with Gnome 3 and maybe others, the screen number starts at
+:1, so in this case the screen number is `:1.1`.
 So to launch a program on this screen, prefix the command-line with
 `DISPLAY=:0.1`. Example:
 
@@ -156,7 +156,7 @@ To launch groovymame64:
     $ gm-15khz sf2
 
 Note the absence of the prefix DISPLAY=:0.1 . It is useless because it
-is already set inside the `gm-15khz` bash launcher. `gm-15khz` is only a
+is already set inside the `gm-15khz` bash launcher. `gm-15khz` is simply a
 wrapper of the `groovymame64` binary. All command line arguments
 following `gm-15khz` invocation are passed to the underlying
 `groovymame64` process.
@@ -184,92 +184,40 @@ steps to follow to patch a kernel, compil and boot it.
     <http://forum.arcadecontrols.com/index.php/topic,107620.280.html>.
     New versions of the patch are frequently posted on this topic as new
     versions of the kernel are available.
+    Update: Since kernel v3.19 no updates seems to be done on this forum.
+    Until now, the patchs seems to work with 4.2.0 kernel. If is not the 
+    case anymore, the following github repository hosts patched kernel 
+    sources which seems to be up to date and synchronised with upstream 
+    kernel sources. 
+    To get the patchs, select the git tag which match the kernel version then 
+    check the commits done by the owner of the repo — `philenotfound`. He
+    names the commits 'avga3000-<version>.diff', 
+    'ati9200_pllfix-<version>.diff' and 'linux-<version>'.diff. 
+    Append `.patch` to the github url of theses commits to obtain a patch file 
+    (it's a github feature).
 
-3.  Grab the linux source. Here's two possibilities. If the kernel version
-    of the system matches the patch found in step two, the package manager
-    of the system can be used:
-
-    ``` {.soureCode .bash}
-    $ sudo apt-get install linux-source
-    $ mkdir ~/kernel-15khz      # This is our working dir. It can be anywhere
-    $ cd ~/kernel-15khz         
-    $ tar xvf /usr/src/linux-source-<version>.tar.bz2
-    $ mv linux-source-<version> linux-source    
-    ```
-
-    Otherwise, a specific version can be retrieved from the official
-    Ubuntu GIT repository — this method is used by the Makefile to freeze 
-    the version:
-
-    ``` {.sourceCode .bash}
-    $ mkdir ~/kernel-15khz      # This is our working dir. It can be anything
-    $ cd ~/kernel-15khz
-    $ git clone git://kernel.ubuntu.com/ubuntu/ubuntu-<distrib-codename>.git \
-        ./linux-source
-    ```
-
-    <distrib-codename> must be replaced by the first name of the ubuntu version
-    eg: `vivid` for Ubuntu 15.04 Vivit Vervet. Now, the source tree needs to be
-    set at the git tag to the desired kernel version — the versions can be 
-    listed using `git tag`:
-    
-    ``` {.sourceCode .bash}
-    $ cd ~/kernel-15khz/linux-source
-    $ git tag               # List the available version of the repository
-    $ git checkout <tag>    # Set the source tree at the specified version
-    ```
-    
-4.  Patch the kernel sources:
+3.  Follow the official Ubuntu tutorial here:
+    <https://wiki.ubuntu.com/Kernel/BuildYourOwnKernel>. At the 
+    `Modifying the configuration` step, skip it but apply the patchs:
 
     ``` bash 
-    $ cd ~/kernel-15khz
+    $ cd ~/path-to-kernel-sources
     $ unzip /path/to/download/kernel-patch-<linux-version>.zip
-    $ cd linux-source
-    $ patch -p1 < ../patch-<linux-version>/ati9200_pllfix-<linux-version>.diff
-    $ patch -p1 < ../patch-<linux-version>/avga3000-<linux-version>.diff
-    $ patch -p1 < ../patch-<linux-version>/linux-<linux-version>.diff
-    ```
-
-    If one of theses steps fail, consider using an older kernel minor version 
-    — the major must be the same.
-
-5.  Install some required packages for the compilation:
-
-    ``` bash
-    $ apt-get install build-essential kernel-package debconf-utils dpkg-dev \
-        debhelper ncurses-dev fakeroot zlib1g-dev
-    ```
-
-6.  Launch the compilation and deb package generation of the kernel:
-
-    ``` bash
-    $ cd ~/kernel-15khz/linux-source
-    $ cp -vi /boot/config-`uname -r` .config
-    $ make oldconfig
-    $ KERN_DIR=~/kernel-15khz/linux-source make-kpkg clean
-    $ KERN_DIR=~/kernel-15khz/linux-source fakeroot make-kpkg \
-        --initrd \
-        --append-to-version "-patched15khz" \
-        kernel-image kernel-headers
+    $ patch -p1 < patch-<linux-version>/ati9200_pllfix-<linux-version>.diff
+    $ patch -p1 < patch-<linux-version>/avga3000-<linux-version>.diff
+    $ patch -p1 < patch-<linux-version>/linux-<linux-version>.diff
     ```
     
-    Depend of the power of your cpus this can take some hours. Some versions
-    of the kernel asked me some question at the beginning of the process. I advice 
-    to wait one or two minutes before going AFK.
+    Follow the tuto advice to change the debian.master/changelog file by
+    adding the suffix `+patched15khz`.
 
-7.  Deploy the generated packages:
+    If the compilation fails due to an ABI error or something like this, 
+    repeat the compilation command line by adding `skipabi=true`:
 
     ```bash
-    $ cd ~/kernel-15khz
-    $ sudo dpkg -i linux-image-<linux-version>-patched15khz_<linux-version>-patched15khz-10.00.Custom_amd64.deb
-    $ sudo dpkg -i linux-headers-<linux-version>-patched15khz_<linux-version>-patched15khz-10.00.Custom_amd64.deb
+    $ skipabi=true fakeroot debian/rules binary-headers binary-generic
     ```
-
-8.  Reboot on the new patched kernel. Hold <shift> key at the start 
-    of the boot to make appear the GRUB boot menu. Select 
-    *Advanced options for Ubuntu* -> *Ubuntu, with <linux-version>-patched15kz*
-
-
+    
 ### Bypassing EDID detection by KMS
 
 Mosts VGA/DVI/HDMI screens communicates `EDID` data to the kernel — and
@@ -281,8 +229,12 @@ the kernel to bypass this detection and force the state as connected.
 This is done by adding to parameters to the kernel at boot:
 
 1.  Edit the grub configuration file `/etc/default/grub` and add
-    `vga=0x311 video=VGA-1:640x480ec` to the kernel options
+    `vga=0x311 video=<DEVICE-NAME>:640x480e` to the kernel options
     `GRUB_CMDLINE_LINUX_DEFAULT`.
+
+    Replace <DEVICE-NAME> by the name of the output where the CRT screen is
+    connected (common names: VGA-1, DVI-I-1). Asks your `xrandr` to know 
+    the name of your available output devices.
 
 2.  Tell to take in account theses changes:
 
@@ -394,12 +346,10 @@ Ubuntu.
 6.  Install the required packages for the compilation of Groovymame
 
     ``` {.sourceCode .bash}
-    sudo apt-get install build-essential libqt4-dev libsdl2-dev libsdl2-ttf-dev libfontconfig1-dev
+    sudo apt-get build-dep mame
     ```
 
-7.  Apply the `Changeres fix` as explained in the next chapter
-
-8.  Start the compilation by launching `make`.
+7.  Start the compilation by launching `make`.
 
 #### Groovymame usage
 
@@ -407,8 +357,7 @@ Groovymame works exactly like official Mame. To work properly with our
 setup, some environment variables must be set:
 
 ``` {.sourceCode .bash}
-LIBGL_DRIVERS_PATH=$rootPath/../lib/path-to-mesa-lib \
-    SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS=1 \
+SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS=1 \
     SDL_VIDEO_X11_XRANDR=0 \
     SDL_VIDEO_X11_XVIDMODE=0 \
     DISPLAY=:0.1 \
@@ -416,12 +365,6 @@ LIBGL_DRIVERS_PATH=$rootPath/../lib/path-to-mesa-lib \
 ```
 
 The environment variables are explained below:
-
--   **LIBGL\_DRIVERS\_PATH=\$rootPath/../lib/path-to-mesa-lib**: Defines
-    a custom path for library to search drivers libs. This is used to
-    force Mesa to use our patched version the lib `nouveau_dri.so` (see
-    the `Groovymame segfault changeres bug` chapter for more
-    information.
 
 -   **SDL\_JOYSTICK\_ALLOW\_BACKGROUND\_EVENTS=1**: Makes SDL to capture
     Joystick events when the application is in background which is the
@@ -437,7 +380,7 @@ The environment variables are explained below:
     understand but they fix it.
 
 -   **DISPLAY=:0.1**: This tells Xorg to execute the program on the
-    Screen1 (CRT Screen)
+    Screen1 (CRT Screen). Note: This number can be :1.1 on your system.
 
 The `gm-15khz` bash launcher provided when installing the assets using
 the Makefile is basically a wrapper of GroovyMame which sets theses
@@ -445,48 +388,3 @@ environment variables.
 
 To know more about Mame usage, refer to the
 [documentation](https://github.com/mamedev/mame/blob/master/docs/config.txt).
-
-#### Groovymame segfault changeres bug
-
-Using nouveau driver in ZaphodHead mode, a `segfault` bug is triggered
-when a resolution switch occurs during the emulation of a system like
-`Sega Genesis` or `Sony Playstation`.
-
-This bug as been discussed with the Groovymame author `Calamity` in a
-post on the ArcadeControls forum:
-<http://forum.arcadecontrols.com/index.php/topic,145757.0.html>
-
-The bug is caused by the Galium nouveau DRI of the OpenGL rendering MESA
-library and is known by the developer team. This library is provided by
-the Debian package `libgl1-mesa-dri`.
-
-A patch is available here:
-<http://cgit.freedesktop.org/mesa/mesa/commit/?id=a98600b0ebdfc8481c168aae6c5670071e22fc29>
-
-Here are the steps to fix this:
-
--   Fetchs the debian source package of `libgl1-mesa-dri`
-
--   Apply the patch available at the link above
-
--   Launch the compilation and deb package building:
-
-    ``` {.sourceCode .bash}
-    $ cd /path/to/pkg
-    $ dpkg-buildpackage -us -uc -nc
-    ```
-
--   Search for the `nouveau_dri.c` usually available at:
-
-    ``` {.sourceCode .bash}
-    /path/to/pkg/build/dri/x86_64-linux-gnu/gallium/nouveau_dri.so` and copy it somewhere.
-    ```
-
--   Launch GroovyMame using this environment var to force Mesa to use
-    the patch library:
-
-    ``` {.sourceCode .bash}
-    LIBGL_DRIVERS_PATH=$rootPath/../lib/folder-containing-lib
-    ```
-
-
