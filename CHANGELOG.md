@@ -9,3 +9,5 @@ Current
   <https://wiki.ubuntu.com/Kernel/BuildYourOwnKernel>. 
 - The linux patchs are now hosted on the repo.
 - Fixed and added precision on the KMS setup in the README.md
+- $DISPLAY environment var is not hardcoded anymore in gm-15khz but
+  simply appended to already set $DISPLAY screen number.

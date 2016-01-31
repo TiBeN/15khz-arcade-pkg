@@ -21,7 +21,9 @@ LINUX_HEADERS_ALL_DEB = $(BUILDDIR)/linux-headers-$(KERNEL_BASE_VERSION)-$(KERNE
 LINUX_HEADERS_GENERIC_DEB = $(BUILDDIR)/linux-headers-$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER)-generic_$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER).$(KERNEL_UPLOAD_NUMBER)+patched15khz_amd64.deb
 LINUX_IMAGE_DEB = $(BUILDDIR)/linux-image-$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER)-generic_$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER).$(KERNEL_UPLOAD_NUMBER)+patched15khz_amd64.deb
 
-LINUX_15KHZ_PATCH = src/patch-3.19/linux-3.19.diff
+#LINUX_15KHZ_PATCH = src/patch-3.19/linux-3.19.diff
+LINUX_15KHZ_PATCH = src/linux-4.2.diff
+
 LINUX_AT9200_PATCH = src/patch-3.19/ati9200_pllfix-3.19.diff
 LINUX_AVGA3000_PATCH = src/patch-3.19/avga3000-3.19.diff
 
@@ -58,17 +60,16 @@ install:
 	mkdir -p $(PREFIX)/bin
 	cp src/bin/gm-15khz $(PREFIX)/bin/
 	@echo "Install finished"
-	@echo "Please reboot your computer using the new -patched15khz kernel"
+	@echo "Please reboot your computer to the new patched kernel"
 
 uninstall:
 	rm -r $(PREFIX)/lib/15khz-arcade-pkg
 	rm $(PREFIX)/bin/gm-15khz
 	apt-get install --reinstall xserver-xorg-video-nouveau
-	@echo "Uninstall finished."
-	@echo
-	@echo "The patched Linux kernel can't be safely uninstalled automatically while running."
-	@echo "Don't forget to uninstall it manually after booted to another kernel using:"
-	@echo "sudo apt-get remove linux-image-<version>-patched15khz linux-headers-<version>-patched15khz"
+	sudo apt-get remove $(notdir $(LINUX_HEADERS_ALL_DEB)) \
+		$(notdir $(LINUX_HEADERS_GENERIC_DEB)) \
+		$(notdir $(LINUX_IMAGE_DEB))
+	@echo "Uninstall finished. Please reboot your computer now"
 
 dist: 
 
@@ -124,6 +125,8 @@ $(GROOVYMAME_BIN): $(MAME_SRC_PKG) \
 	cd $(TMPDIR)/mame && patch -p0 --binary < $(realpath $(MAME_HI_PATCH))
 	cd $(TMPDIR)/mame && patch -p0 --binary < $(realpath $(MAME_GROOVY_PATCH))
 	cd $(TMPDIR)/mame && MAKEFLAGS= MFLAGS= make
+	cd $(TMPDIR)/mame && rm mame.zip
+	cd $(TMPDIR)/mame && make clean
 	mkdir -p $(BUILDDIR)/groovymame64
 	cp -r $(TMPDIR)/mame/* $(BUILDDIR)/groovymame64
 	rm -rf $(TMPDIR)/mame

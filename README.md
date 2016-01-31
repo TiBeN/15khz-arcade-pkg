@@ -6,39 +6,39 @@ Arcade videogames monitor running at 15Khz horizontal scan frequencies)
 to the VGA output of an Nvidia card using Ubuntu while keeping your
 primary screen connected.
 
-One of the aims is to play emulated retro arcade/console/computer games
+The goal is to play emulated retro arcade/console/computer games
 at real low resolutions on this monitor using emulators like MAME.
 
 Doing this is actually harder than it sounds because:
 
--   Linux kernel disallows 15Khz horizontal scan frequencies which are
-    used by theses old monitors — 31Khz is now the norm
+-   For some graphics card, and to enables some features, Linux kernel 
+    must be patched.
 -   Nvidia Drivers disallow resolutions lower than 320x200
 -   This setup requires not so obvious Xorg configuration
 -   Using 15khz monitors require the use of custom
     [modelines](https://en.wikipedia.org/wiki/XFree86_Modeline)
-    unhandled by Xorg nor Mame.
+    which must be setup manually — There are tools for that.
 
-This project helps to resolve theses issues by providing instructions
-and a `Makefile` which help generating:
+The content of this file helps to resolve theses issues by providing 
+instructions for generating:
 
 -   A patched Linux kernel wich allows 15Khz modelines as a deb package
 -   Patched nouveau drivers allowing low resolutions as a deb package
 -   Patched Mame binary using GroovyMame patch allowing Mame to generate
-    good 15khz compatible modelines on the fly
+    good 15khz compatible modelines on the fly.
 -   A Groovymame bash launcher which sets custom SDL env vars resolving
     some weird SDL related behaviors, sets the \$DISPLAY var on the
     right screen and tells the linker to use the patched nouveau.dri.so
     library.
 
-The generation of theses assets can be done automatically using `make`
-or manually by following the provided instructions.
+A Makefile is provided for automating the generation and configuration of
+most of the following steps.
 
 Motivation
 ----------
 
 The main purpose of this repository is to keep track and automate steps
-needed to achieve this goal. Second motivation is to share hoping that
+needed to achieve this goal. Second motivation is to share, hoping that
 it might help despite it fits my hardware/OS specifically. If you have
 suggestions or knowledges to make it more generic feel free to let me
 know.
@@ -85,7 +85,7 @@ the generation and installation of the assets.
 
     ``` {.sourceCode .bash}
     $ sudo apt-get build-dep linux-image mame
-    $ sudo apt-get install fakeroot
+    $ sudo apt-get install fakeroot qt5-default qtbase5-dev qtbase5-dev-tools
     ```
 
 2.  `git clone` this repository
@@ -151,11 +151,13 @@ So to launch a program on this screen, prefix the command-line with
 $ DISPLAY=:0.1 xrandr
 ```
 
+### Groovymame
+
 To launch groovymame64:
 
     $ gm-15khz sf2
 
-Note the absence of the prefix DISPLAY=:0.1 . It is useless because it
+Note the absence of the env var DISPLAY. It is useless because it
 is already set inside the `gm-15khz` bash launcher. `gm-15khz` is simply a
 wrapper of the `groovymame64` binary. All command line arguments
 following `gm-15khz` invocation are passed to the underlying
@@ -167,11 +169,23 @@ Detailled instructions for manual setup
 This chapter describes step by step how to connects your 15khz monitor
 on your computer having an Nvidia card using Ubuntu.
 
-### Allowing the Linux Kernel for 15khz modelines.
+### Patching the kernel
 
-Linux kernels disallows 15khz modelines to preserve monitors healths.
-Patchs for the kernel are made for bypassing this security. Here are the
-steps to follow to patch a kernel, compil and boot it.
+As i am not the author of the patchs — thanks to arcadecontrol forum — it 
+is not very clear to me what is the aim of the patch but i presume 
+the following:
+
+-   The patch allows 15khz modelines in `KMS` mode, which is the display 
+    engine used by the kernel at boot (splashscreen) before Xorg is 
+    launched
+-   The patch provide diff for ArcadeVGA and ATI cards. I think without
+    theses thoses cards are not allowed to handle low resolutions or 15khz
+    modelines.
+-   **The patch is not required for NVIDIA cards**, at least for mine. Only
+    patched nouveau drivers — as explained bellow — are required if the 
+    only goal is to play emulators and if you don't care about the 
+    booting phase.
+-   Patching the Kernel > 3.19, KMS feature doesn't seems to work.
 
 1.  Know the version of the installed Kernel:
 
@@ -360,7 +374,7 @@ setup, some environment variables must be set:
 SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS=1 \
     SDL_VIDEO_X11_XRANDR=0 \
     SDL_VIDEO_X11_XVIDMODE=0 \
-    DISPLAY=:0.1 \
+    DISPLAY=$DISPLAY.1 \
     ./groovymame sms sonic
 ```
 
@@ -379,8 +393,8 @@ The environment variables are explained below:
     action of theses SDL environnment variables is pretty hard
     understand but they fix it.
 
--   **DISPLAY=:0.1**: This tells Xorg to execute the program on the
-    Screen1 (CRT Screen). Note: This number can be :1.1 on your system.
+-   **DISPLAY=:$DISPLAY.1**: This tells Xorg to execute the program on the
+    Screen1 (CRT Screen).
 
 The `gm-15khz` bash launcher provided when installing the assets using
 the Makefile is basically a wrapper of GroovyMame which sets theses

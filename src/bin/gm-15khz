@@ -12,9 +12,6 @@ export SDL_VIDEO_X11_XVIDMODE=0
 export SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS=1 
 
 # Tell X to use the second screen
-export DISPLAY=:0.1
-
-# Tell MESA to use the patched nouveau_dri.so
-export LIBGL_DRIVERS_PATH=$rootPath/../lib/15khz-arcade-pkg
+export DISPLAY=$DISPLAY.1
 
 $rootPath/../lib/15khz-arcade-pkg/groovymame64/mame64 $@
