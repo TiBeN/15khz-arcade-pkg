@@ -1,1 +1,3 @@
-/build/*
+/vendor/*
+NOTES.md
+TODO.md

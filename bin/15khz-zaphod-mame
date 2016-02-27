@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# Groovymame wrapper for use in zaphod mode
 
 rootPath=$(readlink -f `dirname $0`)
 
@@ -11,7 +13,4 @@ export SDL_VIDEO_X11_XVIDMODE=0
 # Because of Zaphodhead mode
 export SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS=1 
 
-# Tell X to use the second screen
-export DISPLAY=$DISPLAY.1
-
-$rootPath/../lib/15khz-arcade-pkg/groovymame64/mame64 $@
+$rootPath/../vendor/mame/mame64 "$@"

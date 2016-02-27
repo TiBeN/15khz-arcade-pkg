@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# Groovymame wrapper
+
+rootPath=$(readlink -f `dirname $0`)
+
+$rootPath/../vendor/mame/mame64 "$@"

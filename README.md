@@ -1,6 +1,9 @@
 15khz Arcade Package
 ====================
 
+**WARNING:** Heavy refactorings are planned on the master branch, it may 
+not work as expected. Please use releases or tags version instead.
+
 This repository provides guidelines to connect an old CRT monitor (TV or
 Arcade videogames monitor running at 15Khz horizontal scan frequencies)
 to the VGA output of an Nvidia card using Ubuntu while keeping your
@@ -84,8 +87,10 @@ the generation and installation of the assets.
 1.  Install the following packages using APT:
 
     ``` {.sourceCode .bash}
-    $ sudo apt-get build-dep linux-image mame
-    $ sudo apt-get install fakeroot qt5-default qtbase5-dev qtbase5-dev-tools
+    $ sudo apt-get build-dep linux-image-4.2.0.27-generic mame \
+        xserver-xorg-video-nouveau
+    $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
+        qtbase5-dev-tools git
     ```
 
 2.  `git clone` this repository
@@ -115,9 +120,9 @@ Once done, all assets are available inside the `build` directory.
     $ sudo make install
     ```
 
-If you prefer you can install them manually — i suggest to read the
-`Detailled instruction for manual setup` chapter to know exactly what to
-do.
+    If you prefer you can install them manually — i suggest to read 
+    the `Detailled instruction for manual setup` chapter to know 
+    exactly what to do.
 
 5.  Follow the `Bypassing EDID detection by KMS` and the `Xorg setup`
     steps from the manual setup instructions because these cannot be
@@ -256,7 +261,7 @@ This is done by adding to parameters to the kernel at boot:
     $ sudo update-grub
     ```
 
-### Allowing the Nouveau Nvidia driver to switch to low resolutions modelines
+### Allowing the Nouveau Nvidia driver to use low resolutions modelines
 
 Most of Linux drivers doesn't allow the setting of very low resolutions
 mode like theses used for old console and arcade systems, probably for
@@ -307,11 +312,10 @@ this. Next are the instructions to do this on Ubuntu.
 ### Configuring Xorg
 
 `Separate X Screen` aka `Zaphodheads` mode is the only configuration
-layout supported by this guide. Others layout like `Dual screen Xrandr`
-or `Xinerama` have been tested but not working as expected. The
-instructions to configure the X server in Zaphodhead for nouveau drivers
-is well explained on the official `nouveau drivers` website at
-<http://nouveau.freedesktop.org/wiki/Randr12/>.
+layout provided with this guide for now. It is planned to present here 
+others alternatives. The instructions to configure the X server in 
+Zaphodhead for nouveau drivers is well explained on the official 
+`nouveau drivers` website at <http://nouveau.freedesktop.org/wiki/Randr12/>.
 
 It is recommended to delete the file `~/.config/monitors.xml` because it
 seems to override Xorg options and makes debugging harder.
@@ -396,9 +400,12 @@ The environment variables are explained below:
 -   **DISPLAY=:$DISPLAY.1**: This tells Xorg to execute the program on the
     Screen1 (CRT Screen).
 
-The `gm-15khz` bash launcher provided when installing the assets using
-the Makefile is basically a wrapper of GroovyMame which sets theses
+The `15khz-zaphod-mame` bash launcher provided when installing the assets 
+using the Makefile is basically a wrapper of GroovyMame which sets theses
 environment variables.
+
+The `15khz-mame` bash launcher provided is an even simpler wrapper for use 
+with others xorg layouts.
 
 To know more about Mame usage, refer to the
 [documentation](https://github.com/mamedev/mame/blob/master/docs/config.txt).
