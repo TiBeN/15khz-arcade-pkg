@@ -2,7 +2,9 @@
 ====================
 
 **WARNING:** Heavy refactorings are planned on the master branch, it may 
-not work as expected. Please use releases or tags version instead.
+not work as expected. Please use 
+[releases](https://github.com/TiBeN/15khz-arcade-pkg/releases) or 
+[tags](https://github.com/TiBeN/15khz-arcade-pkg/tags) version instead.
 
 This repository provides guidelines to connect an old CRT monitor (TV or
 Arcade videogames monitor running at 15Khz horizontal scan frequencies)
@@ -36,6 +38,13 @@ instructions for generating:
 
 A Makefile is provided for automating the generation and configuration of
 most of the following steps.
+
+Note: If your goal is to dedicate a machine for this purpose — install it
+into a physical arcade cabinet for example —, you should considere 
+[GroovyArcade](https://code.google.com/archive/p/groovyarcade/), a great 
+custom ArchLinux distribution dedicated to this and easier to install. 
+`15khz-arcade-pkg` aims to do basically the same thing but manually, on
+Ubuntu, and is really less exaustive.
 
 Motivation
 ----------
@@ -87,10 +96,10 @@ the generation and installation of the assets.
 1.  Install the following packages using APT:
 
     ``` {.sourceCode .bash}
-    $ sudo apt-get build-dep linux-image-4.2.0.27-generic mame \
+    $ sudo apt-get build-dep linux-image-$(uname -r) mame \
         xserver-xorg-video-nouveau
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
-        qtbase5-dev-tools git
+        qtbase5-dev-tools git unrar libxml2-dev
     ```
 
 2.  `git clone` this repository
@@ -158,15 +167,37 @@ $ DISPLAY=:0.1 xrandr
 
 ### Groovymame
 
-To launch groovymame64:
+To launch groovymame64 :
 
-    $ gm-15khz sf2
+```
+$ DISPLAY=:0.1 15khz-zaphod-mame sf2
+```
 
-Note the absence of the env var DISPLAY. It is useless because it
-is already set inside the `gm-15khz` bash launcher. `gm-15khz` is simply a
-wrapper of the `groovymame64` binary. All command line arguments
-following `gm-15khz` invocation are passed to the underlying
-`groovymame64` process.
+### Change screen resolution and execute a command
+
+A script is provided with this package which allows to change the
+resolution on the fly, execute a program, then revert back to original
+resolution when program quits:
+
+```
+$ DISPLAY=:0.1 OUTPUT15KHZ=VGA1 15khz-change-res-exec 320 240 50 firefox
+```
+
+This command sets the resolution of the screen connected to the 
+output `VGA1` at 320x240 with a refresh rate of 50hz then launch 
+firefox. Okay this is pretty useless, but it can be more usefull with 
+an emulator.
+
+Internally, the 15khz modeline is computed on the fly by using the 
+`switchres` utility made by `Calamity`, the author of the Groovymame patch.
+    
+The environment variable `OUTPUT15KHZ` defines the xrandr output 
+where the CRT screen is connected. If used often, i recommand you
+to put this variable in your `~/.bashrc` or `~/.profile` file:
+
+```bash
+export OUTPUT15KHZ="VGA1"
+```
 
 Detailled instructions for manual setup
 ---------------------------------------
@@ -379,7 +410,7 @@ SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS=1 \
     SDL_VIDEO_X11_XRANDR=0 \
     SDL_VIDEO_X11_XVIDMODE=0 \
     DISPLAY=$DISPLAY.1 \
-    ./groovymame sms sonic
+    ./mame64 sms sonic
 ```
 
 The environment variables are explained below:
@@ -400,12 +431,13 @@ The environment variables are explained below:
 -   **DISPLAY=:$DISPLAY.1**: This tells Xorg to execute the program on the
     Screen1 (CRT Screen).
 
-The `15khz-zaphod-mame` bash launcher provided when installing the assets 
-using the Makefile is basically a wrapper of GroovyMame which sets theses
-environment variables.
+When installed with this package using `make` and `sudo make install`,
+theses two wrappers are provided:
 
-The `15khz-mame` bash launcher provided is an even simpler wrapper for use 
-with others xorg layouts.
+-   `15khz-zaphod-mame`: Launch groovymame with the environment variables
+    set for use in Zaphod mode.
+
+-   `15khz-mame`: Simply launch groovymame.
 
 To know more about Mame usage, refer to the
 [documentation](https://github.com/mamedev/mame/blob/master/docs/config.txt).

@@ -1,0 +1,110 @@
+#!/bin/bash
+#
+# Switch to the given resolution using a 15khz 
+# modeline (computed using the original switchres 
+# tool made by Calamity), execute the given command,
+# then revert back to the original resolution
+
+set -e
+
+rootPath=$(readlink -f `dirname $0`)
+switchres=$rootPath/../vendor/switchres/switchres
+width=$1
+height=$2
+frequency=$3
+commandtoexec=$(echo "$@" | cut -d" " -f4-)
+
+if (( $# < 3 )) || [[ -z "$OUTPUT15KHZ" ]]; then
+    echo "Usage: 15khz-change-res-exec <with> <height> <frequency> <command>"
+    echo ""
+    echo "Note: the env var "'$OUTPUT15KHZ'" must be set to xrandr "
+    echo "output where 15khz screen is connected"
+    echo ""
+    exit -1
+fi
+
+# Parse original resolution from xrandr
+
+originalifs=$IFS ; IFS=$'\n'
+outputfound=false
+
+for s in $(xrandr -q); do
+
+    firstword=$(echo "$s" | cut -d" " -f1)
+    secondword=$(echo "$s" | cut -d" " -f2)
+
+    if [[ -n $firstword ]]; then
+   
+        if [[ "$firstword" = "$OUTPUT15KHZ" ]]; then
+            outputfound=true
+            if [[ "$secondword" == "disconnected" ]]; then
+                echo "ERROR: the output $OUTPUT15KHZ is deconnected"
+                exit -1
+            fi
+        else
+            outputfound=false
+        fi
+
+    else
+        
+        if [[ "$outputfound" = true ]] && [[ "$s" == *'*'* ]]; then
+            originalmodename=$(echo "$s" | cut -d" " -f4)
+            echo "INFO: Original mode "$originalmodename
+        fi
+
+    fi
+
+done
+
+IFS=$originalifs
+
+# Compute modeline for the given resolution
+
+modeline=$($switchres \
+    --calc \
+    --monitor generic_15 \
+    $width $height $frequency \
+    | tail -n1 \
+    | sed -e 's/ModeLine //' \
+    | sed -e 's/"//g')
+modename=$(echo $modeline | cut -d" " -f1)
+
+echo "INFO: Computed modeline $modeline"
+
+# Apply modeline with xrandr
+
+xrandr --newmode $modeline
+xrandr --addmode $OUTPUT15KHZ $modename
+
+# Two seconds of wait here because i noticed
+# sometimes the output mode setting does not apply
+# maybe executed too fast ? 
+sleep 2 
+
+xrandr --output $OUTPUT15KHZ --mode $modename
+
+echo "INFO: Applied modeline"
+
+# Revert to original resolution
+
+revertoriginalresolution() {
+
+    local output=$1
+    local modename=$2
+    local originalmodename=$3  
+
+    xrandr --output $output --mode $originalmodename
+    xrandr --delmode $output $modename
+    xrandr --rmmode $modename
+}
+
+# Trap common exit signals and revert
+# back to original resolution
+
+trap 'revertoriginalresolution "$OUTPUT15KHZ" "$modename" "$originalmodename"; exit 0' EXIT
+
+# Execute command
+
+set +e
+
+$commandtoexec

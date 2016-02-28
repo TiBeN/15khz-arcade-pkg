@@ -25,17 +25,21 @@ LINUX_15KHZ_PATCH = src/linux-4.2.diff
 LINUX_AT9200_PATCH = src/patch-3.19/ati9200_pllfix-3.19.diff
 LINUX_AVGA3000_PATCH = src/patch-3.19/avga3000-3.19.diff
 
-GROOVYMAME_BIN = vendor/mame/mame64
-MAME_SRC_PKG = vendor/mame0168s.zip
 MAME_SRC_PKG_URL = http://mamedev.org/downloader.php?file=mame0168/mame0168s.zip
-GROOVYMAME_HI_PATCH = vendor/groovymame-patchs/hi_0168.diff
+MAME_SRC_PKG = vendor/mame0168s.zip
 GROOVYMAME_HI_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.168_015k/hi_0168.diff
-GROOVYMAME_PATCH = vendor/groovymame-patchs/0164_groovymame_015h.diff
+GROOVYMAME_HI_PATCH = vendor/groovymame-patchs/hi_0168.diff
 GROOVYMAME_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.168_015k/0168_groovymame_015k.diff
+GROOVYMAME_PATCH = vendor/groovymame-patchs/0164_groovymame_015h.diff
+GROOVYMAME_BIN = vendor/mame/mame64
 
 XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC = vendor/xserver-xorg-video-nouveau-1.0.11
 XSERVER_XORG_VIDEO_NOUVEAU_PATCH = src/xorg-video-nouveau-1.0.11-low-res.diff
 XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG = vendor/xserver-xorg-video-nouveau_1.0.11-1ubuntu3_amd64.deb
+
+SWITCHRES_SRC_PKG_URL = http://forum.arcadecontrols.com/index.php?action=dlattach;topic=106405.0;attach=308813
+SWITCHRES_SRC_PKG = vendor/SwitchResLinux-1.52.rar
+SWITCHRES_BIN = vendor/switchres/switchres
 
 .PHONY: all install clean
 
@@ -43,7 +47,8 @@ XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG = vendor/xserver-xorg-video-nouveau_1.0.11-1u
 
 all: linux-kernel \
 	 groovymame \
-	 xserver-xorg-video-nouveau 
+	 xserver-xorg-video-nouveau \
+	 switchres
 
 clean:
 	rm -rf vendor
@@ -56,14 +61,19 @@ install:
 	mkdir -p $(DESTDIR)/lib/15khz-arcade-pkg
 	cp -r vendor/mame $(DESTDIR)/lib/15khz-arcade-pkg/groovymame
 	cd $(DESTDIR)/lib/15khz-arcade-pkg/groovymame && make clean
+	cp vendor/switchres/switchres $(DESTDIR)/lib/15khz-arcade-pkg
 	mkdir -p $(DESTDIR)/bin
 	cp bin/15khz-* $(DESTDIR)/bin
-	sed -i -e "7s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/groovymame/mame64=" \
+	# Adjust paths of binaries
+	sed -i -e "7s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/groovymame/mame64 \"\$$1\"=" \
 		$(DESTDIR)/bin/15khz-mame
 	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-mame
-	sed -i -e "16s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/groovymame/mame64=" \
+	sed -i -e "16s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/groovymame/mame64 \"\$$1\"=" \
 		$(DESTDIR)/bin/15khz-zaphod-mame
 	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-zaphod-mame
+	sed -i -e "11s=.*=switchres\=$(DESTDIR)/lib/15khz-arcade-pkg/switchres=" \
+		$(DESTDIR)/bin/15khz-change-res-exec
+	sed -i -re "10d" $(DESTDIR)/bin/15khz-change-res-exec
 	@echo "Install finished"
 	@echo "Please reboot your computer to the new patched kernel"
 
@@ -83,6 +93,8 @@ linux-kernel: $(LINUX_IMAGE_DEB)
 xserver-xorg-video-nouveau: $(XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG)
 
 groovymame: $(GROOVYMAME_BIN)
+
+switchres: $(SWITCHRES_BIN)
 
 $(LINUX_IMAGE_DEB): $(KERNEL_SRC_PKG)
 	mkdir -p vendor
@@ -154,3 +166,15 @@ $(GROOVYMAME_PATCH):
 	mkdir -p $(dir $(GROOVYMAME_PATCH))
 	wget -O $(GROOVYMAME_PATCH) $(GROOVYMAME_PATCH_URL)
 	touch $(GROOVYMAME_PATCH)
+
+$(SWITCHRES_BIN): $(SWITCHRES_SRC_PKG)	
+	mkdir -p $(dir $(SWITCHRES_BIN))
+	cd $(dir $(SWITCHRES_BIN)) \
+		&& unrar e $(realpath $(SWITCHRES_SRC_PKG))
+	chmod +x $(dir $(SWITCHRES_BIN))/version.sh
+	cd $(dir $(SWITCHRES_BIN)) && make
+
+$(SWITCHRES_SRC_PKG):
+	mkdir -p $(dir $(SWITCHRES_SRC_PKG))
+	wget -O $(SWITCHRES_SRC_PKG) "$(SWITCHRES_SRC_PKG_URL)"
+	touch $(SWITCHRES_SRC_PKG)
