@@ -25,12 +25,12 @@ LINUX_15KHZ_PATCH = src/linux-4.2.diff
 LINUX_AT9200_PATCH = src/patch-3.19/ati9200_pllfix-3.19.diff
 LINUX_AVGA3000_PATCH = src/patch-3.19/avga3000-3.19.diff
 
-MAME_SRC_PKG_URL = http://mamedev.org/downloader.php?file=mame0168/mame0168s.zip
-MAME_SRC_PKG = vendor/mame0168s.zip
-GROOVYMAME_HI_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.168_015k/hi_0168.diff
-GROOVYMAME_HI_PATCH = vendor/groovymame-patchs/hi_0168.diff
-GROOVYMAME_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.168_015k/0168_groovymame_015k.diff
-GROOVYMAME_PATCH = vendor/groovymame-patchs/0164_groovymame_015h.diff
+MAME_SRC_PKG_URL = http://mamedev.org/downloader.php?file=mame0170/mame0170s.zip
+MAME_SRC_PKG = vendor/mame0171s.zip
+GROOVYMAME_HI_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.170_015l/hi_0170.diff
+GROOVYMAME_HI_PATCH = vendor/groovymame-patchs/hi.diff
+GROOVYMAME_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.170_015l/0170_groovymame_015l.diff
+GROOVYMAME_PATCH = vendor/groovymame-patchs/groovymame.diff
 GROOVYMAME_BIN = vendor/mame/mame64
 
 XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC = vendor/xserver-xorg-video-nouveau-1.0.11
@@ -65,10 +65,10 @@ install:
 	mkdir -p $(DESTDIR)/bin
 	cp bin/15khz-* $(DESTDIR)/bin
 	# Adjust paths of binaries
-	sed -i -e "7s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/groovymame/mame64 \"\$$1\"=" \
+	sed -i -e "7s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/groovymame/mame64 \"\$$@\"=" \
 		$(DESTDIR)/bin/15khz-mame
 	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-mame
-	sed -i -e "16s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/groovymame/mame64 \"\$$1\"=" \
+	sed -i -e "16s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/groovymame/mame64 \"\$$@\"=" \
 		$(DESTDIR)/bin/15khz-zaphod-mame
 	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-zaphod-mame
 	sed -i -e "11s=.*=switchres\=$(DESTDIR)/lib/15khz-arcade-pkg/switchres=" \

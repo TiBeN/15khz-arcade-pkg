@@ -1,9 +1,10 @@
 Current
 -------
 
-
+- Added the `15khz-change-res-exec` wrapper script to execute a command
+  at a specific resolution
 - Source tree refactoring: Moved software downloads and builds to vendor/
-- Updated to Ubuntu Wily, Kernel 4.2.0-22.27, Mame 0.168
+- Updated to Ubuntu Wily, Kernel 4.2.0-22.27 Mame 0.170
 - Removed Mesa nouveau_dri patch since it is now fixed in upstream
 - Improved parallel handling of the makefile
 - Rewritten the kernel build recipe, now following the more 

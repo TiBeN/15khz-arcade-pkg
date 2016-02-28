@@ -60,7 +60,7 @@ Assets versions
 
 -   **Ubuntu**: Wily
 -   **Linux kernel**: Ubuntu-4.2.0-22.27
--   **Groovymame**: 0.168
+-   **Groovymame**: 0.170
 
 Hardware setup
 --------------
@@ -190,7 +190,6 @@ an emulator.
 
 Internally, the 15khz modeline is computed on the fly by using the 
 `switchres` utility made by `Calamity`, the author of the Groovymame patch.
-    
 Like others assets of this package, `switchres` is automatically 
 downloaded and compiled using the `Makefile`.
 
