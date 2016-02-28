@@ -191,6 +191,9 @@ an emulator.
 Internally, the 15khz modeline is computed on the fly by using the 
 `switchres` utility made by `Calamity`, the author of the Groovymame patch.
     
+Like others assets of this package, `switchres` is automatically 
+downloaded and compiled using the `Makefile`.
+
 The environment variable `OUTPUT15KHZ` defines the xrandr output 
 where the CRT screen is connected. If used often, i recommand you
 to put this variable in your `~/.bashrc` or `~/.profile` file:
