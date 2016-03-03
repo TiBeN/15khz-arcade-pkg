@@ -26,12 +26,20 @@ LINUX_AT9200_PATCH = src/patch-3.19/ati9200_pllfix-3.19.diff
 LINUX_AVGA3000_PATCH = src/patch-3.19/avga3000-3.19.diff
 
 MAME_SRC_PKG_URL = http://mamedev.org/downloader.php?file=mame0170/mame0170s.zip
-MAME_SRC_PKG = vendor/mame0171s.zip
+MAME_SRC_PKG = vendor/mame0170s.zip
 GROOVYMAME_HI_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.170_015l/hi_0170.diff
 GROOVYMAME_HI_PATCH = vendor/groovymame-patchs/hi.diff
 GROOVYMAME_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.170_015l/0170_groovymame_015l.diff
 GROOVYMAME_PATCH = vendor/groovymame-patchs/groovymame.diff
 GROOVYMAME_BIN = vendor/mame/mame64
+
+#MAME_SRC_PKG_URL = http://mamedev.org/downloader.php?file=mame0171/mame0171s.zip
+#MAME_SRC_PKG = vendor/mames.zip
+#GROOVYMAME_HI_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.171_015m/hi_0171.diff
+#GROOVYMAME_HI_PATCH = vendor/groovymame-patchs/hi.diff
+#GROOVYMAME_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.171_015m/0171_groovymame_015m.diff
+#GROOVYMAME_PATCH = vendor/groovymame-patchs/groovymame.diff
+#GROOVYMAME_BIN = vendor/mame/mame64
 
 XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC = vendor/xserver-xorg-video-nouveau-1.0.11
 XSERVER_XORG_VIDEO_NOUVEAU_PATCH = src/xorg-video-nouveau-1.0.11-low-res.diff

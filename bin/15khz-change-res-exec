@@ -12,7 +12,6 @@ switchres=$rootPath/../vendor/switchres/switchres
 width=$1
 height=$2
 frequency=$3
-commandtoexec=$(echo "$@" | cut -d" " -f4-)
 
 if (( $# < 3 )) || [[ -z "$OUTPUT15KHZ" ]]; then
     echo "Usage: 15khz-change-res-exec <with> <height> <frequency> <command>"
@@ -107,4 +106,6 @@ trap 'revertoriginalresolution "$OUTPUT15KHZ" "$modename" "$originalmodename"; e
 
 set +e
 
-$commandtoexec
+shift 3
+
+"$@"

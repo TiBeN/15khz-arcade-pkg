@@ -18,33 +18,28 @@ Doing this is actually harder than it sounds because:
 
 -   For some graphics card, and to enables some features, Linux kernel 
     must be patched.
--   Nvidia Drivers disallow resolutions lower than 320x200
+-   Nvidia Drivers, both proprietary and open-source `nouveau`, 
+    disallow resolutions lower than 320x200
 -   This setup requires not so obvious Xorg configuration
 -   Using 15khz monitors require the use of custom
     [modelines](https://en.wikipedia.org/wiki/XFree86_Modeline)
     which must be setup manually — There are tools for that.
 
-The content of this file helps to resolve theses issues by providing 
-instructions for generating:
+The following guide provides instructions for patching and installing a 
+linux kernel, nouveau drivers and groovymame, and configuring your xorg
+server. 
 
--   A patched Linux kernel wich allows 15Khz modelines as a deb package
--   Patched nouveau drivers allowing low resolutions as a deb package
--   Patched Mame binary using GroovyMame patch allowing Mame to generate
-    good 15khz compatible modelines on the fly.
--   A Groovymame bash launcher which sets custom SDL env vars resolving
-    some weird SDL related behaviors, sets the \$DISPLAY var on the
-    right screen and tells the linker to use the patched nouveau.dri.so
-    library.
+This repository contains also a `makefile` which automate the generation 
+and the installation of the required parts (patched kernel, nouveau 
+drivers, groovymame) and some useful scripts (emulators launchers, 
+15khz resolution switchers etc.)
 
-A Makefile is provided for automating the generation and configuration of
-most of the following steps.
-
-Note: If your goal is to dedicate a machine for this purpose — install it
-into a physical arcade cabinet for example —, you should considere 
+Note: If your goal is to dedicate a machine for this purpose (into a 
+physical arcade cabinet for example) you should considere 
 [GroovyArcade](https://code.google.com/archive/p/groovyarcade/), a great 
-custom ArchLinux distribution dedicated to this and easier to install. 
-`15khz-arcade-pkg` aims to do basically the same thing but manually, on
-Ubuntu, and is really less exaustive.
+dedicated ArchLinux distribution which works more or less out of the 
+box. `15khz-arcade-pkg` aims to basically do the same thing but manually, 
+on Ubuntu, and is really less exaustive.
 
 Motivation
 ----------
