@@ -45,4 +45,5 @@ $changeresbin $reswidth $resheight 50 $fsuae \
     --video-sync=full \
     --texture-filter=nearest \
     --gfx-fullscreen-amiga=true \
-    --viewport="* * * * => * * * *"
+    --viewport="* * * * => * * * *" \
+    "$@"
