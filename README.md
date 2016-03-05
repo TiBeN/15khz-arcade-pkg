@@ -26,8 +26,8 @@ This repository provides:
     a linux kernel and nouveau drivers, configure your Ubuntu and
     patch and compile Groovymame, a special version of the Mame 
     emulator for use with 15khz CRT screens
--   a `Makefile` to automate the patch, build, and installation of 
-    required parts
+-   a `Makefile` to automate the download, patch, build, and 
+    installation of required parts
 -   a set of scripts and tools like `resolution switchers` or 
     emulator wrappers
 
@@ -111,7 +111,7 @@ the generation and installation of the parts.
     The `-j<number-of-cpu+1>` option can be used to paralelise the build 
     and speed up things a little.
 
-Once done, all assets are available inside the `build` directory.
+Once done, all assets are available inside the `vendor` directory.
 
 4.  You can install the assets automatically by doing:
 
@@ -131,16 +131,17 @@ Once done, all assets are available inside the `build` directory.
     sure to boot on the new kernel, hold `<shift>` during boot to make
     appear the Grub boot menu and select the good kernel. Once done, you
     check if you have booted on the good kernel by type `uname -a`. It 
-    should contain a suffix `patched15khz`.
+    should match the version specified on `Provided parts version` at
+    the beginning of this README.md file.
 
-The assets can be uninstalled by doing `sudo make uninstall`. While
-running the patched kernel can't be automatically removed safely. First,
-reboot to another kernel, then once rebooted, do
+Everything can be uninstalled by doing 
 
-``` {.sourceCode .bash}
-sudo apt-get remove linux-image-<version>-patched15khz \
-    linux-headers-<version>-patched15khz
-```
+```bash
+$ sudo make uninstall
+``` 
+
+Because it will uninstall the patched kernel packages, you should reboot 
+your computer after uninstall finished.
 
 Usage
 -----
