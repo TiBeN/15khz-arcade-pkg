@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# Hatari 15khz bash launcher
+
+declare rootpath=$(readlink -f `dirname $0`)
+
+declare hatari=/usr/bin/hatari
+declare changeresbin="$rootpath/15khz-change-res-exec"
+
+$changeresbin 352 288 50.06 $hatari --borders on \
+    --statusbar off \
+    --max-width 352 \
+    --max-height 288 \
+    --desktop-st off \
+    --frameskips 0 \
+    "$@"

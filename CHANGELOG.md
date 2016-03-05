@@ -1,6 +1,7 @@
 Current
 -------
 
+- Added hatari and FS-UAE launcher wrappers
 - Added the `15khz-change-res-exec` wrapper script to execute a command
   at a specific resolution
 - Source tree refactoring: Moved software downloads and builds to vendor/

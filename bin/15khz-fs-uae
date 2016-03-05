@@ -1,0 +1,48 @@
+#!/bin/bash
+#
+# 15khz FS-UAE Launcher
+
+declare rootpath=$(readlink -f `dirname $0`)
+
+declare fsuae=/usr/bin/fs-uae
+declare changeresbin="$rootpath/15khz-change-res-exec"
+
+declare reswidth=320
+declare resheight=240
+
+if [[ "$1" = "-m" ]]; then
+
+    if [[ ! "$2" =~ ^[1-3]{1}$ ]]; then
+        echo "ERROR: Not a valid mode"
+        echo 
+        echo "USAGE: 15khz-fs-uae [-m {1,2,3}] [<fs-uae-args>]"
+        echo ""
+        echo "Availables modes: "
+        echo "1: 320x200"
+        echo "2: 320x240 (default)"
+        echo "3: 320x256"
+        echo "4: 728x568 (experimental)"
+        echo
+
+        exit 1
+    fi
+
+    case "$2" in
+        "1") resheight=200; zoom=320x200 ;;
+        "2") resheight=240; zoom=320x240 ;;
+        "3") resheight=256; zoom=320x256 ;;
+        "4") reswidth=728; resheight=568; zoom=704x566;;
+    esac
+
+    shift 2
+fi
+
+$changeresbin $reswidth $resheight 50 $fsuae \
+    --zoom=$zoom \
+    --fullscreen=1 \
+    --keep_aspect=1 \
+    --fsaa=0 \
+    --video-sync=full \
+    --texture-filter=nearest \
+    --gfx-fullscreen-amiga=true \
+    --viewport="* * * * => * * * *"

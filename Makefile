@@ -33,14 +33,6 @@ GROOVYMAME_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledr
 GROOVYMAME_PATCH = vendor/groovymame-patchs/groovymame.diff
 GROOVYMAME_BIN = vendor/mame/mame64
 
-#MAME_SRC_PKG_URL = http://mamedev.org/downloader.php?file=mame0171/mame0171s.zip
-#MAME_SRC_PKG = vendor/mames.zip
-#GROOVYMAME_HI_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.171_015m/hi_0171.diff
-#GROOVYMAME_HI_PATCH = vendor/groovymame-patchs/hi.diff
-#GROOVYMAME_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.171_015m/0171_groovymame_015m.diff
-#GROOVYMAME_PATCH = vendor/groovymame-patchs/groovymame.diff
-#GROOVYMAME_BIN = vendor/mame/mame64
-
 XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC = vendor/xserver-xorg-video-nouveau-1.0.11
 XSERVER_XORG_VIDEO_NOUVEAU_PATCH = src/xorg-video-nouveau-1.0.11-low-res.diff
 XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG = vendor/xserver-xorg-video-nouveau_1.0.11-1ubuntu3_amd64.deb
@@ -73,15 +65,27 @@ install:
 	mkdir -p $(DESTDIR)/bin
 	cp bin/15khz-* $(DESTDIR)/bin
 	# Adjust paths of binaries
+	# Mame
 	sed -i -e "7s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/groovymame/mame64 \"\$$@\"=" \
 		$(DESTDIR)/bin/15khz-mame
 	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-mame
 	sed -i -e "16s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/groovymame/mame64 \"\$$@\"=" \
 		$(DESTDIR)/bin/15khz-zaphod-mame
 	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-zaphod-mame
+	# Change res exec
 	sed -i -e "11s=.*=switchres\=$(DESTDIR)/lib/15khz-arcade-pkg/switchres=" \
 		$(DESTDIR)/bin/15khz-change-res-exec
 	sed -i -re "10d" $(DESTDIR)/bin/15khz-change-res-exec
+	# FS-UAE
+	sed -i \
+		-e "8s=.*=declare changeresbin\=$(DESTDIR)/bin/15khz-change-res-exec=" \
+		$(DESTDIR)/bin/15khz-fs-uae
+	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-fs-uae
+	# Hatari
+	sed -i \
+		-e "8s=.*=declare changeresbin\=$(DESTDIR)/bin/15khz-change-res-exec=" \
+		$(DESTDIR)/bin/15khz-hatari
+	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-hatari
 	@echo "Install finished"
 	@echo "Please reboot your computer to the new patched kernel"
 

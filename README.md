@@ -6,33 +6,30 @@ not work as expected. Please use
 [releases](https://github.com/TiBeN/15khz-arcade-pkg/releases) or 
 [tags](https://github.com/TiBeN/15khz-arcade-pkg/tags) version instead.
 
-This repository provides guidelines to connect an old CRT monitor (TV or
-Arcade videogames monitor running at 15Khz horizontal scan frequencies)
-to the VGA output of an Nvidia card using Ubuntu while keeping your
-primary screen connected.
-
-The goal is to play emulated retro arcade/console/computer games
-at real low resolutions on this monitor using emulators like MAME.
+The goal of this repository is to play emulated retro 
+arcade/console/computer games at real low resolutions on an `old school` 
+CRT monitor like a TV or an arcade video game screen using Ubuntu.
 
 Doing this is actually harder than it sounds because:
 
--   For some graphics card, and to enables some features, Linux kernel 
+-   For some graphics cards, and to enable some features, Linux kernel 
     must be patched.
--   Nvidia Drivers, both proprietary and open-source `nouveau`, 
+-   Nvidia drivers, both proprietary and open-source `nouveau`, 
     disallow resolutions lower than 320x200
--   This setup requires not so obvious Xorg configuration
--   Using 15khz monitors require the use of custom
+-   This setup requires not obvious Xorg configuration
+-   Using 15khz monitors requires the use of custom
     [modelines](https://en.wikipedia.org/wiki/XFree86_Modeline)
     which must be setup manually — There are tools for that.
 
-The following guide provides instructions for patching and installing a 
-linux kernel, nouveau drivers and groovymame, and configuring your xorg
-server. 
-
-This repository contains also a `makefile` which automate the generation 
-and the installation of the required parts (patched kernel, nouveau 
-drivers, groovymame) and some useful scripts (emulators launchers, 
-15khz resolution switchers etc.)
+This repository provides:
+-   a step by step guide to connect a CRT screen, patch and install 
+    a linux kernel and nouveau drivers, configure your Ubuntu and
+    patch and compile Groovymame, a special version of the Mame 
+    emulator for use with 15khz CRT screens
+-   a `Makefile` to automate the patch, build, and installation of 
+    required parts
+-   a set of scripts and tools like `resolution switchers` or 
+    emulator wrappers
 
 Note: If your goal is to dedicate a machine for this purpose (into a 
 physical arcade cabinet for example) you should considere 
@@ -41,17 +38,8 @@ dedicated ArchLinux distribution which works more or less out of the
 box. `15khz-arcade-pkg` aims to basically do the same thing but manually, 
 on Ubuntu, and is really less exaustive.
 
-Motivation
-----------
-
-The main purpose of this repository is to keep track and automate steps
-needed to achieve this goal. Second motivation is to share, hoping that
-it might help despite it fits my hardware/OS specifically. If you have
-suggestions or knowledges to make it more generic feel free to let me
-know.
-
-Assets versions
----------------
+Provided parts version:
+-----------------------
 
 -   **Ubuntu**: Wily
 -   **Linux kernel**: Ubuntu-4.2.0-22.27
@@ -82,19 +70,26 @@ Resistor (See the [Schneider CTM640 Service
 Manual](http://www.cpcwiki.eu/imgs/6/6f/Schneider_CTM640_Service_Manual_%28German_and_English%29.pdf)
 for a view of the monitor main PCB).
 
-Assets generation, installation and configuration
--------------------------------------------------
+Required parts generation, installation and configuration
+---------------------------------------------------------
 
 The following explains how to use the provided `Makefile` to automate
-the generation and installation of the assets.
+the generation and installation of the parts.
 
-1.  Install the following packages using APT:
+1.  Install the following required packages using APT:
 
     ``` {.sourceCode .bash}
     $ sudo apt-get build-dep linux-image-$(uname -r) mame \
         xserver-xorg-video-nouveau
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
         qtbase5-dev-tools git unrar libxml2-dev
+    ```
+
+    You can also install theses optionnal packages if you
+    want support for theses Atari ST and Amiga emulators:
+
+    ```bash
+    $ sudo apt-get install hatari fs-uae
     ```
 
 2.  `git clone` this repository
@@ -162,20 +157,55 @@ $ DISPLAY=:0.1 xrandr
 
 ### Groovymame
 
-To launch groovymame64 :
+To launch groovymame64 using an xorg zaphod configuration:
 
+```bash
+$ DISPLAY=:0.1 15khz-zaphod-mame <mame-command-line-args>
 ```
-$ DISPLAY=:0.1 15khz-zaphod-mame sf2
+
+On other kind of setup: 
+```bash
+$ 15khz-mame <mame-command-line-args>
+```
+
+### Hatari
+
+This Hatari wrapper swiths the screen resolution to native Atari ST 
+resolution before launching it.
+
+Note: This emulator has no v-sync option or like. Despite all my efforts
+to find the perfect vertical refresh rate, there is a small horizontal 
+tearing artifact on my setup i have not managed to remove completelly.
+
+```bash
+$ 15khz-hatari <hatari-command-line-args>
+```
+
+### FS-UAE
+
+This fs-uae wrapper swiths the screen resolution to native Amiga
+resolution before launching it.
+
+This system supports many resolutions and the best to choose depends on 
+the game. This wrapper has an optionnal -m switch to choose the best:
+
+-   1: 320x200
+-   2: 320x240 (default)
+-   3: 320x256
+-   4: 728x568 (experimental)
+
+```bash
+$ 15khz-fs-uae [-m {1,2,3}] <fs-uae-command-line-args>
 ```
 
 ### Change screen resolution and execute a command
 
 A script is provided with this package which allows to change the
-resolution on the fly, execute a program, then revert back to original
+resolution on the fly, executes a program, then revert back to original
 resolution when program quits:
 
 ```
-$ DISPLAY=:0.1 OUTPUT15KHZ=VGA1 15khz-change-res-exec 320 240 50 firefox
+$ OUTPUT15KHZ=VGA1 15khz-change-res-exec 320 240 50 firefox
 ```
 
 This command sets the resolution of the screen connected to the 
