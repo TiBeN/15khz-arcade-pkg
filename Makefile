@@ -41,6 +41,10 @@ SWITCHRES_SRC_PKG_URL = http://forum.arcadecontrols.com/index.php?action=dlattac
 SWITCHRES_SRC_PKG = vendor/SwitchResLinux-1.52.rar
 SWITCHRES_BIN = vendor/switchres/switchres
 
+VICE_SRC_PKG_URL = http://downloads.sourceforge.net/project/vice-emu/releases/vice-2.4.tar.gz?r=http%3A%2F%2Fvice-emu.sourceforge.net%2Findex.html&ts=1457259873&use_mirror=freefr
+VICE_SRC_PKG = vendor/vice.tar.gz
+VICE_BIN = vendor/vice-2.4/src/x64
+
 .PHONY: all install clean
 
 .NOTPARALLEL: $(LINUX_IMAGE_DEB)
@@ -48,7 +52,8 @@ SWITCHRES_BIN = vendor/switchres/switchres
 all: linux-kernel \
 	 groovymame \
 	 xserver-xorg-video-nouveau \
-	 switchres
+	 switchres \
+	 vice
 
 clean:
 	rm -rf vendor
@@ -60,6 +65,7 @@ install:
 		$(XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG)
 	mkdir -p $(DESTDIR)/lib/15khz-arcade-pkg
 	cp -r vendor/mame $(DESTDIR)/lib/15khz-arcade-pkg/groovymame
+	cp -r vendor/vice-2.4 $(DESTDIR)/lib/15khz-arcade-pkg/vice
 	cd $(DESTDIR)/lib/15khz-arcade-pkg/groovymame && make clean
 	cp vendor/switchres/switchres $(DESTDIR)/lib/15khz-arcade-pkg
 	mkdir -p $(DESTDIR)/bin
@@ -86,6 +92,20 @@ install:
 		-e "8s=.*=declare changeresbin\=$(DESTDIR)/bin/15khz-change-res-exec=" \
 		$(DESTDIR)/bin/15khz-hatari
 	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-hatari
+	# Vice
+	sed -i \
+		-e "7s=.*=declare x64\=$(DESTDIR)/lib/15khz-arcade-pkg/vice/src/x64=" \
+		$(DESTDIR)/bin/15khz-x64
+	sed -i \
+		-e "8s=.*=declare changeresbin\=$(DESTDIR)/bin/15khz-change-res-exec=" \
+		$(DESTDIR)/bin/15khz-x64
+	sed -i \
+		-e "9s=.*=declare rompath\=$(DESTDIR)/lib/15khz-arcade-pkg/vice/data/C64=" \
+		$(DESTDIR)/bin/15khz-x64
+	sed -i \
+		-e "10s=.*=declare romdrivepath\=$(DESTDIR)/lib/15khz-arcade-pkg/vice/data/DRIVES=" \
+		$(DESTDIR)/bin/15khz-x64
+	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-x64
 	@echo "Install finished"
 	@echo "Please reboot your computer to the new patched kernel"
 
@@ -107,6 +127,8 @@ xserver-xorg-video-nouveau: $(XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG)
 groovymame: $(GROOVYMAME_BIN)
 
 switchres: $(SWITCHRES_BIN)
+
+vice: $(VICE_BIN)
 
 $(LINUX_IMAGE_DEB): $(KERNEL_SRC_PKG)
 	mkdir -p vendor
@@ -190,3 +212,16 @@ $(SWITCHRES_SRC_PKG):
 	mkdir -p $(dir $(SWITCHRES_SRC_PKG))
 	wget -O $(SWITCHRES_SRC_PKG) "$(SWITCHRES_SRC_PKG_URL)"
 	touch $(SWITCHRES_SRC_PKG)
+
+$(VICE_BIN): $(VICE_SRC_PKG)
+	mkdir -p vendor
+	cd vendor \
+		&& tar xf $(realpath $(VICE_SRC_PKG))
+	cd vendor/vice-2.4 \
+		&& ./configure --enable-sdlui \
+		&& make
+
+$(VICE_SRC_PKG):
+	mkdir -p $(dir $(VICE_SRC_PKG))
+	wget -O $(VICE_SRC_PKG) "$(VICE_SRC_PKG_URL)"
+	touch $(VICE_SRC_PKG)

@@ -1,7 +1,8 @@
 Current
 -------
 
-- Added hatari and FS-UAE launcher wrappers
+- Added custom build support and wrapper for`Vice` emulator
+- Added wrappers for `Hatari` and `FS-UAE` emulators
 - Added the `15khz-change-res-exec` wrapper script to execute a command
   at a specific resolution
 - Source tree refactoring: Moved software downloads and builds to vendor/

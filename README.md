@@ -24,12 +24,11 @@ Doing this is actually harder than it sounds because:
 This repository provides:
 -   a step by step guide to connect a CRT screen, patch and install 
     a linux kernel and nouveau drivers, configure your Ubuntu and
-    patch and compile Groovymame, a special version of the Mame 
-    emulator for use with 15khz CRT screens
+    patch and configure some emulators
 -   a `Makefile` to automate the download, patch, build, and 
     installation of required parts
--   a set of scripts and tools like `resolution switchers` or 
-    emulator wrappers
+-   a set of scripts and tools like `resolution switchers`
+    or `emulator wrappers`
 
 Note: If your goal is to dedicate a machine for this purpose (into a 
 physical arcade cabinet for example) you should considere 
@@ -44,6 +43,7 @@ Provided parts version:
 -   **Ubuntu**: Wily
 -   **Linux kernel**: Ubuntu-4.2.0-22.27
 -   **Groovymame**: 0.170
+-   **Vice**: 2.4
 
 Hardware setup
 --------------
@@ -80,7 +80,7 @@ the generation and installation of the parts.
 
     ``` {.sourceCode .bash}
     $ sudo apt-get build-dep linux-image-$(uname -r) mame \
-        xserver-xorg-video-nouveau
+        xserver-xorg-video-nouveau vice
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
         qtbase5-dev-tools git unrar libxml2-dev
     ```
@@ -158,13 +158,16 @@ $ DISPLAY=:0.1 xrandr
 
 ### Groovymame
 
-To launch groovymame64 using an xorg zaphod configuration:
+Because groovymame is not on the APT repositories, its build is made by
+the provided Makefile. To launch groovymame64 using an xorg zaphod 
+configuration:
 
 ```bash
 $ DISPLAY=:0.1 15khz-zaphod-mame <mame-command-line-args>
 ```
 
 On other kind of setup: 
+
 ```bash
 $ 15khz-mame <mame-command-line-args>
 ```
@@ -174,13 +177,14 @@ $ 15khz-mame <mame-command-line-args>
 This Hatari wrapper swiths the screen resolution to native Atari ST 
 resolution before launching it.
 
-Note: This emulator has no v-sync option or like. Despite all my efforts
-to find the perfect vertical refresh rate, there is a small horizontal 
-tearing artifact on my setup i have not managed to remove completelly.
 
 ```bash
 $ 15khz-hatari <hatari-command-line-args>
 ```
+
+Note: This emulator has no v-sync option or like. Despite all my efforts
+to find the perfect vertical refresh rate, there is a small horizontal 
+tearing artifact on my setup i have not managed to remove completelly.
 
 ### FS-UAE
 
@@ -198,6 +202,23 @@ the game. This wrapper has an optionnal -m switch to choose the best:
 ```bash
 $ 15khz-fs-uae [-m {1,2,3}] <fs-uae-command-line-args>
 ```
+
+### Vice
+
+Despite its presence on the APT repository, We will use a custom build 
+provided by the Makefile to make use of the SDL version which works 
+better is this context.
+
+This vice "x64" wrapper swiths the screen resolution to native Amiga
+resolution before launching it.
+
+```bash
+$ 15khz-x64 <hatari-command-line-args>
+```
+
+Note: This emulator has no v-sync option or like. Despite all my efforts
+to find the perfect vertical refresh rate, there is a small horizontal 
+tearing artifact on my setup i have not managed to remove completelly.
 
 ### Change screen resolution and execute a command
 
