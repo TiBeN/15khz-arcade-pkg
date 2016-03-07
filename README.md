@@ -209,8 +209,8 @@ Despite its presence on the APT repository, We will use a custom build
 provided by the Makefile to make use of the SDL version which works 
 better is this context.
 
-This vice "x64" wrapper swiths the screen resolution to native Amiga
-resolution before launching it.
+This vice "x64" wrapper swiths the screen resolution to native 
+Commodore 64 resolution before launching it.
 
 ```bash
 $ 15khz-x64 <hatari-command-line-args>
