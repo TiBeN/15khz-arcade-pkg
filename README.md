@@ -213,7 +213,7 @@ This vice "x64" wrapper swiths the screen resolution to native
 Commodore 64 resolution before launching it.
 
 ```bash
-$ 15khz-x64 <hatari-command-line-args>
+$ 15khz-x64 <x64-command-line-args>
 ```
 
 Note: This emulator has no v-sync option or like. Despite all my efforts
