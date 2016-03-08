@@ -500,5 +500,5 @@ The versionning follows this pattern:
 <ubuntu-release-code>_<ubuntu-kernel-version>_<mame-version>_<pkg-version>
 ```
 
-The <pkg-version> is incremented for new releases having the sames parts
+The `<pkg-version>` is incremented for new releases having the sames parts
 version.
