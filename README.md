@@ -490,3 +490,15 @@ theses two wrappers are provided:
 
 To know more about Mame usage, refer to the
 [documentation](https://github.com/mamedev/mame/blob/master/docs/config.txt).
+
+Version scheme
+--------------
+
+The versionning follows this pattern: 
+
+```
+<ubuntu-release-code>_<ubuntu-kernel-version>_<mame-version>_<pkg-version>
+```
+
+The <pkg-version> is incremented for new releases having the sames parts
+version.
