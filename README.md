@@ -60,6 +60,6 @@ others tools. For example:
 More information
 ----------------
 
-Please refer to the [doc/15khz-package-documentation.md](documentation) 
+Please refer to the [documentation](doc/15khz-package-documentation.md) 
 to know what is exactly built and installed and to setup properly your 
 system.
