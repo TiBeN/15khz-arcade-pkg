@@ -17,28 +17,27 @@ Installation
 This repository comes with a Makefile that downloads and builds required
 pieces of softwares.
 
-1. Install needed pre-requisites:
+1.  Install needed pre-requisites:
 
-```bash
-$ sudo apt-get build-dep linux-image-$(uname -r) mame \
-    xserver-xorg-video-nouveau vice
-$ sudo apt-get install fakeroot qt5-default qtbase5-dev \
-    qtbase5-dev-tools git unrar libxml2-dev
-```
+    ```bash
+    $ sudo apt-get build-dep linux-image-$(uname -r) mame \
+        xserver-xorg-video-nouveau vice
+    $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
+        qtbase5-dev-tools git unrar libxml2-dev
+    ```
 
-2. Clone this repo:
+2.  Clone this repo:
 
-```bash
-$ git clone git@github.com:TiBeN/15khz-arcade-pkg.git
-```
+    ```bash
+    $ git clone git@github.com:TiBeN/15khz-arcade-pkg.git
+    ```
 
+3.  Start the build and intall:
 
-3. Start the build and intall:
-
-```
-$ make
-$ sudo make install
-```
+    ```
+    $ make
+    $ sudo make install
+    ```
 
 Usage
 -----
