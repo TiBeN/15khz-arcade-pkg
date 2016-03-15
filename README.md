@@ -14,7 +14,7 @@ experience.
 Installation
 ------------
 
-This repository comes with a Makefile who can fetch and compile all needed
+This repository comes with a Makefile that downloads and builds required
 pieces of softwares.
 
 1. Install needed pre-requisites:
