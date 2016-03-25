@@ -34,7 +34,7 @@ pieces of softwares.
 
 3.  Start the build and intall:
 
-    ```
+    ```bash
     $ make
     $ sudo make install
     ```
@@ -47,13 +47,13 @@ others tools. For example:
 
 -   To launch the provided mame: 
 
-    ```
+    ```bash
     $ 15khz-mame <mame-args>
     ```
 
 -   To change the resolution of the screen and launch a program
     
-    ```
+    ```bash
     $ 15khz-change-res-exec 320 24O 50 <program>
     ```
 
