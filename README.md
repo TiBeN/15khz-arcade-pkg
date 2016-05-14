@@ -30,6 +30,10 @@ pieces of softwares.
 
     ```bash
     $ git clone git@github.com:TiBeN/15khz-arcade-pkg.git
+    or
+    git clone https://github.com/TiBeN/15khz-arcade-pkg.git
+    (which avoids unnecessary public key validation)
+
     ```
 
 3.  Start the build and intall:
