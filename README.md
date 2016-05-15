@@ -37,8 +37,6 @@ pieces of softwares.
     ```
     (which avoids unnecessary public key validation)
 
-    ```
-
 3.  Start the build and intall:
 
     ```bash
