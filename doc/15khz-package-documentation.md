@@ -421,7 +421,7 @@ understand a little how it works.
 Xorg allows many configuration layouts to acheive our goal:
 
 -   **One CRT Screen only**: If think it's the most simple setup and should
-    works with the provided tools but is covered it for now (My primary
+    works with the provided tools but is not covered for now (My primary
     goal was to connect a CRT screen as a slave).
 
 -   **Dualhead using Xrandr**: This is the standard layout used today by
@@ -511,7 +511,7 @@ $ DISPLAY=:0.1 15khz-zaphod-mame <mame-command-line-args>
 
 ### Hatari
 
-This Hatari wrapper swiths the screen resolution to native Atari ST 
+This Hatari wrapper switches the screen resolution to native Atari ST 
 resolution before launching it.
 
 ```bash
@@ -524,7 +524,7 @@ tearing artifact on my setup i have not managed to remove completelly.
 
 ### FS-UAE
 
-This fs-uae wrapper swiths the screen resolution to native Amiga
+This fs-uae wrapper switches the screen resolution to native Amiga
 resolution before launching it.
 
 This system supports many resolutions and the best to choose depends on 
@@ -545,7 +545,7 @@ Despite its presence on the APT repository, We will use a custom build
 provided by the Makefile to make use of the SDL version which works 
 better is this context.
 
-This vice "x64" wrapper swiths the screen resolution to native 
+This vice "x64" wrapper switches the screen resolution to native 
 Commodore 64 resolution before launching it.
 
 ```bash
@@ -559,7 +559,7 @@ tearing artifact on my setup i have not managed to remove completelly.
 ### Change screen resolution and execute a command
 
 A script is provided with this package which allows you to change the
-resolution on the fly, executes a program, then revert back to original
+resolution on the fly, executes a program, then reverts back to original
 resolution when program quits:
 
 ```
@@ -569,9 +569,9 @@ $ OUTPUT15KHZ=VGA1 15khz-change-res-exec 320 240 50 firefox
 This command sets the resolution of the screen connected to the 
 output `VGA1` at 320x240 with a refresh rate of 50hz then launch 
 firefox. Okay this is pretty useless, but it can be more usefull with 
-an emulator.
+an emulator. It is used by emulator wrappers provided by this package.
 
-Internally, the 15khz modeline is computed on the fly by using the 
+Internally, the 15khz modeline is computed on the fly using the 
 `switchres` utility made by `Calamity`, the author of the Groovymame patch.
 Like others assets of this package, `switchres` is automatically 
 downloaded, compiled and installed using the `Makefile`.
