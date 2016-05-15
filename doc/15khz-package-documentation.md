@@ -479,7 +479,7 @@ On Ubuntu Wily with Gnome 3 and maybe others, the screen number starts at
 So to launch a program on this screen, prefix the command-line with
 `DISPLAY=:0.1`. Example:
 
-``` {.sourceCode .bash}
+```bash
 $ DISPLAY=:0.1 xrandr
 ```
 
@@ -562,7 +562,7 @@ A script is provided with this package which allows you to change the
 resolution on the fly, executes a program, then reverts back to original
 resolution when program quits:
 
-```
+```bash
 $ OUTPUT15KHZ=VGA1 15khz-change-res-exec 320 240 50 firefox
 ```
 
