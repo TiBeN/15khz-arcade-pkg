@@ -2,14 +2,17 @@
 ====================
 
 **WARNING:** Heavy refactorings are planned on the master branch, it may 
-not work as expected. Please use 
+not works as expected or the documentation can not be accurate has i'm
+rewriting it. Please use 
 [releases](https://github.com/TiBeN/15khz-arcade-pkg/releases) or 
 [tags](https://github.com/TiBeN/15khz-arcade-pkg/tags) version instead.
 
 This repository provides documentation and a set of scripts to connect 
 an analog CRT monitor on Ubuntu and use commons emulators 
 (mame, fs-uae...) at real native resolution to make the "pixel perfect"
-experience.
+experience. 
+
+Ubuntu version: **15.10** (Wily Werewolf). 
 
 Installation
 ------------
