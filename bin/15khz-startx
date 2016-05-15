@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Launch a program on a new X server instance
+
+declare xlayout=arcade
+
+commandargs=""
+for i in "$@"; do
+    commandargs="$commandargs \"$i\""
+done
+
+# The real command to execute is stored into
+# a temporary script to workaround startx argument
+# handling limitations
+
+echo "#!/bin/bash" > /tmp/arcade-screen-launcher
+echo "export OUTPUT15KHZ=$OUTPUT15KHZ" > /tmp/arcade-screen-launcher
+echo $commandargs >> /tmp/arcade-screen-launcher
+
+chmod +x /tmp/arcade-screen-launcher
+sudo startx /tmp/arcade-screen-launcher -- :2 vt8 -layout $xlayout
+rm /tmp/arcade-screen-launcher

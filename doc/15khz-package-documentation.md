@@ -26,8 +26,7 @@ This repository provides:
 -   a step by step guide to connect a CRT screen, patch and install 
     a linux kernel and nouveau drivers, configure your Ubuntu and
     patch and configure some emulators
--   a `Makefile` to automate the download to automate the download and
-    the build of required programs
+-   a `Makefile` to automate the download and the build of required programs
 -   a set of scripts and tools like `resolution switchers`
     or `emulator wrappers`
 
@@ -38,8 +37,8 @@ dedicated ArchLinux distribution which works more or less out of the
 box. `15khz-arcade-pkg` aims to basically do the same thing but manually, 
 on Ubuntu, and is really less exaustive.
 
-Prerequisites and dependencies version
---------------------------------------
+Prerequisites
+-------------
 
 -   An Nvidia Card
 
@@ -54,6 +53,10 @@ The provided Makefile and the required APT packages are compatible with
 Ubuntu. So it will work only on this distribution. But i think it won't 
 be hard to adapt the process to others distribution — Especially on debian 
 based ones — by following the manual build and installation method bellow.
+
+-   An CRT Analog screen
+
+Of course. 
 
 Build and installation of required programs
 -------------------------------------------
@@ -73,7 +76,7 @@ Additionnaly, i recommend:
 The following provides you with two builds and installation methods: 
 The first makes use of the provided Makefile which builds and installs 
 theses requirements, among others tools, automatically. This is the easier 
-method if your system fits the requirments specifically.
+method if your system fits the requirements preciselly.
 
 The second provides a step by step guide to do it manually. It 
 is not easier but can be adjusted to fit setups which differ a little.
@@ -130,19 +133,35 @@ The provided makefile automates the build of the following:
     The kernel and nouveau drivers are made available as Debian packages.
     Others items built are available in their own directories.
 
-4.  Install everything automatically:
+4.  Uninstall official drivers if you use them. Search for packages prefixed 
+    with `nvidia-` and uninstall them. You can know what package
+    is installed by looking at packages marked `ii` on the output of this
+    command:
+
+    ``` {.sourceCode .bash}
+    $ dpkg -l nvidia-*
+    ```
+
+    Once you know which are installed, uninstall them (replace
+    `<installalled-nvidia-package>` by the list of the packages previously
+    found):
+
+    ``` {.sourceCode .bash}
+    $ sudo apt-get remove <installed-nvidia-packages>
+    ```
+
+5.  Install everything automatically:
 
     ``` {.sourceCode .bash}
     $ sudo make install
     ```
 
-    the command above triggers the installation the kernel and nouveau 
+    The command above triggers the installation of the kernel and nouveau 
     drivers package, and copy everything else (compiled programs and 
-    provided scripts) on /usr/local/* to make them available in your 
-    variable PATH.
+    provided scripts) on /usr/local/* to make them available in your $PATH.
 
-    If you prefer you can install them manually — i suggest to read 
-    the manual method below to know exactly what to do.
+    If you prefer to install them manually, i suggest you to read the manual 
+    installation method below to know exactly what to do.
 
 5.  Reboot your computer with the newly installed patched kernel. To be
     sure to boot on the new kernel, hold `<shift>` during boot to make
@@ -161,29 +180,33 @@ $ sudo make uninstall
 Because it will uninstall the patched kernel packages, you should reboot 
 your computer after uninstall finished.
 
-###  Method 2: Manual installation
+Please note that the `uninstall` method replaces the patched `nouveau`
+drivers package by the original one available on the APT Repository. If you
+used the official binary drivers, you have to reinstall them manually.
+
+### Method 2: Manual installation
 
 The following explains how to patch, build, and install manually a Linux 
 kernel, nouveau drivers, and the Mame emulator.
 
-#### 1.Patching the kernel
+#### Patching the kernel
 
 Because i am not the author of the patchs — thanks to arcadecontrol 
-forum — It is not very clear to me what the patchs are fixing but i 
-presume:
+forum for their work on that — It is not very clear to me what the patch 
+is fixing but i presume the following:
 
--   The patch allows 15khz modelines in `KMS` mode — the framebuffer 
+-   It allows 15khz modelines in `KMS` mode — the framebuffer 
     display engine used by the kernel at boot (splashscreen).
--   The patch modifies some parts of the code related to `ATI` and 
+-   It modifies some parts of the code related to `ATI` and 
     `Arcade VGA` cards drivers. Maybe theses cards are not allowed to 
-    handle low resolutions or 15khz modelines without theses fix.
--   **The patch is not required for NVIDIA cards**, at least for me. Only
+    handle low resolutions or 15khz modelines without theses fixes.
+-   **It is not required for NVIDIA cards**, at least for me. Only
     patched nouveau drivers — as explained bellow — are required if the 
     only goal is to play emulators and if you don't care about the 
     booting phase.
--   Patching the Kernel > 3.19, KMS feature doesn't seems to work.
+-   When patching a Kernel > 3.19, KMS feature doesn't seems to work.
 
-1.  Know the version of the installed Kernel:
+1.  At first, get and note the version of the installed Kernel:
 
     ``` {.sourceCode .bash}
     $ uname -r
@@ -194,7 +217,7 @@ presume:
     <http://forum.arcadecontrols.com/index.php/topic,107620.280.html>.
     New versions of the patch are frequently posted on this topic as new
     versions of the kernel are available.
-    **Update**: Since kernel v3.19, no updates seems to be done on this forum.
+    **Update**: Since kernel v3.19, no updates have been done on this forum.
     Until now, the patchs seems to work with 4.2.0 kernel. If it is not the 
     case anymore, the following github repository hosts patched kernel 
     sources which seems to be up to date and synchronised with upstream 
@@ -208,7 +231,8 @@ presume:
 
 3.  Follow the official Ubuntu tutorial here:
     <https://wiki.ubuntu.com/Kernel/BuildYourOwnKernel>. At the 
-    `Modifying the configuration` step, skip it but apply the patchs:
+    `Modifying the configuration` step, skip it but apply the patchs by
+    doing:
 
     ``` bash 
     $ cd ~/path-to-kernel-sources
@@ -229,18 +253,31 @@ presume:
     $ skipabi=true fakeroot debian/rules binary-headers binary-generic
     ```
     
-### 2. Patching the Nouveau drivers for Nvidia cards
+#### Patching the Nouveau drivers <= 1.0.11 for Nvidia cards 
 
-Most of Linux drivers don't allow the user to setting very low resolutions
-mode like theses used for old console and arcade systems, probably for
-security reasons. Concerning Nvidia cards, it is not possible to use the 
-officials drivers because they are distributed as binary blobs and can't be
-patched. Having tested the official drivers, it resulted of stranges
-white lignes on black screen artifacts on low resolutions. On the other
-hand, The answer to this issue is to patch and use the open-source `nouveau` 
-Nvidia drivers.
+Probably for security concerns, some Linux video drivers don't allow the user 
+to set resolutions mode under 320x200 like theses used by old consoles and 
+arcade systems. 
 
-1.  Fetch the sources from APT:
+Using Nvidia cards, it is not possible to use the officials drivers because 
+they are distributed as binary blobs and can't be patched. During my tests
+whith the official drivers, i noticed stranges white lignes on black screen 
+artifacts on low resolutions. The solution is to use the open-source `nouveau` 
+drivers. Start with version 1.0.12, theses drivers works with low
+resolutions out of the box. 
+
+Previous to the versrion 1.0.12, they must be patched:
+
+1.  Uninstall official drivers if you use them. Search for any package
+    prefixed with `nvidia-` and uninstall them. You can know what package
+    is installed by looking at packages marked `ii` on the output of this
+    command:
+
+    ``` {.sourceCode .bash}
+    $ dpkg -l nvidia-*
+    ```
+
+2.  Fetch the sources of the `nouveau` drivers from APT:
 
     ``` {.sourceCode .bash}
     $ mkdir /some/path/to/store/nouveau-sources
@@ -248,7 +285,7 @@ Nvidia drivers.
     $ apt-get source xserver-xorg-video-nouveau
     ```
 
-2.  Edit the following file
+3.  Edit the following file
     `xserver-xorg-video-nouveau-<version>/src/drmmode_display.c` and
     apply theses changes (lines prefixed by '-' must be replaced by theses
     prefixed by a '+'): 
@@ -262,43 +299,46 @@ Nvidia drivers.
     +   drmmode->mode_res->max_height);
     ```
 
-3.  Compile the patched sources and create the deb package:
+4.  Compile the patched sources and create the deb package:
 
     ``` {.sourceCode .bash}
-    cd xserver-xorg-video-nouveau-<version>
-    dpkg-buildpackage -us -uc -nc
+    $ cd xserver-xorg-video-nouveau-<version>
+    $ dpkg-buildpackage -us -uc -nc
     ```
 
-4.  Uninstall the official package and install the patched one:
+5.  Install the package (it will automatically uninstall the official if 
+    you use it):
 
     ``` {.sourceCode .bash}
-    sudo apt-get purge xserver-xorg-video-nouveau
-    sudo dpkg -i xserver-xorg-video-nouveau_<version>.deb
+    $ sudo apt-get purge xserver-xorg-video-nouveau
+    $ sudo dpkg -i xserver-xorg-video-nouveau_<version>.deb
     ```
 
-5.  Reboot the system
-
-### Emulating retro systems at native resolutions with Groovymame
-
-Groovymame is a patched version of Mame which generates and sets
-on-the-fly accurates 15Khz modelines to aproximatelly fit the native
-resolution of the emulated game.
+6.  Reboot the system
 
 #### Compile Groovymame from the sources.
 
-Groovymame is distributed as a diff patch to apply to official Mame
-sources. The following steps explain how to compile Groovymame on
-Ubuntu.
+[Groovymame](http://forum.arcadecontrols.com/index.php/topic,135823.0.html?PHPSESSID=sblf9jfedgk1eg60i8l0524kq5) 
+is a patched version of Mame which generates and sets on-the-fly accurates
+15Khz modelines to aproximatelly fit the native resolution of the 
+emulated game.
+
+Groovymame is distributed as compiled binary packages or as a diff patch to 
+apply to official Mame sources. 
+
+You can download the compiled version at this url
+<https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/>
+or the follow the steps below to compile Groovymame from the sources on Ubuntu.
 
 1.  Grab the last version of the Mame sources at this url:
     <http://www.mamedev.org/release.html>
 
-2.  Unzip the downloaded sources files and go to the unzipped sources
+2.  Unzip the downloaded archive and go to the unzipped sources
     path:
 
 3.  Grab the Groovymame diff file and Hi score diff file (mandatory)
-    that matches the official Mame sources previously downloaded at this
-    url:
+    that matches the version of the official Mame sources previously 
+    downloaded at this url:
     <https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/>
 
 4.  Apply the Hi score diff file:
@@ -320,48 +360,6 @@ Ubuntu.
     ```
 
 7.  Start the compilation by launching `make`.
-
-#### Groovymame usage
-
-Groovymame works exactly like official Mame. To work properly with our
-setup, some environment variables must be set:
-
-``` {.sourceCode .bash}
-SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS=1 \
-    SDL_VIDEO_X11_XRANDR=0 \
-    SDL_VIDEO_X11_XVIDMODE=0 \
-    DISPLAY=$DISPLAY.1 \
-    ./mame64 sms sonic
-```
-
-The environment variables are explained below:
-
--   **SDL\_JOYSTICK\_ALLOW\_BACKGROUND\_EVENTS=1**: Makes SDL to capture
-    Joystick events when the application is in background which is the
-    case when launching on the second available screen using
-    ZaphodHeads.
-
--   **SDL\_VIDEO\_X11\_XRANDR=0** and **SDL\_VIDEO\_X11\_XVIDMODE=0**:
-    This resolves a nasty bug which makesSDL to executes Mame on the
-    wrong (first primary) screen after a `switchres` event during the
-    runtime. This bug affects emulated systems which triggers
-    resolutions changes like `Sega Genesis` or `Sony Playstation`. The
-    action of theses SDL environnment variables is pretty hard
-    understand but they fix it.
-
--   **DISPLAY=:$DISPLAY.1**: This tells Xorg to execute the program on the
-    Screen1 (CRT Screen).
-
-When installed with this package using `make` and `sudo make install`,
-theses two wrappers are provided:
-
--   `15khz-zaphod-mame`: Launch groovymame with the environment variables
-    set for use in Zaphod mode.
-
--   `15khz-mame`: Simply launch groovymame.
-
-To know more about Mame usage, refer to the
-[documentation](https://github.com/mamedev/mame/blob/master/docs/config.txt).
 
 Configuration
 -------------
@@ -393,7 +391,7 @@ for a view of the monitor main PCB).
 ### Bypassing EDID detection by KMS
 
 Mosts VGA/DVI/HDMI screens communicates `EDID` data to the kernel — and
-X server ? — at initialisation. Theses metadatas contains informations
+X server ? — at initialisation. Theses metadatas contain informations
 about the screen like the min/max resolutions, supported frequencies
 etc. The old CRT screen doesn't communicate theses informations. This
 results the kernel to ignore the screen at boot. It is possible to tell
@@ -416,21 +414,61 @@ This is done by adding to parameters to the kernel at boot:
 
 ### Configuring Xorg
 
-`Separate X Screen` aka `Zaphodheads` mode is the only configuration
-layout provided with this guide for now. It is planned to present here 
-others alternatives. The instructions to configure the X server in 
-Zaphodhead for nouveau drivers is well explained on the official 
-`nouveau drivers` website at <http://nouveau.freedesktop.org/wiki/Randr12/>.
+Here is the most tricky part. Xorg allows many configuration schemes but
+having it to achieve what you really want is not easy and it demands you to
+understand a little how it works.
+
+Xorg allows many configuration layouts to acheive our goal:
+
+-   **One CRT Screen only**: If think it's the most simple setup and should
+    works with the provided tools but is covered it for now (My primary
+    goal was to connect a CRT screen as a slave).
+
+-   **Dualhead using Xrandr**: This is the standard layout used today by
+    default when you connect two screens on Ubuntu. After many tests
+    this mode is definitelly to avoid in our case. During my test i noticed
+    fullscreen conflicts with the desktop like side bar percisting or
+    flickering in front of the emulator window screen, or resizing issue
+    or, worst, programs launching on the wrong screen with no real
+    solutions make it to launch on the CRT. So it is not covered here.
+
+-   **Separate X screen using ZaphoHeads**: This is a great layout but
+    works only with GroovyMame. Other emulators starts but keyboard and mouse 
+    input does not responds. I think it is related to xorg input
+    to screen assignation but i have not managed to configure them properly. 
+    What's more the zaphodhead mode seems to be specific to nvidia cards.
+
+-   **New X instance**: The idea is to launch a completelly new X server 
+    instance with a special server layout using the `startx` wrapper. It is
+    the mode i use actually because it removes the input issues i had with
+    the zaphodhead mode. It is a little harder to setup, i'll cover it here
+    asap.
+
+#### CRT Screen only
+
+Covered asap
+
+#### Zaphodheads mode
+
+The instructions to configure the X server in Zaphodhead for nouveau drivers 
+is well explained on the official `nouveau drivers` website at 
+<http://nouveau.freedesktop.org/wiki/Randr12/>.
 
 It is recommended to delete the file `~/.config/monitors.xml` because it
 seems to override Xorg options and makes debugging harder.
 
-The file `etc/xorg.conf` available in the repository of the project is a
-working `xorg.conf` example. Custom 15khz 648x480 modeline is defined
-and set as default mode on the `Monitor1` attached to `Screen1`. This
-ensures the CRT screen to be set with a compatible 15Khz modeline when
+The file `doc/xorg-zaphodhead-example.conf` available in this repository of 
+the project is a working `xorg.conf` example. Custom 15khz 648x480 modeline 
+is defined and set as default mode on the `Monitor1` attached to `Screen1`. 
+This ensures the CRT screen to be set with a compatible 15Khz modeline when
 idle.
 
+#### On demand new X instance
+
+Covered asap.
+
+An example of an xorg.conf for this layout is avaible on this repository at 
+`doc/xorg-separate-layouts-example.conf`.
 
 Usage
 -----
@@ -445,27 +483,36 @@ So to launch a program on this screen, prefix the command-line with
 $ DISPLAY=:0.1 xrandr
 ```
 
+Most of the wrappers and scripts provided by this package need the 
+environment variable `OUTPUT15KHZ` to be set to the xrandr output 
+where the CRT screen is connected. So, i recommend you
+to put this variable in your `~/.bashrc` or `~/.profile` file and set it
+matching your configuration: 
+
+```bash
+export OUTPUT15KHZ="VGA1" 
+```
+
 ### Groovymame
 
 Because groovymame is not on the APT repositories, its build is made by
-the provided Makefile. To launch groovymame64 using an xorg zaphod 
-configuration:
-
-```bash
-$ DISPLAY=:0.1 15khz-zaphod-mame <mame-command-line-args>
-```
-
-On other kind of setup: 
+the provided Makefile. To launch groovymame64:
 
 ```bash
 $ 15khz-mame <mame-command-line-args>
+```
+
+For xorg setups in `Zaphod mode`, a special wrapper is provided, setting
+some SDL related environment variables to make it work is this setup:
+
+```bash
+$ DISPLAY=:0.1 15khz-zaphod-mame <mame-command-line-args>
 ```
 
 ### Hatari
 
 This Hatari wrapper swiths the screen resolution to native Atari ST 
 resolution before launching it.
-
 
 ```bash
 $ 15khz-hatari <hatari-command-line-args>
@@ -511,7 +558,7 @@ tearing artifact on my setup i have not managed to remove completelly.
 
 ### Change screen resolution and execute a command
 
-A script is provided with this package which allows to change the
+A script is provided with this package which allows you to change the
 resolution on the fly, executes a program, then revert back to original
 resolution when program quits:
 
@@ -527,16 +574,12 @@ an emulator.
 Internally, the 15khz modeline is computed on the fly by using the 
 `switchres` utility made by `Calamity`, the author of the Groovymame patch.
 Like others assets of this package, `switchres` is automatically 
-downloaded and compiled using the `Makefile`.
+downloaded, compiled and installed using the `Makefile`.
 
-The environment variable `OUTPUT15KHZ` defines the xrandr output 
-where the CRT screen is connected. If used often, i recommand you
-to put this variable in your `~/.bashrc` or `~/.profile` file:
+### Launch a program on a new X instance
 
-```bash
-export OUTPUT15KHZ="VGA1"
-```
-
+This package provides the launcher `15khz-startx` to be used when your xorg
+setup follows the `On demand new X instance`. I'll cover it asap.
 
 Version scheme
 --------------
