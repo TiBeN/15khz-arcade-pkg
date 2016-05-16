@@ -40,23 +40,26 @@ on Ubuntu, and is really less exaustive.
 Prerequisites
 -------------
 
--   An Nvidia Card
+-   A video card with VGA or DVI output (NVIDIA recommended)
 
+Cards with "s-video" or yellow RCA composite outputs are not covered here.
+Having an Nvidia myself, this document is nvidia focused, that's why i
+recommend it.
 The kernel patch used does some changes on the `ATI` and `Arcade VGA` 
-drivers so i suppose it works with theses cards but i have not tested. 
+drivers so i suppose it works with theses cards but i have not tested.
 In this case, the nouveau drivers patchs step is obviously not needed.
 Also, i can't confirm it will works with all Nvidia cards.
 
--   Ubuntu (Wily)
+-   Ubuntu 15.10 (Wily Werewolf)
 
 The provided Makefile and the required APT packages are compatible with 
 Ubuntu. So it will work only on this distribution. But i think it won't 
 be hard to adapt the process to others distribution — Especially on debian 
 based ones — by following the manual build and installation method bellow.
 
--   An CRT Analog screen
+-   An Analog CRT screen with proper cables adapter
 
-Of course. 
+See `Hardware setup` below.
 
 Build and installation of required programs
 -------------------------------------------
@@ -366,7 +369,7 @@ Configuration
 
 ### Hardware setup
 
-The connexion between the PC and the TV monitor can be done using a
+The connexion between the PC and the CRT monitor can be done using a
 custom homemade VGA / Scart Adapter as shown here
 <http://www.geocities.ws/podernixie/htpc/cables-en.html#vgascart> or
 using an UMSA Ultimate SCART Adapter available here:
