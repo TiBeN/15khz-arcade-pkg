@@ -25,7 +25,7 @@ LINUX_15KHZ_PATCH = src/linux-4.2.diff
 LINUX_AT9200_PATCH = src/patch-3.19/ati9200_pllfix-3.19.diff
 LINUX_AVGA3000_PATCH = src/patch-3.19/avga3000-3.19.diff
 
-MAME_SRC_PKG_URL = http://mamedev.org/downloader.php?file=mame0170/mame0170s.zip
+MAME_SRC_PKG_URL = https://github.com/mamedev/mame/releases/download/mame0170/mame0170s.exe
 MAME_SRC_PKG = vendor/mame0170s.zip
 GROOVYMAME_HI_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.170_015l/hi_0170.diff
 GROOVYMAME_HI_PATCH = vendor/groovymame-patchs/hi.diff
