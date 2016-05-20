@@ -32,7 +32,7 @@ pieces of softwares.
 2.  Clone this repo:
 
     ```bash
-       git clone https://github.com/TiBeN/15khz-arcade-pkg.git
+       git clone https://github.com/pelanas/15khz-arcade-pkg.git
     ```
     (which avoids unnecessary public key validation)
 
