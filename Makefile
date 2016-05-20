@@ -41,10 +41,6 @@ SWITCHRES_SRC_PKG_URL = http://forum.arcadecontrols.com/index.php?action=dlattac
 SWITCHRES_SRC_PKG = vendor/SwitchResLinux-1.52.rar
 SWITCHRES_BIN = vendor/switchres/switchres
 
-VICE_SRC_PKG_URL = http://downloads.sourceforge.net/project/vice-emu/releases/vice-2.4.tar.gz?r=http%3A%2F%2Fvice-emu.sourceforge.net%2Findex.html&ts=1457259873&use_mirror=freefr
-VICE_SRC_PKG = vendor/vice.tar.gz
-VICE_BIN = vendor/vice-2.4/src/x64
-
 .PHONY: all install clean
 
 .NOTPARALLEL: $(LINUX_IMAGE_DEB)
@@ -128,8 +124,6 @@ groovymame: $(GROOVYMAME_BIN)
 
 switchres: $(SWITCHRES_BIN)
 
-vice: $(VICE_BIN)
-
 $(LINUX_IMAGE_DEB): $(KERNEL_SRC_PKG)
 	mkdir -p vendor
 	rm -rf vendor/linux-source
@@ -212,16 +206,3 @@ $(SWITCHRES_SRC_PKG):
 	mkdir -p $(dir $(SWITCHRES_SRC_PKG))
 	wget -O $(SWITCHRES_SRC_PKG) "$(SWITCHRES_SRC_PKG_URL)"
 	touch $(SWITCHRES_SRC_PKG)
-
-$(VICE_BIN): $(VICE_SRC_PKG)
-	mkdir -p vendor
-	cd vendor \
-		&& tar xf $(realpath $(VICE_SRC_PKG))
-	cd vendor/vice-2.4 \
-		&& ./configure --enable-sdlui \
-		&& make
-
-$(VICE_SRC_PKG):
-	mkdir -p $(dir $(VICE_SRC_PKG))
-	wget -O $(VICE_SRC_PKG) "$(VICE_SRC_PKG_URL)"
-	touch $(VICE_SRC_PKG)
