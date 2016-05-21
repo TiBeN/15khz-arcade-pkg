@@ -49,7 +49,6 @@ all: linux-kernel \
 	 groovymame \
 	 xserver-xorg-video-nouveau \
 	 switchres \
-	 vice
 
 clean:
 	rm -rf vendor
@@ -61,7 +60,6 @@ install:
 		$(XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG)
 	mkdir -p $(DESTDIR)/lib/15khz-arcade-pkg
 	cp -r vendor/mame $(DESTDIR)/lib/15khz-arcade-pkg/groovymame
-	cp -r vendor/vice-2.4 $(DESTDIR)/lib/15khz-arcade-pkg/vice
 	cd $(DESTDIR)/lib/15khz-arcade-pkg/groovymame && make clean
 	cp vendor/switchres/switchres $(DESTDIR)/lib/15khz-arcade-pkg
 	mkdir -p $(DESTDIR)/bin
