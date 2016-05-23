@@ -22,3 +22,4 @@
      anymore since 1.0.12 and remove the nvidia patching stuff (make +
      doc).
 -    Add support for "attractmode" frontend ?
+-    Clean the the kernel patch (duplicates on src/ ?)
