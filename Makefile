@@ -25,7 +25,7 @@ LINUX_15KHZ_PATCH = src/linux-4.2.diff
 LINUX_AT9200_PATCH = src/patch-3.19/ati9200_pllfix-3.19.diff
 LINUX_AVGA3000_PATCH = src/patch-3.19/avga3000-3.19.diff
 
-MAME_SRC_PKG_URL = http://mamedev.org/downloader.php?file=mame0170/mame0170s.zip
+MAME_SRC_PKG_URL = https://github.com/mamedev/mame/releases/download/mame0170/mame0170s.zip
 MAME_SRC_PKG = vendor/mame0170s.zip
 GROOVYMAME_HI_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.170_015l/hi_0170.diff
 GROOVYMAME_HI_PATCH = vendor/groovymame-patchs/hi.diff
@@ -41,10 +41,6 @@ SWITCHRES_SRC_PKG_URL = http://forum.arcadecontrols.com/index.php?action=dlattac
 SWITCHRES_SRC_PKG = vendor/SwitchResLinux-1.52.rar
 SWITCHRES_BIN = vendor/switchres/switchres
 
-VICE_SRC_PKG_URL = http://downloads.sourceforge.net/project/vice-emu/releases/vice-2.4.tar.gz?r=http%3A%2F%2Fvice-emu.sourceforge.net%2Findex.html&ts=1457259873&use_mirror=freefr
-VICE_SRC_PKG = vendor/vice.tar.gz
-VICE_BIN = vendor/vice-2.4/src/x64
-
 .PHONY: all install clean
 
 .NOTPARALLEL: $(LINUX_IMAGE_DEB)
@@ -53,7 +49,6 @@ all: linux-kernel \
 	 groovymame \
 	 xserver-xorg-video-nouveau \
 	 switchres \
-	 vice
 
 clean:
 	rm -rf vendor
@@ -65,7 +60,6 @@ install:
 		$(XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG)
 	mkdir -p $(DESTDIR)/lib/15khz-arcade-pkg
 	cp -r vendor/mame $(DESTDIR)/lib/15khz-arcade-pkg/groovymame
-	cp -r vendor/vice-2.4 $(DESTDIR)/lib/15khz-arcade-pkg/vice
 	cd $(DESTDIR)/lib/15khz-arcade-pkg/groovymame && make clean
 	cp vendor/switchres/switchres $(DESTDIR)/lib/15khz-arcade-pkg
 	mkdir -p $(DESTDIR)/bin
@@ -127,8 +121,6 @@ xserver-xorg-video-nouveau: $(XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG)
 groovymame: $(GROOVYMAME_BIN)
 
 switchres: $(SWITCHRES_BIN)
-
-vice: $(VICE_BIN)
 
 $(LINUX_IMAGE_DEB): $(KERNEL_SRC_PKG)
 	mkdir -p vendor
@@ -212,16 +204,3 @@ $(SWITCHRES_SRC_PKG):
 	mkdir -p $(dir $(SWITCHRES_SRC_PKG))
 	wget -O $(SWITCHRES_SRC_PKG) "$(SWITCHRES_SRC_PKG_URL)"
 	touch $(SWITCHRES_SRC_PKG)
-
-$(VICE_BIN): $(VICE_SRC_PKG)
-	mkdir -p vendor
-	cd vendor \
-		&& tar xf $(realpath $(VICE_SRC_PKG))
-	cd vendor/vice-2.4 \
-		&& ./configure --enable-sdlui \
-		&& make
-
-$(VICE_SRC_PKG):
-	mkdir -p $(dir $(VICE_SRC_PKG))
-	wget -O $(VICE_SRC_PKG) "$(VICE_SRC_PKG_URL)"
-	touch $(VICE_SRC_PKG)
