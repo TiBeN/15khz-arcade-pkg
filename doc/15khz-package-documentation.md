@@ -100,10 +100,10 @@ The provided makefile automates the build of the following:
 1.  Install the following required packages using APT:
 
     ``` {.sourceCode .bash}
-    $ sudo apt-get build-dep linux-image-$(uname -r) mame \
-        xserver-xorg-video-nouveau vice
+    $ sudo apt-get build-dep linux-image-$(uname -r)
+    $ sudo apt-get build-dep mame vice
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
-        qtbase5-dev-tools git unrar libxml2-dev
+        qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev
     ```
 
     You can also install theses optionnal packages if you
@@ -406,8 +406,9 @@ This is done by adding to parameters to the kernel at boot:
     `GRUB_CMDLINE_LINUX_DEFAULT`.
 
     Replace <DEVICE-NAME> by the name of the output where the CRT screen is
-    connected (common names: VGA-1, DVI-I-1). Asks your `xrandr` to know 
-    the name of your available output devices.
+    connected (common names: VGA-1, DVI-I-1). Ask your `xrandr` to know 
+    the name of your available output devices and deduce on which your CRT	
+    monitor is plugged.
 
 2.  Tell to take in account theses changes:
 
@@ -454,17 +455,22 @@ Covered asap
 #### Zaphodheads mode
 
 The instructions to configure the X server in Zaphodhead for nouveau drivers 
-is well explained on the official `nouveau drivers` website at 
-<http://nouveau.freedesktop.org/wiki/Randr12/>.
+is explained on the official `nouveau drivers` website at 
+<https://nouveau.freedesktop.org/wiki/MultiMonitorDesktop/>.
 
 It is recommended to delete the file `~/.config/monitors.xml` because it
 seems to override Xorg options and makes debugging harder.
 
 The file `doc/xorg-zaphodhead-example.conf` available in this repository of 
-the project is a working `xorg.conf` example. Custom 15khz 648x480 modeline 
-is defined and set as default mode on the `Monitor1` attached to `Screen1`. 
-This ensures the CRT screen to be set with a compatible 15Khz modeline when
-idle.
+the project is a working `xorg.conf` example. In this example, CRT screen 
+is set on the output "DVI-I-1". Custom 15khz 648x480 modeline is defined 
+and set as default mode on the `Monitor1` attached to `Screen1`. This 
+ensures the CRT screen to be set with a compatible 15Khz modeline 
+by default.
+
+You can use this config file and adjust it for your configuration.
+
+
 
 #### On demand new X instance
 

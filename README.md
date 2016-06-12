@@ -23,10 +23,10 @@ pieces of softwares.
 1.  Install needed pre-requisites:
 
     ```bash
-    $ sudo apt-get build-dep linux-image-$(uname -r) mame \
-        xserver-xorg-video-nouveau vice
+    $ sudo apt-get build-dep linux-image-$(uname -r)
+    $ sudo apt-get build-dep mame vice
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
-        qtbase5-dev-tools git unrar libxml2-dev
+        qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev
     ```
 
 2.  Clone this repo:
