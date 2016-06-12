@@ -102,7 +102,7 @@ The provided makefile automates the build of the following:
     ``` {.sourceCode .bash}
     $ sudo apt-get update
     $ sudo apt-get build-dep linux-image-$(uname -r)
-    $ sudo apt-get build-dep mame vice
+    $ sudo apt-get build-dep mame vice xserver-xorg-video-nouveau
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
         qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev
     ```
@@ -257,7 +257,7 @@ is fixing but i presume the following:
     $ skipabi=true fakeroot debian/rules binary-headers binary-generic
     ```
     
-#### Patching the Nouveau drivers <= 1.0.11 for Nvidia cards 
+#### Patching the Nouveau drivers for Nvidia cards 
 
 Probably for security concerns, some Linux video drivers don't allow the user 
 to set resolutions mode under 320x200 like theses used by old consoles and 
@@ -266,13 +266,20 @@ arcade systems.
 Using Nvidia cards, it is not possible to use the officials drivers because 
 they are distributed as binary blobs and can't be patched. During my tests
 whith the official drivers, i noticed stranges white lignes on black screen 
-artifacts on low resolutions. The solution is to use the open-source `nouveau` 
-drivers. Start with version 1.0.12, theses drivers works with low
-resolutions out of the box. 
+artifacts on low resolutions. The solution is to patch and use the 
+open-source `nouveau` drivers. 
 
-Previous to the versrion 1.0.12, they must be patched:
+During my tests i noticed the following: With a ZaphodHeads Xorg layout 
+and drivers not patched, the window of games having very low resolutions 
+(Insector X, or Sega Master system using Groovymame for example) were not
+centered but too much to the right, a part of the window being out of the
+edge. Using the patched drivers fix this issue. I have not encountered 
+this issue with the `new X instance` configuration layout. This 
+configuration layout doesn't seems to require patched drivers.
 
-1.  Uninstall official drivers if you use them. Search for any package
+Follow theses step to patch the `nouveau` drivers and install them:
+
+1.  Uninstall official drivers if you are using them. Search for any package
     prefixed with `nvidia-` and uninstall them. You can know what package
     is installed by looking at packages marked `ii` on the output of this
     command:
@@ -447,7 +454,8 @@ Xorg allows many configuration layouts to acheive our goal:
     instance with a special server layout using the `startx` wrapper. It is
     the mode i use actually because it removes the input issues i had with
     the zaphodhead mode. It is a little harder to setup, i'll cover it here
-    asap.
+    asap. Note: This configuration layout doesn't seems to require patched
+    version of nouveau drivers — see the relevant section to know more.
 
 #### CRT Screen only
 
@@ -470,8 +478,6 @@ ensures the CRT screen to be set with a compatible 15Khz modeline
 by default.
 
 You can use this config file and adjust it for your configuration.
-
-
 
 #### On demand new X instance
 
