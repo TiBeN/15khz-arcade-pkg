@@ -100,6 +100,7 @@ The provided makefile automates the build of the following:
 1.  Install the following required packages using APT:
 
     ``` {.sourceCode .bash}
+    $ sudo apt-get update
     $ sudo apt-get build-dep linux-image-$(uname -r)
     $ sudo apt-get build-dep mame vice
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
