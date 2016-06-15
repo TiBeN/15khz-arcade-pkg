@@ -8,8 +8,8 @@ DESTDIR = /usr/local
 
 UBUNTU_VERSION = wily
 KERNEL_BASE_VERSION = 4.2.0
-KERNEL_ABI_NUMBER = 22
-KERNEL_UPLOAD_NUMBER = 27
+KERNEL_ABI_NUMBER = 38
+KERNEL_UPLOAD_NUMBER = 45
 KERNEL_GIT_URL = git://kernel.ubuntu.com/ubuntu/ubuntu-$(UBUNTU_VERSION).git
 KERNEL_GIT_TAG = Ubuntu-$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER).$(KERNEL_UPLOAD_NUMBER)
 
@@ -50,7 +50,8 @@ VICE_BIN = vendor/vice-2.4/src/x64
 .NOTPARALLEL: $(LINUX_IMAGE_DEB)
 
 all: linux-kernel \
-	 groovymame \
+     xserver-xorg-video-nouveau \
+ 	groovymame \
 	 switchres \
 	 vice
 
@@ -109,10 +110,10 @@ install:
 	@echo "Please reboot your computer to the new patched kernel"
 
 uninstall:
-	rm -r $(DESTDIR)/lib/15khz-arcade-pkg
-	rm $(DESTDIR)/bin/15khz-*
-	apt-get install --reinstall xserver-xorg-video-nouveau
-	sudo apt-get remove $(LINUX_HEADERS_ALL_APT) \
+	-rm -r $(DESTDIR)/lib/15khz-arcade-pkg
+	-rm $(DESTDIR)/bin/15khz-*
+	-apt-get install --reinstall xserver-xorg-video-nouveau
+	-sudo apt-get remove $(LINUX_HEADERS_ALL_APT) \
 		$(LINUX_HEADERS_GENERIC_APT) \
 		$(LINUX_IMAGE_APT)
 	@echo "Uninstall finished. Please reboot your computer now"
