@@ -1,18 +1,12 @@
 15khz Arcade Package
 ====================
 
-**WARNING:** Heavy refactorings are planned on the master branch, it may
-not works as expected or the documentation can not be accurate has i'm in
-the process of improving it. Please use 
-[releases](https://github.com/TiBeN/15khz-arcade-pkg/releases) or 
-[tags](https://github.com/TiBeN/15khz-arcade-pkg/tags) version instead.
-
 This repository provides documentation and a set of scripts to connect 
 an analog CRT monitor on Ubuntu and use commons emulators 
 (mame, fs-uae...) at real native resolution to make the "pixel perfect"
 experience. 
 
-Supported Ubuntu version: **15.10** (Wily Werewolf).
+Supported Ubuntu version: **16.04** (Xenial Xerus).
 
 Installation
 ------------
@@ -30,16 +24,27 @@ pieces of softwares.
         qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev
     ```
 
-2.  Clone this repo:
+2.  Go to the
+    [releases](https://github.com/TiBeN/15khz-arcade-pkg/releases)
+    page and download the lastest version matching your Ubuntu version.
+    Extract the files from the distribution file then go the extracted
+    directory: 
+
+    ```
+    $ cd /somewhere/you/whant
+    $ wget https://github.com/TiBeN/15khz-arcade-pkg/archive/wily_Ubuntu-4.2.0-38.45_0.170_1.tar.gz
+    $ tar xvf wily_Ubuntu-4.2.0-38.45_0.170_1.tar.gz
+    $ cd 15khz-arcade-pkg-wily_Ubuntu-4.2.0-38.45_0.170_1/
+    ``` 
+    (Change the version to the downloaded one from the line above)
+
+    Alternatively you can clone this repository using git but beware
+    the master branch may be in a "Work in progress" state and can
+    not compile nor work as expected:
 
     ```bash
-    $ git clone git@github.com:TiBeN/15khz-arcade-pkg.git
+    $ git clone https://github.com/TiBeN/15khz-arcade-pkg.git
     ```
-    or 
-    ```
-    git clone https://github.com/TiBeN/15khz-arcade-pkg.git
-    ```
-    (which avoids unnecessary public key validation)
 
 3.  Start the build and install:
 

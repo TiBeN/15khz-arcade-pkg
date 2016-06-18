@@ -50,7 +50,7 @@ drivers so i suppose it works with theses cards but i have not tested.
 In this case, the nouveau drivers patchs step is obviously not needed.
 Also, i can't confirm it will works with all Nvidia cards.
 
--   Ubuntu 15.10 (Wily Werewolf)
+-   Ubuntu 16.04 (Xenial Xerus)
 
 The provided Makefile and the required APT packages are compatible with 
 Ubuntu. So it will work only on this distribution. But i think it won't 
@@ -115,10 +115,26 @@ The provided makefile automates the build of the following:
     $ sudo apt-get install hatari fs-uae
     ```
 
-2.  Clone this repository using git:
+2.  Go to the
+    [releases](https://github.com/TiBeN/15khz-arcade-pkg/releases)
+    page and download the lastest version matching your Ubuntu version.
+    Extract the files from the distribution file then go the extracted
+    directory: 
 
-    ``` {.sourceCode .bash}
-    $ git clone git@github.com:TiBeN/15khz-arcade-pkg.git
+    ```
+    $ cd /somewhere/you/whant
+    $ wget https://github.com/TiBeN/15khz-arcade-pkg/archive/wily_Ubuntu-4.2.0-38.45_0.170_1.tar.gz
+    $ tar xvf wily_Ubuntu-4.2.0-38.45_0.170_1.tar.gz
+    $ cd 15khz-arcade-pkg-wily_Ubuntu-4.2.0-38.45_0.170_1/
+    ``` 
+    (Change the version to the downloaded one from the line above)
+
+    Alternatively you can clone this repository using git but beware
+    the master branch may be in a "Work in progress" state and can
+    not compile nor work as expected:
+
+    ```bash
+    $ git clone https://github.com/TiBeN/15khz-arcade-pkg.git
     ```
 
 3.  Go the source dir of the project and launch the build:
