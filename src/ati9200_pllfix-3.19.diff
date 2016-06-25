@@ -1,4 +1,4 @@
-From 1fd1293b0c15882e4d978e9c284acdbfc8ee6e36 Mon Sep 17 00:00:00 2001
+From 7ac0f58b6a1c2b7de3cfda3dcd448603b8e6fb17 Mon Sep 17 00:00:00 2001
 From: Phil Eichinger <phil@zankapfel.net>
 Date: Sun, 16 Aug 2015 15:53:52 +0200
 Subject: [PATCH] 15khz-patches: ati9200_pllfix-3.19.diff
@@ -33,7 +33,7 @@ index 38e396d..0045a21 100644
  				p2pll->pll_in_min = 40;
  				p2pll->pll_in_max = 500;
 diff --git a/drivers/gpu/drm/radeon/radeon_combios.c b/drivers/gpu/drm/radeon/radeon_combios.c
-index c097d3a..70b4a04 100644
+index a9b01bc..04d8dc4 100644
 --- a/drivers/gpu/drm/radeon/radeon_combios.c
 +++ b/drivers/gpu/drm/radeon/radeon_combios.c
 @@ -745,7 +745,8 @@ bool radeon_combios_get_clock_info(struct drm_device *dev)

@@ -22,8 +22,8 @@ LINUX_IMAGE_APT = linux-image-$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER)-generi
 LINUX_IMAGE_DEB = vendor/$(LINUX_IMAGE_APT)_$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER).$(KERNEL_UPLOAD_NUMBER)+patched15khz_amd64.deb
 
 LINUX_15KHZ_PATCH = src/linux-4.2.diff
-LINUX_AT9200_PATCH = src/patch-3.19/ati9200_pllfix-3.19.diff
-LINUX_AVGA3000_PATCH = src/patch-3.19/avga3000-3.19.diff
+LINUX_AT9200_PATCH = src/ati9200_pllfix-3.19.diff
+LINUX_AVGA3000_PATCH = src/avga3000-4.4.diff
 
 MAME_SRC_PKG_URL = https://github.com/mamedev/mame/releases/download/mame0170/mame0170s.zip
 MAME_SRC_PKG = vendor/mame0170s.zip
@@ -33,9 +33,9 @@ GROOVYMAME_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledr
 GROOVYMAME_PATCH = vendor/groovymame-patchs/groovymame.diff
 GROOVYMAME_BIN = vendor/mame/mame64
 
-XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC = vendor/xserver-xorg-video-nouveau-1.0.11
+XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC = vendor/xserver-xorg-video-nouveau-1.0.12
 XSERVER_XORG_VIDEO_NOUVEAU_PATCH = src/xorg-video-nouveau-1.0.11-low-res.diff
-XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG = vendor/xserver-xorg-video-nouveau_1.0.11-1ubuntu3_amd64.deb
+XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG = vendor/xserver-xorg-video-nouveau_1.0.12-1build2_amd64.deb
 
 SWITCHRES_SRC_PKG_URL = http://forum.arcadecontrols.com/index.php?action=dlattach;topic=106405.0;attach=308813
 SWITCHRES_SRC_PKG = vendor/SwitchResLinux-1.52.rar

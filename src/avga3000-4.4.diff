@@ -1,3 +1,19 @@
+From 63014f0b1871ed401340da824691c14b66dfccaa Mon Sep 17 00:00:00 2001
+From: Phil Eichinger <phil@zankapfel.net>
+Date: Sun, 16 Aug 2015 15:54:58 +0200
+Subject: [PATCH] 15khz-patches: avga3000-4.4.diff
+
+Conflicts:
+	drivers/gpu/drm/radeon/radeon_bios.c
+---
+ drivers/gpu/drm/radeon/atom.c            | 17 ++++++++++-------
+ drivers/gpu/drm/radeon/atom.h            |  1 +
+ drivers/gpu/drm/radeon/radeon_atombios.c | 19 +++++++++++++++++++
+ drivers/gpu/drm/radeon/radeon_bios.c     | 28 ++++++++++++++++++++++++++--
+ 4 files changed, 56 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/gpu/drm/radeon/atom.c b/drivers/gpu/drm/radeon/atom.c
+index ec1593a..6fb3545 100644
 --- a/drivers/gpu/drm/radeon/atom.c
 +++ b/drivers/gpu/drm/radeon/atom.c
 @@ -1283,13 +1283,16 @@ struct atom_context *atom_parse(struct card_info *card, void *bios)
@@ -24,6 +40,8 @@
  
  	base = CU16(ATOM_ROM_TABLE_PTR);
  	if (strncmp
+diff --git a/drivers/gpu/drm/radeon/atom.h b/drivers/gpu/drm/radeon/atom.h
+index 6d014dd..f9fa53d 100644
 --- a/drivers/gpu/drm/radeon/atom.h
 +++ b/drivers/gpu/drm/radeon/atom.h
 @@ -31,6 +31,7 @@
@@ -34,6 +52,8 @@
  #define ATOM_ROM_TABLE_PTR	0x48
  
  #define ATOM_ROM_MAGIC		"ATOM"
+diff --git a/drivers/gpu/drm/radeon/radeon_atombios.c b/drivers/gpu/drm/radeon/radeon_atombios.c
+index 8f28524..a1ec8a3 100644
 --- a/drivers/gpu/drm/radeon/radeon_atombios.c
 +++ b/drivers/gpu/drm/radeon/radeon_atombios.c
 @@ -340,6 +340,17 @@ static bool radeon_atom_apply_quirks(struct drm_device *dev,
@@ -54,7 +74,7 @@
  	/* Gigabyte X1300 is DVI+VGA, not DVI+DVI */
  	if ((dev->pdev->device == 0x7142) &&
  	    (dev->pdev->subsystem_vendor == 0x1458) &&
-@@ -1144,6 +1155,14 @@ bool radeon_atom_get_clock_info(struct drm_device *dev)
+@@ -1145,6 +1156,14 @@ bool radeon_atom_get_clock_info(struct drm_device *dev)
  		p1pll->pll_out_max =
  		    le32_to_cpu(firmware_info->info.ulMaxPixelClockPLL_Output);
  
@@ -69,6 +89,8 @@
  		if (crev >= 4) {
  			p1pll->lcd_pll_out_min =
  				le16_to_cpu(firmware_info->info_14.usLcdMinPixelClockPLL_Output) * 100;
+diff --git a/drivers/gpu/drm/radeon/radeon_bios.c b/drivers/gpu/drm/radeon/radeon_bios.c
+index 21b6732..a664bc3 100644
 --- a/drivers/gpu/drm/radeon/radeon_bios.c
 +++ b/drivers/gpu/drm/radeon/radeon_bios.c
 @@ -30,6 +30,8 @@
@@ -77,10 +99,10 @@
  
 +#include <linux/firmware.h>
 +#include <linux/module.h>
- #include <linux/vga_switcheroo.h>
  #include <linux/slab.h>
  #include <linux/acpi.h>
-@@ -648,10 +650,32 @@ static bool radeon_read_disabled_bios(struct radeon_device *rdev)
+ /*
+@@ -651,10 +653,32 @@ static inline bool radeon_acpi_vfct_bios(struct radeon_device *rdev)
  
  bool radeon_get_bios(struct radeon_device *rdev)
  {

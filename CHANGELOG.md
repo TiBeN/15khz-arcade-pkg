@@ -1,5 +1,19 @@
+CHANGELOG
+=========
+
 Current
 -------
+
+- Supported Ubuntu version is now Xenial
+- Upgraded supported kernel version to Ubuntu-4.4.0-24.43
+
+wily_Ubuntu-4.2.0-38.45_0.170_1
+-------------------------------
+
+- Upgraded supported kernel version to Ubuntu-4.2.0-38.45
+
+wily_Ubuntu-4.2.0-22.27_0.170_1
+-------------------------------
 
 - Moved the documentation from the README.md to a separate file
 - Added custom build support and wrapper for`Vice` emulator

@@ -1,4 +1,4 @@
-From f8f2ee346150136788474708bfd12a23cc3a376c Mon Sep 17 00:00:00 2001
+From 947341289176b2cddd96ea2505dff73bed13fbf5 Mon Sep 17 00:00:00 2001
 From: Phil Eichinger <phil@zankapfel.net>
 Date: Sun, 16 Aug 2015 15:52:42 +0200
 Subject: [PATCH] 15khz-patches: linux-4.2.diff
@@ -13,7 +13,7 @@ Subject: [PATCH] 15khz-patches: linux-4.2.diff
  6 files changed, 161 insertions(+)
 
 diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-index 7087da3..71212ee 100644
+index d5d2c03..abe0158 100644
 --- a/drivers/gpu/drm/drm_edid.c
 +++ b/drivers/gpu/drm/drm_edid.c
 @@ -142,6 +142,67 @@ static struct edid_quirk {
@@ -132,10 +132,10 @@ index 7087da3..71212ee 100644
   * drm_mode_find_dmt - Create a copy of a mode if present in DMT
   * @dev: Device to duplicate against
 diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index cac4229..f6891b5 100644
+index 69cbab5..d1c6256 100644
 --- a/drivers/gpu/drm/drm_fb_helper.c
 +++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -1296,6 +1296,34 @@ struct drm_display_mode *drm_pick_cmdline_mode(struct drm_fb_helper_connector *f
+@@ -1646,6 +1646,34 @@ struct drm_display_mode *drm_pick_cmdline_mode(struct drm_fb_helper_connector *f
  	if (cmdline_mode->rb || cmdline_mode->margins)
  		goto create_mode;
  
@@ -210,10 +210,10 @@ index cd74a09..5f4e8cc 100644
  	return true;
  }
 diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
-index 04203c0..f27722c 100644
+index f8b5fcf..e32ff45 100644
 --- a/drivers/gpu/drm/drm_probe_helper.c
 +++ b/drivers/gpu/drm/drm_probe_helper.c
-@@ -165,6 +165,12 @@ static int drm_helper_probe_single_connector_modes_merge_bits(struct drm_connect
+@@ -199,6 +199,12 @@ static int drm_helper_probe_single_connector_modes_merge_bits(struct drm_connect
  		goto prune;
  	}
  
@@ -227,10 +227,10 @@ index 04203c0..f27722c 100644
  	count = drm_load_edid_firmware(connector);
  	if (count == 0)
 diff --git a/include/drm/drm_crtc.h b/include/drm/drm_crtc.h
-index 3b4d8a4..882ffb8 100644
+index 3f0c690..e5dd101 100644
 --- a/include/drm/drm_crtc.h
 +++ b/include/drm/drm_crtc.h
-@@ -743,6 +743,12 @@ struct drm_connector {
+@@ -734,6 +734,12 @@ struct drm_connector {
  	uint8_t num_h_tile, num_v_tile;
  	uint8_t tile_h_loc, tile_v_loc;
  	uint16_t tile_h_size, tile_v_size;
@@ -243,7 +243,7 @@ index 3b4d8a4..882ffb8 100644
  };
  
  /**
-@@ -1495,6 +1501,10 @@ extern int drm_edid_header_is_valid(const u8 *raw_edid);
+@@ -1459,6 +1465,10 @@ extern int drm_edid_header_is_valid(const u8 *raw_edid);
  extern bool drm_edid_block_valid(u8 *raw_edid, int block, bool print_bad_edid,
  				 bool *edid_corrupt);
  extern bool drm_edid_is_valid(struct edid *edid);

@@ -88,7 +88,7 @@ is not easier but can be adjusted to fit setups which differ a little.
 
 The provided makefile automates the build of the following:
 
--   **Linux kernel Ubuntu-4.2.0-38.45**, patched using 15khz patchs.
+-   **Linux kernel Ubuntu-4.4.0-24.43**, patched using 15khz patchs.
 -   **nouveau drivers 1.0.11**, patched to support low resolutions
 -   **Mame 0.170**, patched with the groovymame patch.
 -   **Vice 2.4** — a Commodore 64 emulator — with the SDL support. 
@@ -242,7 +242,7 @@ is fixing but i presume the following:
     case anymore, the following github repository hosts patched kernel 
     sources which seems to be up to date and synchronised with upstream 
     kernel sources. 
-    To get the patchs, select the git tag which match the kernel version then 
+    To get the patchs, select the git tag which matches the kernel version then 
     check the commits done by the owner of the repo — `philenotfound`. He
     names the commits 'avga3000-<version>.diff', 
     'ati9200_pllfix-<version>.diff' and 'linux-<version>'.diff. 
