@@ -123,9 +123,9 @@ The provided makefile automates the build of the following:
 
     ```
     $ cd /somewhere/you/whant
-    $ wget https://github.com/TiBeN/15khz-arcade-pkg/archive/wily_Ubuntu-4.2.0-38.45_0.170_1.tar.gz
-    $ tar xvf wily_Ubuntu-4.2.0-38.45_0.170_1.tar.gz
-    $ cd 15khz-arcade-pkg-wily_Ubuntu-4.2.0-38.45_0.170_1/
+    $ wget https://github.com/TiBeN/15khz-arcade-pkg/archive/wily_Ubuntu-4.4.0-24.43_0.170_1.tar.gz
+    $ tar xvf wily_Ubuntu-4.4.0-24.43_0.170_1.tar.gz
+    $ cd 15khz-arcade-pkg-wily_Ubuntu-4.4.0-24.43_0.170_1/
     ``` 
     (Change the version to the downloaded one from the line above)
 
