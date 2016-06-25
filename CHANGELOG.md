@@ -4,8 +4,9 @@ CHANGELOG
 Current
 -------
 
-- Supported Ubuntu version is now Xenial
+- Upgraded supported xorg nouveau drivers to 1.0.12
 - Upgraded supported kernel version to Ubuntu-4.4.0-24.43
+- Supported Ubuntu version is now Xenial
 
 wily_Ubuntu-4.2.0-38.45_0.170_1
 -------------------------------
