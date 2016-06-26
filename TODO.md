@@ -20,4 +20,4 @@
      - When output as the same res as beeing tested
 -    Add support for "attractmode" frontend ?
 -    Add support + doc for "One CRT Only" Xorg config layout
--    Create Custom EDID file with 15khz modeline for the kernel
+-    [WIP] - Create Custom EDID file with 15khz modeline for the kernel
