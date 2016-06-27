@@ -32,11 +32,11 @@ pieces of softwares.
 
     ```
     $ cd /somewhere/you/whant
-    $ wget https://github.com/TiBeN/15khz-arcade-pkg/archive/wily_Ubuntu-4.2.0-38.45_0.170_1.tar.gz
-    $ tar xvf wily_Ubuntu-4.4.0-24.43_0.170_1.tar.gz
-    $ cd 15khz-arcade-pkg-wily_Ubuntu-4.4.0-24.43_0.170_1/
+    $ wget https://github.com/TiBeN/15khz-arcade-pkg/archive/<version>.tar.gz
+    $ tar xvf <version>.tar.gz
+    $ cd 15khz-arcade-pkg-<version>/
     ``` 
-    (Change the version to the downloaded one from the line above)
+    (Change the <version> to the downloaded one from the lines above)
 
     Alternatively you can clone this repository using git but beware
     the master branch may be in a "Work in progress" state and can
