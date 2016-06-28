@@ -1,10 +1,11 @@
 15khz Arcade Package
 ====================
 
-This repository provides documentation and a set of scripts to connect 
-an analog CRT monitor on Ubuntu and use commons emulators 
-(mame, fs-uae...) at real native resolution to make the "pixel perfect"
-experience. 
+This repository provides 
+[documentation](doc/15khz-package-documentation.md) and a set of 
+scripts to connect an analog CRT monitor on Ubuntu and use commons 
+emulators (mame, fs-uae...) at real native resolution to make the 
+"pixel perfect" experience. 
 
 Supported Ubuntu version: **16.04** (Xenial Xerus).
 
