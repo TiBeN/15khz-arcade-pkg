@@ -153,8 +153,8 @@ The provided makefile automates the build of the following:
     The kernel and nouveau drivers are made available as Debian packages.
     Others items built are available in their own directories.
 
-4.  Uninstall official drivers if you use them. Search for packages prefixed 
-    with `nvidia-` and uninstall them. You can know what package
+4.  Uninstall official NVIDIA drivers if you use them. Search for packages 
+    prefixed  with `nvidia-` and uninstall them. You can know what package
     is installed by looking at packages marked `ii` on the output of this
     command:
 
@@ -163,7 +163,7 @@ The provided makefile automates the build of the following:
     ```
 
     Once you know which are installed, uninstall them (replace
-    `<installalled-nvidia-package>` by the list of the packages previously
+    `<installed-nvidia-package>` by the list of the packages previously
     found):
 
     ``` {.sourceCode .bash}
