@@ -127,7 +127,7 @@ The provided makefile automates the build of the following:
     $ tar xvf <version>.tar.gz
     $ cd 15khz-arcade-pkg-<version>/
     ``` 
-    (Change the <version> to the downloaded one from the lines above)
+    (Change the \<version\> to the downloaded one from the lines above)
 
     Alternatively you can clone this repository using git but beware
     the master branch may be in a "Work in progress" state and can
