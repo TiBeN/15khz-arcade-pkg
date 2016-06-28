@@ -495,6 +495,16 @@ by default.
 
 You can use this config file and adjust it for your configuration.
 
+Once done, the 15Khz screen is made available as a separate X screen 
+numbered `:0.1` — On Ubuntu Wily with Gnome 3 and maybe others, the screen 
+number starts at :1, so in this case the screen number is `:1.1`.
+So to launch a program on this screen, prefix the command-line with
+`DISPLAY=:0.1`. Example:
+
+```bash
+$ DISPLAY=:0.1 xrandr
+```
+
 #### On demand new X instance
 
 Covered asap.
@@ -504,16 +514,6 @@ An example of an xorg.conf for this layout is avaible on this repository at
 
 Usage
 -----
-
-The 15Khz screen is made available as a separate X screen numbered `:0.1` — 
-On Ubuntu Wily with Gnome 3 and maybe others, the screen number starts at
-:1, so in this case the screen number is `:1.1`.
-So to launch a program on this screen, prefix the command-line with
-`DISPLAY=:0.1`. Example:
-
-```bash
-$ DISPLAY=:0.1 xrandr
-```
 
 Most of the wrappers and scripts provided by this package need the 
 environment variable `OUTPUT15KHZ` to be set to the xrandr output 
