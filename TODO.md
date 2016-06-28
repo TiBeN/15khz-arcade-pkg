@@ -21,7 +21,9 @@
      - When output as the same res as beeing tested
 -    Add support for "attractmode" frontend ?
 -    Add support + doc for "One CRT Only" Xorg config layout
--    [WIP] - Create Custom EDID file with 15khz modeline for the kernel
+-    [WIP] - Create Custom EDID file with 15khz modeline for the kernel or make
+     theses provided by the 15khz kernel patch works (640x480 doesn't work since
+     kernel > 3.19) to recover good Modeline on KMS boot.
 -    BUG : (**MAJOR**) `make uninstall` does remove the kernel if the patched one 
      is of the same version of the previous one, leave the the system without 
      any Kernel. Find another method to reinstall the previous original
