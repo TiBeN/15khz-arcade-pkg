@@ -4,8 +4,9 @@
 -    New X instance layout: PulseAudio: select default device
 -    Add tag on the changelog of the nouveau driver APT package to prevent apt
      to ask to update it by the update manager
--    Improve the documentation about the Xorg configuration 
-     (step by step guide through each supported layout)
+-    Improve the documentation about the Xorg configuration:
+     how xorg is configured, step by step guide through the configuration of 
+     each supported layout, usage depending on the configured layout
 -    Add some links and reference at the end of the documentation
 -    Makefile: Create `dist` target 
 -    Do some photos of the results
