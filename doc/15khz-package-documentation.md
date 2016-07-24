@@ -127,7 +127,7 @@ The provided makefile automates the build of the following:
     $ tar xvf <version>.tar.gz
     $ cd 15khz-arcade-pkg-<version>/
     ``` 
-    (Change the <version> to the downloaded one from the lines above)
+    (Change the \<version\> to the downloaded one from the lines above)
 
     Alternatively you can clone this repository using git but beware
     the master branch may be in a "Work in progress" state and can
@@ -153,8 +153,8 @@ The provided makefile automates the build of the following:
     The kernel and nouveau drivers are made available as Debian packages.
     Others items built are available in their own directories.
 
-4.  Uninstall official drivers if you use them. Search for packages prefixed 
-    with `nvidia-` and uninstall them. You can know what package
+4.  Uninstall official NVIDIA drivers if you use them. Search for packages 
+    prefixed  with `nvidia-` and uninstall them. You can know what package
     is installed by looking at packages marked `ii` on the output of this
     command:
 
@@ -163,7 +163,7 @@ The provided makefile automates the build of the following:
     ```
 
     Once you know which are installed, uninstall them (replace
-    `<installalled-nvidia-package>` by the list of the packages previously
+    `<installed-nvidia-package>` by the list of the packages previously
     found):
 
     ``` {.sourceCode .bash}
@@ -505,6 +505,16 @@ by default.
 
 You can use this config file and adjust it for your configuration.
 
+Once done, the 15Khz screen is made available as a separate X screen 
+numbered `:0.1` — On Ubuntu Wily with Gnome 3 and maybe others, the screen 
+number starts at :1, so in this case the screen number is `:1.1`.
+So to launch a program on this screen, prefix the command-line with
+`DISPLAY=:0.1`. Example:
+
+```bash
+$ DISPLAY=:0.1 xrandr
+```
+
 #### On demand new X instance
 
 Covered asap.
@@ -514,16 +524,6 @@ An example of an xorg.conf for this layout is avaible on this repository at
 
 Usage
 -----
-
-The 15Khz screen is made available as a separate X screen numbered `:0.1` — 
-On Ubuntu Wily with Gnome 3 and maybe others, the screen number starts at
-:1, so in this case the screen number is `:1.1`.
-So to launch a program on this screen, prefix the command-line with
-`DISPLAY=:0.1`. Example:
-
-```bash
-$ DISPLAY=:0.1 xrandr
-```
 
 Most of the wrappers and scripts provided by this package need the 
 environment variable `OUTPUT15KHZ` to be set to the xrandr output 
