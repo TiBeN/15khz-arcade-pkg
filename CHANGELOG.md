@@ -4,6 +4,11 @@ CHANGELOG
 Current
 -------
 
+- Tried creating custom EDID binaries for 15khz but doesn't
+  seems to work with NVIDIA
+- Fixed 15khz modeline in KMS mode using Modelines provided
+  with the kernel patch and improved documentation about
+  KMS.
 - Upgraded supported xorg nouveau drivers to 1.0.12
 - Upgraded supported kernel version to Ubuntu-4.4.0-24.43
 - Supported Ubuntu version is now Xenial

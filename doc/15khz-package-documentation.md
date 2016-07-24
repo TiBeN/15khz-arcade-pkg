@@ -224,7 +224,6 @@ is fixing but i presume the following:
     patched nouveau drivers — as explained bellow — are required if the 
     only goal is to play emulators and if you don't care about the 
     booting phase.
--   When patching a Kernel > 3.19, KMS feature doesn't seems to work.
 
 1.  At first, get and note the version of the installed Kernel:
 
@@ -415,30 +414,41 @@ Resistor (See the [Schneider CTM640 Service
 Manual](http://www.cpcwiki.eu/imgs/6/6f/Schneider_CTM640_Service_Manual_%28German_and_English%29.pdf)
 for a view of the monitor main PCB).
 
-### Bypassing EDID detection by KMS
+### Configure KMS to Bypass EDID and set 15khz resolution
 
-Mosts VGA/DVI/HDMI screens communicates `EDID` data to the kernel — and
-X server ? — at initialisation. Theses metadatas contain informations
+Mosts VGA/DVI/HDMI screens communicates `EDID` data to the kernel at 
+initialisation. Theses metadatas contain informations
 about the screen like the min/max resolutions, supported frequencies
-etc. The old CRT screen doesn't communicate theses informations. This
-results the kernel to ignore the screen at boot. It is possible to tell
-the kernel to bypass this detection and force the state as connected.
-This is done by adding to parameters to the kernel at boot:
+etc. Old CRT screens doesn't communicate theses informations. And if they 
+did, it could not be sure it works because KMS (or drivers parts of it) 
+doesn't seems to support 15khz Modelines natively. This results the kernel 
+to completely ignore the screen at boot. The following will forces the
+kernel to activate the output where the CRT screen is connected — despite
+the lack of EDID data — and sets it to the 640x480 15khz modeline provided 
+by the patch. This is done by adding to parameters to the kernel at boot:
 
 1.  Edit the grub configuration file `/etc/default/grub` and add
-    `vga=0x311 video=<DEVICE-NAME>:640x480e` to the kernel options
+    `vga=0x311 video=<DEVICE-NAME>:640x480ec` to the kernel options
     `GRUB_CMDLINE_LINUX_DEFAULT`.
 
     Replace <DEVICE-NAME> by the name of the output where the CRT screen is
     connected (common names: VGA-1, DVI-I-1). Ask your `xrandr` to know 
-    the name of your available output devices and deduce on which your CRT	
-    monitor is plugged.
+    the name of your available output devices and deduce on which your CRT
+    monitor is plugged. Here, the `e` option force the activation of the
+    output and the `c` activate 15khz modeline. The last option is not
+    part of the kernel video options but brought by the patch.
 
-2.  Tell to take in account theses changes:
+2.  Tell grub to take in account theses changes:
 
     ``` {.sourceCode .bash}
     $ sudo update-grub
     ```
+
+It seems to have another path to achieve this: Generate EDID data and 
+inject them to the kernel using the `drm_kms_helper` kernel  module. 
+Unfortunately this only seems to work with ATI drivers. I tried myself
+using NVIDIA wihout any luck. More information 
+[here](<http://forum.arcadecontrols.com/index.php?topic=140215.0).
 
 ### Configuring Xorg
 
