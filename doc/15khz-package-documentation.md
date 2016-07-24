@@ -450,6 +450,29 @@ Unfortunately this only seems to work with ATI drivers. I tried myself
 using NVIDIA wihout any luck. More information 
 [here](<http://forum.arcadecontrols.com/index.php?topic=140215.0).
 
+### Define the patched kernel as default to boot on
+
+Defining the default Kernel to boot is done by setting the option
+`GRUB_DEFAULT` of the `/etc/default/grub` file to the path of the 
+kernel from the grub menu entry — in letter. If, for example, you 
+navigate through the following grub menu to boot your kernel: 
+Advanced options for Ubuntu > Ubuntu, with Linux 3.13.0-53-generic, 
+define the option like this:
+
+1.  Edit the grub configuration file `/etc/default/grub`
+
+2.  Set the `GRUB_DEFAULT` option like this — Don't forget the quotes:
+
+    ```
+    GRUB_DEFAULT="Ubuntu > Ubuntu, with Linux 3.13.0-53-generic"
+    ```
+
+3.  Tell grub to take in account theses changes:
+
+    ``` {.sourceCode .bash}
+    $ sudo update-grub
+    ```
+
 ### Configuring Xorg
 
 Here is the most tricky part. Xorg allows many configuration schemes but

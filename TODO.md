@@ -24,4 +24,3 @@
 -    BUG : (**MAJOR**) `make uninstall` does remove the kernel if the patched one 
      is of the same version of the previous one, leave the the system without 
      any Kernel. Find another method to reinstall the previous original
--    See how to select a kernel by default on GRUB

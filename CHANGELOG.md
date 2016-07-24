@@ -4,6 +4,7 @@ CHANGELOG
 Current
 -------
 
+- Added comments on setting the patched as default on GRUB
 - Tried creating custom EDID binaries for 15khz but doesn't
   seems to work with NVIDIA
 - Fixed 15khz modeline in KMS mode using Modelines provided
