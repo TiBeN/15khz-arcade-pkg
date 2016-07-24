@@ -14,7 +14,7 @@
      -   nvidia: no kernel but driver patch. 
      -   other: kernel
 -    Makefile: Make an option to not compile kernel
--    Kernel: Add suffix to kernel name (+patched) to be sure to delete
+-    [WIP] Kernel: Add suffix to kernel name (+patched) to be sure to delete
      the good one
 -    15khz-change-res: handle cases:
      - When output is off by default
@@ -22,5 +22,5 @@
 -    Add support for "attractmode" frontend ?
 -    Add support + doc for "One CRT Only" Xorg config layout
 -    BUG : (**MAJOR**) `make uninstall` does remove the kernel if the patched one 
-     is of the same version of the previous one, leave the the system without 
+     is of the same version of the previous one, leave the system without 
      any Kernel. Find another method to reinstall the previous original
