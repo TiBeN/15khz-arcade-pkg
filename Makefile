@@ -8,8 +8,8 @@ DESTDIR = /usr/local
 
 UBUNTU_VERSION = xenial
 KERNEL_BASE_VERSION = 4.4.0
-KERNEL_ABI_NUMBER = 24
-KERNEL_UPLOAD_NUMBER = 43
+KERNEL_ABI_NUMBER = 31
+KERNEL_UPLOAD_NUMBER = 50
 KERNEL_GIT_URL = git://kernel.ubuntu.com/ubuntu/ubuntu-$(UBUNTU_VERSION).git
 KERNEL_GIT_TAG = Ubuntu-$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER).$(KERNEL_UPLOAD_NUMBER)
 
@@ -116,6 +116,11 @@ uninstall:
 	-sudo apt-get remove $(LINUX_HEADERS_ALL_APT) \
 		$(LINUX_HEADERS_GENERIC_APT) \
 		$(LINUX_IMAGE_APT)
+	# Reinstall latest generic image/headers packages to avoid 
+	# release the system without any kernel (!!). This should 
+	# happen if the patched installed kernel is of the same version
+	# as the distribution's current one.
+	-sudo apt-get install linux-image-generic linux-headers-generic
 	@echo "Uninstall finished. Please reboot your computer now"
 
 dist: 

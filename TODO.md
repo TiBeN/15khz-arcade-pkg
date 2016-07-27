@@ -21,6 +21,3 @@
      - When output as the same res as beeing tested
 -    Add support for "attractmode" frontend ?
 -    Add support + doc for "One CRT Only" Xorg config layout
--    BUG : (**MAJOR**) `make uninstall` does remove the kernel if the patched one 
-     is of the same version of the previous one, leave the system without 
-     any Kernel. Find another method to reinstall the previous original

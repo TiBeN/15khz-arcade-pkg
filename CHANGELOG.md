@@ -1,9 +1,13 @@
-CHANGELOG
+HANGELOG
 =========
 
 Current
 -------
 
+- Fixed BUG : (**MAJOR**) `make uninstall` does remove the kernel if
+  the patched one is of the same version of the previous one, leave 
+  the system without any Kernel. Find another method to reinstall the 
+  previous original.
 - Added comments on setting the patched as default on GRUB
 - Tried creating custom EDID binaries for 15khz but doesn't
   seems to work with NVIDIA
