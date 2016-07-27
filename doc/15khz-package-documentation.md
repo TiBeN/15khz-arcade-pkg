@@ -428,7 +428,7 @@ the lack of EDID data — and sets it to the 640x480 15khz modeline provided
 by the patch. This is done by adding to parameters to the kernel at boot:
 
 1.  Edit the grub configuration file `/etc/default/grub` and add
-    `vga=0x311 video=<DEVICE-NAME>:640x480ec` to the kernel options
+    `vga=0x311 video=<DEVICE-NAME>:640x480@60ec` to the kernel options
     `GRUB_CMDLINE_LINUX_DEFAULT`.
 
     Replace <DEVICE-NAME> by the name of the output where the CRT screen is
