@@ -13,7 +13,6 @@
 -    Makefile: make distinction between nvidia and others :
      -   nvidia: no kernel but driver patch. 
      -   other: kernel
--    Makefile: Make an option to not compile kernel
 -    [WIP] Kernel: Add suffix to kernel name (+patched) to be sure to delete
      the good one
 -    15khz-change-res: handle cases:
