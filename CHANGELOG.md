@@ -1,8 +1,8 @@
 CHANGELOG
 =========
 
-Current
--------
+xenial_Ubuntu-4.4.0-31.50_0.170_1
+---------------------------------
 
 - Added tag on the changelog of the patched nouveau driver APT 
   package to prevent its update by the update manager
