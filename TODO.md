@@ -17,4 +17,4 @@
      - When output is off by default
      - When output as the same res as beeing tested
 -    Add support for "attractmode" frontend ?
--    Add support + doc for "One CRT Only" Xorg config layout
+-    [WIP] - Add support + doc for "One CRT Only" Xorg config layout
