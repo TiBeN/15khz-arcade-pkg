@@ -14,3 +14,5 @@
 -    Add support for "attractmode" frontend ?
 -    Add some tips to configure emulators
 -    Write documentation about `new X instance` layout
+-    Configure the system to launch attractmode at boot, without
+     desktop environment
