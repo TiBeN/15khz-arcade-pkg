@@ -35,9 +35,11 @@ GROOVYMAME_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledr
 GROOVYMAME_PATCH = vendor/groovymame-patchs/groovymame.diff
 GROOVYMAME_BIN = vendor/mame/mame64
 
-XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC = vendor/xserver-xorg-video-nouveau-1.0.12
-XSERVER_XORG_VIDEO_NOUVEAU_PATCH = src/xorg-video-nouveau-1.0.12-low-res.diff
-XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG = vendor/xserver-xorg-video-nouveau_1.0.12-1build2_amd64.deb
+XSERVER_XORG_VIDEO_NOUVEAU_VERSION = 1.0.12
+XSERVER_XORG_VIDEO_NOUVEAU_DEB_VERSION = 1.0.12-1build2
+XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC = vendor/xserver-xorg-video-nouveau-$(XSERVER_XORG_VIDEO_NOUVEAU_VERSION)
+XSERVER_XORG_VIDEO_NOUVEAU_PATCH = src/xorg-video-nouveau-$(XSERVER_XORG_VIDEO_NOUVEAU_VERSION)-low-res.diff
+XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG = vendor/xserver-xorg-video-nouveau_$(XSERVER_XORG_VIDEO_NOUVEAU_DEB_VERSION)+patched15khz_amd64.deb
 
 SWITCHRES_SRC_PKG_URL = http://forum.arcadecontrols.com/index.php?action=dlattach;topic=106405.0;attach=308813
 SWITCHRES_SRC_PKG = vendor/SwitchResLinux-1.52.rar
@@ -53,9 +55,9 @@ VICE_BIN = vendor/vice-2.4/src/x64
 
 all: linux-kernel \
      xserver-xorg-video-nouveau \
- 	groovymame \
-	 switchres \
-	 vice
+     groovymame \
+     switchres \
+     vice
 
 clean:
 	rm -rf vendor
@@ -175,6 +177,10 @@ $(XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG): $(XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC)
 	mkdir -p vendor
 	cd $(XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC)/src \
 		&& patch < $(realpath $(XSERVER_XORG_VIDEO_NOUVEAU_PATCH))
+	cd $(XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC)/ \
+		&& sed -i -e "1 s/)/+patched15khz)/" debian/changelog
+	mv vendor/xserver-xorg-video-nouveau_$(XSERVER_XORG_VIDEO_NOUVEAU_DEB_VERSION).dsc \
+		vendor/xserver-xorg-video-nouveau_$(XSERVER_XORG_VIDEO_NOUVEAU_DEB_VERSION)+patched15khz.dsc
 	cd $(XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC)/ \
 		&& dpkg-buildpackage -us -uc -nc
 

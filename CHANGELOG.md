@@ -1,9 +1,11 @@
-HANGELOG
+CHANGELOG
 =========
 
 Current
 -------
 
+- Added tag on the changelog of the patched nouveau driver APT 
+  package to prevent its update by the update manager
 - Fixed `Make install` doesn't install package 
   `linux-image-extra` which is required for good installation
   of the kernel.
