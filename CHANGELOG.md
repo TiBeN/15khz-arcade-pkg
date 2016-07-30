@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+Current
+-------
+
+- Improved Xorg configuration documentation
+- Added support + doc for "One CRT Only" Xorg config layout
+
 xenial_Ubuntu-4.4.0-31.50_0.170_1
 ---------------------------------
 

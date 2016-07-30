@@ -475,15 +475,17 @@ define the option like this:
 
 ### Configuring Xorg
 
-Here is the most tricky part. Xorg allows many configuration schemes but
-having it to achieve what you really want is not easy and it demands you to
-understand a little how it works.
+Here is the most tricky part. Here you will define your monitors 
+setup: Only the CRT screen, or your LCD screen on your HDMI port
+and your CRT screen as a slave etc.
 
-Xorg allows many configuration layouts to acheive our goal:
+Xorg allows many configuration schemes but having it to achieve what
+you really want is not easy and it demands you to understand a 
+little how it works.
 
--   **One CRT Screen only**: If think it's the most simple setup and should
-    works with the provided tools but is not covered for now (My primary
-    goal was to connect a CRT screen as a slave).
+Xorg allows many configuration layouts to achieve our goal:
+
+-   **One CRT Screen only**: It is the simplest setup. 
 
 -   **Dualhead using Xrandr**: This is the standard layout used today by
     default when you connect two screens on Ubuntu. After many tests
@@ -495,20 +497,64 @@ Xorg allows many configuration layouts to acheive our goal:
 
 -   **Separate X screen using ZaphoHeads**: This is a great layout but
     works only with GroovyMame. Other emulators starts but keyboard and mouse 
-    input does not responds. I think it is related to xorg input
+    input does not responds. I think it is related to Xorg input
     to screen assignation but i have not managed to configure them properly. 
     What's more the zaphodhead mode seems to be specific to nvidia cards.
 
 -   **New X instance**: The idea is to launch a completelly new X server 
-    instance with a special server layout using the `startx` wrapper. It is
+    instance with a special server layout using the `startx` wrapper. That's
     the mode i use actually because it removes the input issues i had with
     the zaphodhead mode. It is a little harder to setup, i'll cover it here
     asap. Note: This configuration layout doesn't seems to require patched
     version of nouveau drivers — see the relevant section to know more.
 
+### Instructions commons to all layout
+
+The make things simple, 
+[Xorg Xserver](https://en.wikipedia.org/wiki/X.Org_Server) is the base 
+graphical environment on Linux. It is configured through a file named 
+`xorg.conf` located at `/etc/X11/xorg.conf` on Ubuntu distributions.
+If you have not already played with it there are chances it doesn't exists
+on your system because today it's configuration is handled dynamically.
+
+I will not explain here the concepts and methods of the `xorg.conf`
+configuration — Here is a good 
+[introduction](http://www.ghacks.net/2009/02/04/get-to-know-linux-understanding-xorgconf/) 
+—, but i provide a `xorg.conf` example file for each configuration 
+layouts i cover on this documentation.
+
+All configuration layouts have in common the use of a custom Modeline (see 
+the Modeline parameter on the examples files) with a resolution of 
+648x480 and refresh rate of 60hz attached to the CRT screen 
+configuration. This is the key configuration to make your CRT screen
+to display something by default — emulators and wrappers provided by this
+package will handle their own modelines. Xorg doesn't handle itself 
+15khz CRT screens.
+
+Using these examples as templates, you will essentially need to check 
+and replace the outputname (common names are DVI-I-1, VGA-1 or HDMI-1) 
+or the BusID. 
+
+Outputnames of your system can be known using `xrandr`:
+
+```bash
+$ xrandr
+```
+
+Bus id can be known with the following command: 
+
+```bash
+$ lspci | grep VGA
+```
+
 #### CRT Screen only
 
-Covered asap
+This is the layout to use when you only want your CRT screen connected.
+(with a cab or as a box near you TV)
+I strongly recommend you to use a patched kernel and KMS configured 
+properly to allow you to debug your system without X instance.
+The provided example `xorg.conf` file is available 
+[here](doc/xorg-crt-only-example.conf).
 
 #### Zaphodheads mode
 
@@ -519,17 +565,12 @@ is explained on the official `nouveau drivers` website at
 It is recommended to delete the file `~/.config/monitors.xml` because it
 seems to override Xorg options and makes debugging harder.
 
-The file `doc/xorg-zaphodhead-example.conf` available in this repository of 
-the project is a working `xorg.conf` example. In this example, CRT screen 
-is set on the output "DVI-I-1". Custom 15khz 648x480 modeline is defined 
-and set as default mode on the `Monitor1` attached to `Screen1`. This 
-ensures the CRT screen to be set with a compatible 15Khz modeline 
-by default.
-
-You can use this config file and adjust it for your configuration.
+The provided example `xorg.conf` file is available 
+[here](doc/xorg-zaphodhead-example.conf).
+In this example, CRT screen is set on the output "DVI-I-1". 
 
 Once done, the 15Khz screen is made available as a separate X screen 
-numbered `:0.1` — On Ubuntu Wily with Gnome 3 and maybe others, the screen 
+numbered `:0.1` — On Ubuntu with Gnome 3 and maybe others, the screen 
 number starts at :1, so in this case the screen number is `:1.1`.
 So to launch a program on this screen, prefix the command-line with
 `DISPLAY=:0.1`. Example:
@@ -542,8 +583,9 @@ $ DISPLAY=:0.1 xrandr
 
 Covered asap.
 
-An example of an xorg.conf for this layout is avaible on this repository at 
-`doc/xorg-separate-layouts-example.conf`.
+The provided example `xorg.conf` file is available 
+[here](doc/xorg-separate-layouts-example.conf).
+
 
 Usage
 -----
