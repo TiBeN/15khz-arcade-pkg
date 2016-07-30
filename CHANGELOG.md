@@ -4,10 +4,18 @@ HANGELOG
 Current
 -------
 
+- Fixed `Make install` doesn't install package 
+  `linux-image-extra` which is required for good installation
+  of the kernel.
+- Upgraded supported kernel version to Ubuntu-4.4.0-31.50
 - Fixed BUG : (**MAJOR**) `make uninstall` does remove the kernel if
   the patched one is of the same version of the previous one, leave 
   the system without any Kernel. Find another method to reinstall the 
   previous original.
+
+xenial_Ubuntu-4.4.0-24.43_0.170_1
+---------------------------------
+
 - Added comments on setting the patched as default on GRUB
 - Tried creating custom EDID binaries for 15khz but doesn't
   seems to work with NVIDIA
