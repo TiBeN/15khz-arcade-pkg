@@ -88,7 +88,7 @@ is not easier but can be adjusted to fit setups which differ a little.
 
 The provided makefile automates the build of the following:
 
--   **Linux kernel Ubuntu-4.4.0-24.43**, patched using 15khz patchs.
+-   **Linux kernel Ubuntu-4.4.0-31.50**, patched using 15khz patchs.
 -   **nouveau drivers 1.0.11**, patched to support low resolutions
 -   **Mame 0.170**, patched with the groovymame patch.
 -   **Vice 2.4** — a Commodore 64 emulator — with the SDL support. 
