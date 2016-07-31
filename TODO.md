@@ -11,7 +11,7 @@
 -    15khz-change-res: handle cases:
      - When output is off by default
      - When output as the same res as beeing tested
--    Add support for "attractmode" frontend ?
+-    [WIP] - Add support for "attractmode" frontend
 -    Add some tips to configure emulators
 -    Write documentation about `new X instance` layout
 -    Configure the system to launch attractmode at boot, without
