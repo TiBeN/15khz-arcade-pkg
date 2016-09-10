@@ -16,3 +16,5 @@
 -    Write documentation about `new X instance` layout
 -    Configure the system to launch attractmode at boot, without
      desktop environment
+-    Groovymame doesn't return with good modeline with most of
+     games
