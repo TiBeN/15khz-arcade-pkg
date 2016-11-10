@@ -1,8 +1,8 @@
 CHANGELOG
 =========
 
-Current
--------
+xenial_Ubuntu-4.4.0-47.68_0.179_1
+---------------------------------
 
 - Upgraded supported kernel version to Ubuntu-4.4.0-47.68
 - Upgraded to Groovymame 0.179
