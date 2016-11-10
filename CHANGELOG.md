@@ -4,6 +4,8 @@ CHANGELOG
 Current
 -------
 
+- Upgraded supported kernel version to Ubuntu-4.4.0-47.68
+- Upgraded to Groovymame 0.179
 - Improved Xorg configuration documentation
 - Added support + doc for "One CRT Only" Xorg config layout
 

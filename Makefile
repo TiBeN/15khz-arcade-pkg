@@ -6,10 +6,12 @@
 SHELL = /bin/sh
 DESTDIR = /usr/local
 
+# To see current kernel version go to http://kernel.ubuntu.com/git/
+
 UBUNTU_VERSION = xenial
 KERNEL_BASE_VERSION = 4.4.0
-KERNEL_ABI_NUMBER = 31
-KERNEL_UPLOAD_NUMBER = 50
+KERNEL_ABI_NUMBER = 47
+KERNEL_UPLOAD_NUMBER = 68
 KERNEL_GIT_URL = git://kernel.ubuntu.com/ubuntu/ubuntu-$(UBUNTU_VERSION).git
 KERNEL_GIT_TAG = Ubuntu-$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER).$(KERNEL_UPLOAD_NUMBER)
 
@@ -27,11 +29,10 @@ LINUX_15KHZ_PATCH = src/linux-4.2.diff
 LINUX_AT9200_PATCH = src/ati9200_pllfix-3.19.diff
 LINUX_AVGA3000_PATCH = src/avga3000-4.4.diff
 
-MAME_SRC_PKG_URL = https://github.com/mamedev/mame/releases/download/mame0170/mame0170s.zip
-MAME_SRC_PKG = vendor/mame0170s.zip
-GROOVYMAME_HI_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.170_015l/hi_0170.diff
-GROOVYMAME_HI_PATCH = vendor/groovymame-patchs/hi.diff
-GROOVYMAME_PATCH_URL = https://54c0ab1f0b10beedc11517491db5e9770a1c66c6.googledrive.com/host/0B5iMjDor3P__aEFpcVNkVW5jbEE/v0.170_015l/0170_groovymame_015l.diff
+MAME_VERSION = 0179
+MAME_SRC_PKG_URL = https://github.com/mamedev/mame/archive/mame$(MAME_VERSION).tar.gz
+MAME_SRC_PKG = vendor/mame$(MAME_VERSION).tar.gz
+GROOVYMAME_PATCH_URL = https://doc-0c-ak-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/idfvl16oj1bnpbpiimst02jseila9fpl/1478714400000/14540090406451835757/*/0B5iMjDor3P__WjNRdkg1clkxUzQ?e=download
 GROOVYMAME_PATCH = vendor/groovymame-patchs/groovymame.diff
 GROOVYMAME_BIN = vendor/mame/mame64
 
@@ -188,16 +189,12 @@ $(XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC):
 	mkdir -p vendor
 	cd vendor && apt-get source xserver-xorg-video-nouveau
 
-$(GROOVYMAME_BIN): $(MAME_SRC_PKG) \
-				   $(GROOVYMAME_HI_PATCH) \
-				   $(GROOVYMAME_PATCH)
+$(GROOVYMAME_BIN): $(GROOVYMAME_PATCH) \
+				   $(MAME_SRC_PKG)
 	rm -rf vendor/mame
-	cd vendor && unzip $(realpath $(MAME_SRC_PKG))
-	mkdir vendor/mame 
-	cd vendor/mame && unzip ../mame.zip
-	rm vendor/mame.zip
-	cd vendor/mame && patch -p0 --binary < $(realpath $(GROOVYMAME_HI_PATCH))
-	cd vendor/mame && patch -p0 --binary < $(realpath $(GROOVYMAME_PATCH))
+	cd vendor && tar xvf $(realpath $(MAME_SRC_PKG))
+	mv vendor/mame-mame$(MAME_VERSION) vendor/mame
+	cd vendor/mame && patch -p0 -E --binary < $(realpath $(GROOVYMAME_PATCH))
 	cd vendor/mame && MAKEFLAGS= MFLAGS= make
 
 $(MAME_SRC_PKG):
@@ -205,14 +202,9 @@ $(MAME_SRC_PKG):
 	wget -O $(MAME_SRC_PKG) $(MAME_SRC_PKG_URL)
 	touch $(MAME_SRC_PKG)
 
-$(GROOVYMAME_HI_PATCH):
-	mkdir -p $(dir $(GROOVYMAME_HI_PATCH))
-	wget -O $(GROOVYMAME_HI_PATCH) $(GROOVYMAME_HI_PATCH_URL)
-	touch $(GROOVYMAME_HI_PATCH)
-
 $(GROOVYMAME_PATCH):
 	mkdir -p $(dir $(GROOVYMAME_PATCH))
-	wget -O $(GROOVYMAME_PATCH) $(GROOVYMAME_PATCH_URL)
+	curl $(GROOVYMAME_PATCH_URL) | tr -d "\r" > $(GROOVYMAME_PATCH)
 	touch $(GROOVYMAME_PATCH)
 
 $(SWITCHRES_BIN): $(SWITCHRES_SRC_PKG)	

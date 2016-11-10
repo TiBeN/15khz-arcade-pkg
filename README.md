@@ -19,7 +19,7 @@ pieces of softwares.
 
     ```bash
     $ sudo apt-get update
-    $ sudo apt-get build-dep linux-image-4.4.0-31-generic
+    $ sudo apt-get build-dep linux-image-4.4.0-47-generic
     $ sudo apt-get build-dep mame vice xserver-xorg-video-nouveau
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
         qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev

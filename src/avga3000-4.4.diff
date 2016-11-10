@@ -86,7 +86,7 @@ index 8f28524..a1ec8a3 100644
 +				p2pll->pll_out_min = 50000;
 +		}
 +
- 		if (crev >= 4) {
+ 		if (((frev < 2) && (crev >= 4)) || (frev >= 2)) {
  			p1pll->lcd_pll_out_min =
  				le16_to_cpu(firmware_info->info_14.usLcdMinPixelClockPLL_Output) * 100;
 diff --git a/drivers/gpu/drm/radeon/radeon_bios.c b/drivers/gpu/drm/radeon/radeon_bios.c
