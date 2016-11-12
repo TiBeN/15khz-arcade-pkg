@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+Current
+-------
+
+- Now embed the Groovymame patch since it is not possible to download
+  directly from its Google Drive since google doesn't allow direct link
+  anymore.
+
 xenial_Ubuntu-4.4.0-47.68_0.179_1
 ---------------------------------
 

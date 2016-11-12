@@ -32,8 +32,7 @@ LINUX_AVGA3000_PATCH = src/avga3000-4.4.diff
 MAME_VERSION = 0179
 MAME_SRC_PKG_URL = https://github.com/mamedev/mame/archive/mame$(MAME_VERSION).tar.gz
 MAME_SRC_PKG = vendor/mame$(MAME_VERSION).tar.gz
-GROOVYMAME_PATCH_URL = https://doc-0c-ak-docs.googleusercontent.com/docs/securesc/ha0ro937gcuc7l7deffksulhg5h7mbp1/idfvl16oj1bnpbpiimst02jseila9fpl/1478714400000/14540090406451835757/*/0B5iMjDor3P__WjNRdkg1clkxUzQ?e=download
-GROOVYMAME_PATCH = vendor/groovymame-patchs/groovymame.diff
+GROOVYMAME_PATCH = src/0179_groovymame_016_alpha3.diff 
 GROOVYMAME_BIN = vendor/mame/mame64
 
 XSERVER_XORG_VIDEO_NOUVEAU_VERSION = 1.0.12
@@ -189,8 +188,7 @@ $(XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC):
 	mkdir -p vendor
 	cd vendor && apt-get source xserver-xorg-video-nouveau
 
-$(GROOVYMAME_BIN): $(GROOVYMAME_PATCH) \
-				   $(MAME_SRC_PKG)
+$(GROOVYMAME_BIN): $(MAME_SRC_PKG)
 	rm -rf vendor/mame
 	cd vendor && tar xvf $(realpath $(MAME_SRC_PKG))
 	mv vendor/mame-mame$(MAME_VERSION) vendor/mame
@@ -201,11 +199,6 @@ $(MAME_SRC_PKG):
 	mkdir -p $(dir $(MAME_SRC_PKG))
 	wget -O $(MAME_SRC_PKG) $(MAME_SRC_PKG_URL)
 	touch $(MAME_SRC_PKG)
-
-$(GROOVYMAME_PATCH):
-	mkdir -p $(dir $(GROOVYMAME_PATCH))
-	curl $(GROOVYMAME_PATCH_URL) | tr -d "\r" > $(GROOVYMAME_PATCH)
-	touch $(GROOVYMAME_PATCH)
 
 $(SWITCHRES_BIN): $(SWITCHRES_SRC_PKG)	
 	mkdir -p $(dir $(SWITCHRES_BIN))
