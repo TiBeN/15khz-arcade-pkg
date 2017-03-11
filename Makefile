@@ -8,10 +8,10 @@ DESTDIR = /usr/local
 
 # To see current kernel version go to http://kernel.ubuntu.com/git/
 
-UBUNTU_VERSION = xenial
-KERNEL_BASE_VERSION = 4.4.0
-KERNEL_ABI_NUMBER = 47
-KERNEL_UPLOAD_NUMBER = 68
+UBUNTU_VERSION = yakkety
+KERNEL_BASE_VERSION = 4.8.0
+KERNEL_ABI_NUMBER = 39
+KERNEL_UPLOAD_NUMBER = 42
 KERNEL_GIT_URL = git://kernel.ubuntu.com/ubuntu/ubuntu-$(UBUNTU_VERSION).git
 KERNEL_GIT_TAG = Ubuntu-$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER).$(KERNEL_UPLOAD_NUMBER)
 
@@ -25,7 +25,7 @@ LINUX_IMAGE_DEB = vendor/$(LINUX_IMAGE_APT)_$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_
 LINUX_IMAGE_EXTRA_APT = linux-image-extra-$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER)-generic
 LINUX_IMAGE_EXTRA_DEB = vendor/$(LINUX_IMAGE_EXTRA_APT)_$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER).$(KERNEL_UPLOAD_NUMBER)+patched15khz_amd64.deb
 
-LINUX_15KHZ_PATCH = src/linux-4.2.diff
+LINUX_15KHZ_PATCH = src/linux-4.7.diff
 LINUX_AT9200_PATCH = src/ati9200_pllfix-3.19.diff
 LINUX_AVGA3000_PATCH = src/avga3000-4.4.diff
 
@@ -36,7 +36,7 @@ GROOVYMAME_PATCH = src/0179_groovymame_016_alpha3.diff
 GROOVYMAME_BIN = vendor/mame/mame64
 
 XSERVER_XORG_VIDEO_NOUVEAU_VERSION = 1.0.12
-XSERVER_XORG_VIDEO_NOUVEAU_DEB_VERSION = 1.0.12-1build2
+XSERVER_XORG_VIDEO_NOUVEAU_DEB_VERSION = 1.0.12-2
 XSERVER_XORG_VIDEO_NOUVEAU_DEB_SRC = vendor/xserver-xorg-video-nouveau-$(XSERVER_XORG_VIDEO_NOUVEAU_VERSION)
 XSERVER_XORG_VIDEO_NOUVEAU_PATCH = src/xorg-video-nouveau-$(XSERVER_XORG_VIDEO_NOUVEAU_VERSION)-low-res.diff
 XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG = vendor/xserver-xorg-video-nouveau_$(XSERVER_XORG_VIDEO_NOUVEAU_DEB_VERSION)+patched15khz_amd64.deb
@@ -45,9 +45,10 @@ SWITCHRES_SRC_PKG_URL = http://forum.arcadecontrols.com/index.php?action=dlattac
 SWITCHRES_SRC_PKG = vendor/SwitchResLinux-1.52.rar
 SWITCHRES_BIN = vendor/switchres/switchres
 
-VICE_SRC_PKG_URL = http://downloads.sourceforge.net/project/vice-emu/releases/vice-2.4.tar.gz?r=http%3A%2F%2Fvice-emu.sourceforge.net%2Findex.html&ts=1457259873&use_mirror=freefr
+VICE_VERSION = 3.0
+VICE_SRC_PKG_URL = https://downloads.sourceforge.net/project/vice-emu/releases/vice-3.0.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fvice-emu%2Ffiles%2Freleases%2Fvice-3.0.tar.gz%2Fdownload&ts=1488871485&use_mirror=netcologne
 VICE_SRC_PKG = vendor/vice.tar.gz
-VICE_BIN = vendor/vice-2.4/src/x64
+VICE_BIN = vendor/vice-$(VICE_VERSION)/src/x64
 
 .PHONY: all install clean
 
@@ -70,7 +71,7 @@ install:
 		$(XSERVER_XORG_VIDEO_NOUVEAU_DEB_PKG)
 	mkdir -p $(DESTDIR)/lib/15khz-arcade-pkg
 	cp -r vendor/mame $(DESTDIR)/lib/15khz-arcade-pkg/groovymame
-	cp -r vendor/vice-2.4 $(DESTDIR)/lib/15khz-arcade-pkg/vice
+	cp -r vendor/vice-$(VICE_VERSION) $(DESTDIR)/lib/15khz-arcade-pkg/vice
 	cd $(DESTDIR)/lib/15khz-arcade-pkg/groovymame && make clean
 	cp vendor/switchres/switchres $(DESTDIR)/lib/15khz-arcade-pkg
 	mkdir -p $(DESTDIR)/bin
@@ -216,8 +217,8 @@ $(VICE_BIN): $(VICE_SRC_PKG)
 	mkdir -p vendor
 	cd vendor \
 		&& tar xf $(realpath $(VICE_SRC_PKG))
-	cd vendor/vice-2.4 \
-		&& ./configure --enable-sdlui --disable-ffmpeg \
+	cd vendor/vice-$(VICE_VERSION) \
+		&& ./configure --enable-sdlui \
 		&& make
 
 $(VICE_SRC_PKG):

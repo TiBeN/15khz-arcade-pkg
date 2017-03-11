@@ -7,7 +7,7 @@ scripts to connect an analog CRT monitor on Ubuntu and use commons
 emulators (mame, fs-uae...) at real native resolution to make the 
 "pixel perfect" experience. 
 
-Supported Ubuntu version: **16.04** (Xenial Xerus).
+Supported Ubuntu version: **16.10** (Yakkety Yak).
 
 Installation
 ------------
@@ -19,7 +19,7 @@ pieces of softwares.
 
     ```bash
     $ sudo apt-get update
-    $ sudo apt-get build-dep linux-image-4.4.0-47-generic
+    $ sudo apt-get build-dep linux-image-4.8.0-39-generic
     $ sudo apt-get build-dep mame vice xserver-xorg-video-nouveau
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
         qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev
@@ -69,7 +69,7 @@ others tools. For example:
 -   To change the resolution of the screen and launch a program
     
     ```bash
-    $ 15khz-change-res-exec 320 24O 50 <program>
+    $ 15khz-change-res-exec 320 240 50 <program>
     ```
 
 More information

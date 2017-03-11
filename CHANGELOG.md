@@ -4,6 +4,8 @@ CHANGELOG
 Current
 -------
 
+- Upgraded VICE emulator to version 3.0
+- Upgraded Ubuntu version to 16.10 Yakkety Yak, kernel Ubuntu-4.8.0-39.42
 - Now embed the Groovymame patch since it is not possible to download
   directly from its Google Drive since google doesn't allow direct link
   anymore.
