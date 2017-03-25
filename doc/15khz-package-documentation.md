@@ -90,7 +90,7 @@ The provided makefile automates the build of the following:
 
 -   **Linux kernel Ubuntu-4.8.0-39.42**, patched using 15khz patchs.
 -   **nouveau drivers 1.0.11**, patched to support low resolutions
--   **Mame 0.179**, patched with the groovymame patch.
+-   **Mame 0.183**, patched with the groovymame patch.
 -   **Vice 3.0** — a Commodore 64 emulator — with the SDL support. 
     SDL version of vice has a better support for full screen native 
     resolution.

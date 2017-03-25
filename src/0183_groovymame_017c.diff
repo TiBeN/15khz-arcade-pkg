@@ -1,6 +1,6 @@
 diff -Nru 3rdparty/bgfx/include/bgfx/bgfx.h 3rdparty/bgfx/include/bgfx/bgfx.h
---- 3rdparty/bgfx/include/bgfx/bgfx.h	2016-10-26 02:55:11.000000000 +0200
-+++ 3rdparty/bgfx/include/bgfx/bgfx.h	2016-10-29 21:28:10.000000000 +0200
+--- 3rdparty/bgfx/include/bgfx/bgfx.h	2017-02-22 02:10:15.000000000 +0100
++++ 3rdparty/bgfx/include/bgfx/bgfx.h	2017-02-22 13:47:37.000000000 +0100
 @@ -340,6 +340,15 @@
  		};
  	};
@@ -17,7 +17,7 @@ diff -Nru 3rdparty/bgfx/include/bgfx/bgfx.h 3rdparty/bgfx/include/bgfx/bgfx.h
  	static const uint16_t invalidHandle = UINT16_MAX;
  
  	BGFX_HANDLE(DynamicIndexBufferHandle);
-@@ -1010,6 +1019,8 @@
+@@ -1057,6 +1066,8 @@
  	///
  	void reset(uint32_t _width, uint32_t _height, uint32_t _flags = BGFX_RESET_NONE);
  
@@ -27,9 +27,9 @@ diff -Nru 3rdparty/bgfx/include/bgfx/bgfx.h 3rdparty/bgfx/include/bgfx/bgfx.h
  	/// just swaps internal buffers, kicks render thread, and returns. In
  	/// singlethreaded renderer this call does frame rendering.
 diff -Nru 3rdparty/bgfx/src/bgfx.cpp 3rdparty/bgfx/src/bgfx.cpp
---- 3rdparty/bgfx/src/bgfx.cpp	2016-10-26 02:55:11.000000000 +0200
-+++ 3rdparty/bgfx/src/bgfx.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -286,6 +286,8 @@
+--- 3rdparty/bgfx/src/bgfx.cpp	2017-02-22 02:10:15.000000000 +0100
++++ 3rdparty/bgfx/src/bgfx.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -290,6 +290,8 @@
  	InternalData g_internalData;
  	PlatformData g_platformData;
  	bool g_platformDataChangedSinceReset = false;
@@ -38,11 +38,11 @@ diff -Nru 3rdparty/bgfx/src/bgfx.cpp 3rdparty/bgfx/src/bgfx.cpp
  
  	void AllocatorStub::checkLeaks()
  	{
-@@ -2475,6 +2477,16 @@
+@@ -2593,6 +2595,16 @@
  		errorState = ErrorState::ContextAllocated;
  
- 		s_ctx = BX_ALIGNED_NEW(g_allocator, Context, 16);
-+
+ 		s_ctx = BX_ALIGNED_NEW(g_allocator, Context, 64);
++		
 +		if (vm.m_width)
 +		{
 +			s_ctx->m_resolution.m_width = vm.m_width;
@@ -55,7 +55,7 @@ diff -Nru 3rdparty/bgfx/src/bgfx.cpp 3rdparty/bgfx/src/bgfx.cpp
  		if (s_ctx->init(_type) )
  		{
  			BX_TRACE("Init complete.");
-@@ -2556,6 +2568,14 @@
+@@ -2674,6 +2686,23 @@
  		s_ctx->reset(_width, _height, _flags);
  	}
  
@@ -65,15 +65,24 @@ diff -Nru 3rdparty/bgfx/src/bgfx.cpp 3rdparty/bgfx/src/bgfx.cpp
 +		BX_CHECK(0 == (_flags&BGFX_RESET_RESERVED_MASK), "Do not set reset reserved flags!");
 +		vm = _video_mode;
 +		flags = _flags;
++
++		if (NULL != s_ctx)
++		{
++			s_ctx->m_resolution.m_width = vm.m_width;
++			s_ctx->m_resolution.m_height = vm.m_height;
++			s_ctx->m_resolution.m_refresh = vm.m_refresh;
++			s_ctx->m_resolution.m_interlace = vm.m_interlace;
++			s_ctx->m_resolution.m_flags = flags;
++		}
 +	}
 +
  	uint32_t frame(bool _capture)
  	{
  		BGFX_CHECK_MAIN_THREAD();
 diff -Nru 3rdparty/bgfx/src/bgfx_p.h 3rdparty/bgfx/src/bgfx_p.h
---- 3rdparty/bgfx/src/bgfx_p.h	2016-10-26 02:55:11.000000000 +0200
-+++ 3rdparty/bgfx/src/bgfx_p.h	2016-10-29 21:28:11.000000000 +0200
-@@ -202,6 +202,7 @@
+--- 3rdparty/bgfx/src/bgfx_p.h	2017-02-22 02:10:15.000000000 +0100
++++ 3rdparty/bgfx/src/bgfx_p.h	2017-02-22 13:47:37.000000000 +0100
+@@ -192,6 +192,7 @@
  
  #define BGFX_DEFAULT_WIDTH  1280
  #define BGFX_DEFAULT_HEIGHT 720
@@ -81,7 +90,7 @@ diff -Nru 3rdparty/bgfx/src/bgfx_p.h 3rdparty/bgfx/src/bgfx_p.h
  
  #define BGFX_MAX_COMPUTE_BINDINGS 8
  
-@@ -1346,12 +1347,16 @@
+@@ -1352,12 +1353,16 @@
  		Resolution()
  			: m_width(BGFX_DEFAULT_WIDTH)
  			, m_height(BGFX_DEFAULT_HEIGHT)
@@ -99,9 +108,9 @@ diff -Nru 3rdparty/bgfx/src/bgfx_p.h 3rdparty/bgfx/src/bgfx_p.h
  	};
  
 diff -Nru 3rdparty/bgfx/src/config.h 3rdparty/bgfx/src/config.h
---- 3rdparty/bgfx/src/config.h	2016-10-26 02:55:11.000000000 +0200
-+++ 3rdparty/bgfx/src/config.h	2016-10-29 21:28:11.000000000 +0200
-@@ -180,7 +180,7 @@
+--- 3rdparty/bgfx/src/config.h	2017-02-22 02:10:15.000000000 +0100
++++ 3rdparty/bgfx/src/config.h	2017-02-22 13:47:37.000000000 +0100
+@@ -196,7 +196,7 @@
  #endif // BGFX_CONFIG_DEBUG_OCCLUSION
  
  #ifndef BGFX_CONFIG_MULTITHREADED
@@ -111,9 +120,9 @@ diff -Nru 3rdparty/bgfx/src/config.h 3rdparty/bgfx/src/config.h
  
  #ifndef BGFX_CONFIG_MAX_DRAW_CALLS
 diff -Nru 3rdparty/bgfx/src/renderer_d3d11.cpp 3rdparty/bgfx/src/renderer_d3d11.cpp
---- 3rdparty/bgfx/src/renderer_d3d11.cpp	2016-10-26 02:55:11.000000000 +0200
-+++ 3rdparty/bgfx/src/renderer_d3d11.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -992,6 +992,15 @@
+--- 3rdparty/bgfx/src/renderer_d3d11.cpp	2017-02-22 02:10:15.000000000 +0100
++++ 3rdparty/bgfx/src/renderer_d3d11.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -1034,6 +1034,15 @@
  				{
  					DX_RELEASE(m_adapter, 2);
  				}
@@ -129,7 +138,7 @@ diff -Nru 3rdparty/bgfx/src/renderer_d3d11.cpp 3rdparty/bgfx/src/renderer_d3d11.
  			}
  			else
  			{
-@@ -1175,6 +1184,7 @@
+@@ -1217,6 +1226,7 @@
  					m_scd.BufferCount  = 1;
  					m_scd.OutputWindow = (HWND)g_platformData.nwh;
  					m_scd.Windowed     = true;
@@ -137,7 +146,119 @@ diff -Nru 3rdparty/bgfx/src/renderer_d3d11.cpp 3rdparty/bgfx/src/renderer_d3d11.
  
  					hr = m_factory->CreateSwapChain(m_device
  						, &m_scd
-@@ -2363,9 +2373,11 @@
+@@ -1671,6 +1681,14 @@
+ 		{
+ 			BGFX_GPU_PROFILER_UNBIND();
+ 
++			if (NULL != m_swapChain)
++			{
++				BOOL is_device_fullscreen;
++				m_swapChain->GetFullscreenState(&is_device_fullscreen, NULL);
++				if (is_device_fullscreen)
++					m_swapChain->SetFullscreenState(false, NULL);
++			}
++
+ 			preReset();
+ 			m_ovr.shutdown();
+ 
+@@ -1718,7 +1736,7 @@
+ 			DX_RELEASE(m_factory, 0);
+ 
+ 			unloadRenderDoc(m_renderdocdll);
+-
++/*
+ #if USE_D3D11_DYNAMIC_LIB
+ 			if (NULL != m_dxgidebugdll)
+ 			{
+@@ -1738,6 +1756,7 @@
+ 			bx::dlclose(m_d3d11dll);
+ 			m_d3d11dll = NULL;
+ #endif // USE_D3D11_DYNAMIC_LIB
++*/
+ 		}
+ 
+ 		RendererType::Enum getRendererType() const BX_OVERRIDE
+@@ -2346,6 +2365,79 @@
+ 			}
+ 		}
+ 
++		bool switchFullscreenResolution(Resolution new_mode)
++		{
++			IDXGIOutput *pOutput;
++			m_swapChain->GetContainingOutput(&pOutput);
++			
++			UINT num_modes;
++			pOutput->GetDisplayModeList(getBufferFormat(), DXGI_ENUM_MODES_INTERLACED | DXGI_ENUM_MODES_SCALING, &num_modes, 0);
++			
++			DXGI_MODE_DESC modes[num_modes];
++			pOutput->GetDisplayModeList(getBufferFormat(), DXGI_ENUM_MODES_INTERLACED | DXGI_ENUM_MODES_SCALING, &num_modes, modes);
++
++			BOOL is_device_fullscreen;
++			m_swapChain->GetFullscreenState(&is_device_fullscreen, NULL);
++			
++			if (!is_device_fullscreen)
++			{
++				DX_CHECK(m_swapChain->ResizeBuffers(2, 0, 0, getBufferFormat(), DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
++				m_swapChain->SetFullscreenState(true, NULL);
++			}
++
++			printf("Finding best match for %d x %d @ %d\n", new_mode.m_width, new_mode.m_height, new_mode.m_refresh);
++			bool found = false;
++
++			for (int i = 0; i < num_modes; i++)
++			{
++				DXGI_MODE_DESC mode = modes[i];
++				bool mode_is_interlaced = (mode.ScanlineOrdering == DXGI_MODE_SCANLINE_ORDER_UPPER_FIELD_FIRST) || (mode.ScanlineOrdering == DXGI_MODE_SCANLINE_ORDER_LOWER_FIELD_FIRST);
++
++				printf("Mode: %u / %u, %ux%u@%uHz (%u/%u) (%u, %u, %u) interlaced %d\n",
++					i + 1,
++					num_modes,
++					mode.Width,
++					mode.Height,
++					mode.RefreshRate.Numerator / mode.RefreshRate.Denominator,
++					mode.RefreshRate.Numerator, mode.RefreshRate.Denominator,
++					mode.Scaling,
++					mode.ScanlineOrdering,
++					mode.Format,
++					mode_is_interlaced
++				);
++
++				if (new_mode.m_width == mode.Width
++				 && new_mode.m_height == mode.Height
++				 && new_mode.m_refresh == (mode.RefreshRate.Numerator / mode.RefreshRate.Denominator) / (mode_is_interlaced? 2 : 1)
++				 && new_mode.m_interlace == mode_is_interlaced)
++				{
++					found = true;
++					printf("DXGI: Setting %dx%d %d\n", new_mode.m_width, new_mode.m_height, new_mode.m_refresh);
++					DX_CHECK(m_swapChain->ResizeTarget(&mode));
++					break;
++				}
++			}
++
++			if (!found)
++			{
++				printf("DXGI: Mode not found, trying to set %dx%d %d\n", new_mode.m_width, new_mode.m_height, new_mode.m_refresh);
++				DXGI_MODE_DESC mode = {0};
++				mode.Width  = new_mode.m_width;
++				mode.Height = new_mode.m_height;
++				mode.RefreshRate.Numerator = new_mode.m_refresh;
++				mode.RefreshRate.Denominator = 1;
++				mode.Format = getBufferFormat();
++				mode.ScanlineOrdering = new_mode.m_interlace? DXGI_MODE_SCANLINE_ORDER_UPPER_FIELD_FIRST : DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
++				mode.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
++				DX_CHECK(m_swapChain->ResizeTarget(&mode));
++			}
++
++			DX_CHECK(m_swapChain->ResizeBuffers(2, new_mode.m_width, new_mode.m_height, getBufferFormat(), DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
++
++			return found;
++		}
++
++
+ 		bool updateResolution(const Resolution& _resolution)
+ 		{
+ 			const bool suspended    = !!( _resolution.m_flags & BGFX_RESET_SUSPEND);
+@@ -2404,9 +2496,11 @@
  				| BGFX_RESET_SUSPEND
  				);
  
@@ -151,33 +272,45 @@ diff -Nru 3rdparty/bgfx/src/renderer_d3d11.cpp 3rdparty/bgfx/src/renderer_d3d11.
  			{
  				uint32_t flags = _resolution.m_flags & (~BGFX_RESET_INTERNAL_FORCE);
  
-@@ -2404,6 +2416,22 @@
- 							, getBufferFormat()
- 							, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
- 							) );
+@@ -2439,12 +2533,18 @@
+ 					if (resize)
+ 					{
+ 						m_deviceCtx->OMSetRenderTargets(1, s_zero.m_rtv, NULL);
+-						DX_CHECK(m_swapChain->ResizeBuffers(2
+-							, getBufferWidth()
+-							, getBufferHeight()
+-							, getBufferFormat()
+-							, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
+-							) );
 +
-+						DXGI_MODE_DESC mode_desc = {0};
-+						//printf("renderer_d3d11: update resolution %d x %d\n", m_resolution.m_width, m_resolution.m_height);
-+						mode_desc.Width  = m_resolution.m_width;
-+						mode_desc.Height = m_resolution.m_height;
-+						mode_desc.RefreshRate.Numerator = m_resolution.m_refresh;
-+						mode_desc.RefreshRate.Denominator = 1;
-+						mode_desc.ScanlineOrdering = m_resolution.m_interlace? DXGI_MODE_SCANLINE_ORDER_UPPER_FIELD_FIRST : DXGI_MODE_SCANLINE_ORDER_PROGRESSIVE;
-+						DX_CHECK(m_swapChain->ResizeTarget(&mode_desc));
-+
-+						BOOL is_device_fullscreen;
-+						m_swapChain->GetFullscreenState(&is_device_fullscreen, NULL);
-+						
-+						BOOL is_app_fullscreen = (m_resolution.m_flags & BGFX_RESET_FULLSCREEN);
-+						if (is_device_fullscreen != is_app_fullscreen)
-+							m_swapChain->SetFullscreenState(is_app_fullscreen, NULL);
++						if (m_resolution.m_flags & BGFX_RESET_FULLSCREEN)
++							switchFullscreenResolution(m_resolution);
++						else
++						{
++							DX_CHECK(m_swapChain->ResizeBuffers(2
++								, getBufferWidth()
++								, getBufferHeight()
++								, getBufferFormat()
++								, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
++								) );
++						}
  					}
  					else
  					{
+@@ -4796,7 +4896,7 @@
+ 	uint16_t FrameBufferD3D11::destroy()
+ 	{
+ 		preReset(true);
+-
++		
+ 		DX_RELEASE(m_swapChain, 0);
+ 
+ 		m_num   = 0;
+Binary files history/history.db and history/history.db differ
 diff -Nru scripts/src/emu.lua scripts/src/emu.lua
---- scripts/src/emu.lua	2016-10-26 02:55:48.000000000 +0200
-+++ scripts/src/emu.lua	2016-10-29 21:28:11.000000000 +0200
-@@ -221,6 +221,11 @@
+--- scripts/src/emu.lua	2017-02-22 02:11:02.000000000 +0100
++++ scripts/src/emu.lua	2017-02-22 13:47:37.000000000 +0100
+@@ -223,6 +223,11 @@
  	MAME_DIR .. "src/emu/video/rgbsse.h",
  	MAME_DIR .. "src/emu/video/rgbvmx.cpp",
  	MAME_DIR .. "src/emu/video/rgbvmx.h",
@@ -190,9 +323,16 @@ diff -Nru scripts/src/emu.lua scripts/src/emu.lua
  
  dependency {
 diff -Nru scripts/src/osd/sdl.lua scripts/src/osd/sdl.lua
---- scripts/src/osd/sdl.lua	2016-10-26 02:55:48.000000000 +0200
-+++ scripts/src/osd/sdl.lua	2016-10-29 21:28:11.000000000 +0200
-@@ -47,6 +47,12 @@
+--- scripts/src/osd/sdl.lua	2017-02-22 02:11:02.000000000 +0100
++++ scripts/src/osd/sdl.lua	2017-02-23 16:48:08.000000000 +0100
+@@ -41,12 +41,19 @@
+ 	if BASE_TARGETOS=="unix" and _OPTIONS["targetos"]~="macosx" and _OPTIONS["targetos"]~="android" then
+ 		links {
+ 			"SDL2_ttf",
++			"Xrandr",
+ 		}
+ 		local str = backtick(pkgconfigcmd() .. " --libs fontconfig")
+ 		addlibfromstring(str)
  		addoptionsfromstring(str)
  	end
  
@@ -205,7 +345,7 @@ diff -Nru scripts/src/osd/sdl.lua scripts/src/osd/sdl.lua
  	if _OPTIONS["targetos"]=="windows" then
  		if _OPTIONS["with-bundled-sdl2"]~=nil then
  			configuration { "mingw*"}
-@@ -424,6 +430,7 @@
+@@ -425,6 +432,7 @@
  		MAME_DIR .. "src/osd/sdl/video.cpp",
  		MAME_DIR .. "src/osd/sdl/window.cpp",
  		MAME_DIR .. "src/osd/sdl/window.h",
@@ -214,9 +354,9 @@ diff -Nru scripts/src/osd/sdl.lua scripts/src/osd/sdl.lua
  		MAME_DIR .. "src/osd/modules/osdwindow.h",
  		MAME_DIR .. "src/osd/modules/render/drawsdl.cpp",
 diff -Nru scripts/src/osd/sdl_cfg.lua scripts/src/osd/sdl_cfg.lua
---- scripts/src/osd/sdl_cfg.lua	2016-10-26 02:55:48.000000000 +0200
-+++ scripts/src/osd/sdl_cfg.lua	2016-10-29 21:28:11.000000000 +0200
-@@ -118,6 +118,9 @@
+--- scripts/src/osd/sdl_cfg.lua	2017-02-22 02:11:02.000000000 +0100
++++ scripts/src/osd/sdl_cfg.lua	2017-02-22 13:47:37.000000000 +0100
+@@ -116,6 +116,9 @@
  	configuration { }
  
  elseif _OPTIONS["targetos"]=="linux" then
@@ -227,8 +367,8 @@ diff -Nru scripts/src/osd/sdl_cfg.lua scripts/src/osd/sdl_cfg.lua
  		buildoptions {
  			"-I" .. backtick(_OPTIONS["QT_HOME"] .. "/bin/qmake -query QT_INSTALL_HEADERS"),
 diff -Nru scripts/src/osd/windows.lua scripts/src/osd/windows.lua
---- scripts/src/osd/windows.lua	2016-10-26 02:55:48.000000000 +0200
-+++ scripts/src/osd/windows.lua	2016-10-29 21:28:11.000000000 +0200
+--- scripts/src/osd/windows.lua	2017-02-22 02:11:02.000000000 +0100
++++ scripts/src/osd/windows.lua	2017-02-22 13:47:37.000000000 +0100
 @@ -172,6 +172,16 @@
  		MAME_DIR .. "src/osd/windows/winmenu.cpp",
  		MAME_DIR .. "src/osd/windows/winmain.cpp",
@@ -247,18 +387,18 @@ diff -Nru scripts/src/osd/windows.lua scripts/src/osd/windows.lua
  		MAME_DIR .. "src/osd/modules/debugger/win/consolewininfo.cpp",
  		MAME_DIR .. "src/osd/modules/debugger/win/consolewininfo.h",
 diff -Nru src/emu/drivenum.cpp src/emu/drivenum.cpp
---- src/emu/drivenum.cpp	2016-10-26 02:56:01.000000000 +0200
-+++ src/emu/drivenum.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -321,7 +321,7 @@
+--- src/emu/drivenum.cpp	2017-02-22 02:11:17.000000000 +0100
++++ src/emu/drivenum.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -277,7 +277,7 @@
  			if (m_included[index])
  				templist[arrayindex++] = index;
  		assert(arrayindex == m_filtered_count);
 -
 +/*
  		// shuffle
- 		for (int shufnum = 0; shufnum < 4 * s_driver_count; shufnum++)
+ 		for (int shufnum = 0; shufnum < (4 * s_driver_count); shufnum++)
  		{
-@@ -331,7 +331,7 @@
+@@ -287,7 +287,7 @@
  			templist[item1] = templist[item2];
  			templist[item2] = temp;
  		}
@@ -268,8 +408,8 @@ diff -Nru src/emu/drivenum.cpp src/emu/drivenum.cpp
  		for (int matchnum = 0; matchnum < count; matchnum++)
  			results[matchnum] = templist[matchnum % m_filtered_count];
 diff -Nru src/emu/drivers/empty.cpp src/emu/drivers/empty.cpp
---- src/emu/drivers/empty.cpp	2016-10-26 02:56:02.000000000 +0200
-+++ src/emu/drivers/empty.cpp	2016-10-29 21:28:11.000000000 +0200
+--- src/emu/drivers/empty.cpp	2017-02-22 02:11:17.000000000 +0100
++++ src/emu/drivers/empty.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -50,7 +50,7 @@
  	MCFG_SCREEN_UPDATE_DRIVER(empty_state, screen_update)
  	MCFG_SCREEN_SIZE(640,480)
@@ -280,8 +420,8 @@ diff -Nru src/emu/drivers/empty.cpp src/emu/drivers/empty.cpp
  
  
 diff -Nru src/emu/emu.h src/emu/emu.h
---- src/emu/emu.h	2016-10-26 02:56:02.000000000 +0200
-+++ src/emu/emu.h	2016-10-29 21:28:11.000000000 +0200
+--- src/emu/emu.h	2017-02-22 02:11:17.000000000 +0100
++++ src/emu/emu.h	2017-02-22 13:47:37.000000000 +0100
 @@ -92,6 +92,9 @@
  // timers, CPU and scheduling
  #include "devcpu.h"
@@ -292,7 +432,7 @@ diff -Nru src/emu/emu.h src/emu/emu.h
  // the running machine
  #include "main.h"
  #include "machine.h"
-@@ -118,4 +121,7 @@
+@@ -117,4 +120,7 @@
  // member templates that don't like incomplete types
  #include "device.ipp"
  
@@ -301,9 +441,9 @@ diff -Nru src/emu/emu.h src/emu/emu.h
 +
  #endif  /* __EMU_H__ */
 diff -Nru src/emu/emuopts.cpp src/emu/emuopts.cpp
---- src/emu/emuopts.cpp	2016-10-26 02:56:02.000000000 +0200
-+++ src/emu/emuopts.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -79,6 +79,8 @@
+--- src/emu/emuopts.cpp	2017-02-22 02:11:17.000000000 +0100
++++ src/emu/emuopts.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -80,6 +80,8 @@
  	{ OPTION_FRAMESKIP ";fs(0-10)",                      "0",         OPTION_INTEGER,    "set frameskip to fixed value, 0-10 (autoframeskip must be disabled)" },
  	{ OPTION_SECONDS_TO_RUN ";str",                      "0",         OPTION_INTEGER,    "number of emulated seconds to run before automatically exiting" },
  	{ OPTION_THROTTLE,                                   "1",         OPTION_BOOLEAN,    "enable throttling to keep game running in sync with real time" },
@@ -312,7 +452,7 @@ diff -Nru src/emu/emuopts.cpp src/emu/emuopts.cpp
  	{ OPTION_SLEEP,                                      "1",         OPTION_BOOLEAN,    "enable sleeping, which gives time back to other applications when idle" },
  	{ OPTION_SPEED "(0.01-100)",                         "1.0",       OPTION_FLOAT,      "controls the speed of gameplay, relative to realtime; smaller numbers are slower" },
  	{ OPTION_REFRESHSPEED ";rs",                         "0",         OPTION_BOOLEAN,    "automatically adjusts the speed of gameplay to keep the refresh rate lower than the screen" },
-@@ -106,12 +108,12 @@
+@@ -107,12 +109,12 @@
  
  	// artwork options
  	{ nullptr,                                              nullptr,        OPTION_HEADER,     "CORE ARTWORK OPTIONS" },
@@ -331,11 +471,10 @@ diff -Nru src/emu/emuopts.cpp src/emu/emuopts.cpp
  
  	// screen options
  	{ nullptr,                                              nullptr,        OPTION_HEADER,     "CORE SCREEN OPTIONS" },
-@@ -202,6 +204,39 @@
- 	{ OPTION_PLUGIN,                                    nullptr,     OPTION_STRING,     "list of plugins to enable" },
- 	{ OPTION_NO_PLUGIN,                                  nullptr,     OPTION_STRING,     "list of plugins to disable" },
- 	{ OPTION_LANGUAGE ";lang",                           "English",   OPTION_STRING,    "display language" },
-+
+@@ -209,6 +211,38 @@
+ 	{ OPTION_HTTP_PORT,                       "8080",            OPTION_INTEGER, "HTTP server port" },
+ 	{ OPTION_HTTP_ROOT,                       "web",             OPTION_STRING,  "HTTP server document root" },
+ 
 +	// Switchres options
 +	{ nullptr,                                              nullptr,        OPTION_HEADER,     "CORE SWITCHRES OPTIONS" },
 +	{ OPTION_MODELINE_GENERATION ";ml",                  "1",         OPTION_BOOLEAN,    "Automatic generation of modelines based on the specified monitor type" },
@@ -372,9 +511,9 @@ diff -Nru src/emu/emuopts.cpp src/emu/emuopts.cpp
  };
  
 diff -Nru src/emu/emuopts.h src/emu/emuopts.h
---- src/emu/emuopts.h	2016-10-26 02:56:02.000000000 +0200
-+++ src/emu/emuopts.h	2016-10-29 21:28:11.000000000 +0200
-@@ -72,6 +72,8 @@
+--- src/emu/emuopts.h	2017-02-22 02:11:17.000000000 +0100
++++ src/emu/emuopts.h	2017-02-22 13:47:37.000000000 +0100
+@@ -73,6 +73,8 @@
  #define OPTION_FRAMESKIP            "frameskip"
  #define OPTION_SECONDS_TO_RUN       "seconds_to_run"
  #define OPTION_THROTTLE             "throttle"
@@ -383,9 +522,9 @@ diff -Nru src/emu/emuopts.h src/emu/emuopts.h
  #define OPTION_SLEEP                "sleep"
  #define OPTION_SPEED                "speed"
  #define OPTION_REFRESHSPEED         "refreshspeed"
-@@ -189,6 +191,38 @@
- 
- #define OPTION_LANGUAGE             "language"
+@@ -194,6 +196,38 @@
+ #define OPTION_HTTP_PORT            "http_port"
+ #define OPTION_HTTP_ROOT            "http_root"
  
 +/* Switchres Options */
 +#define OPTION_MODELINE_GENERATION	"modeline_generation"
@@ -422,7 +561,7 @@ diff -Nru src/emu/emuopts.h src/emu/emuopts.h
  //**************************************************************************
  //  TYPE DEFINITIONS
  //**************************************************************************
-@@ -261,6 +295,8 @@
+@@ -267,6 +301,8 @@
  	int frameskip() const { return int_value(OPTION_FRAMESKIP); }
  	int seconds_to_run() const { return int_value(OPTION_SECONDS_TO_RUN); }
  	bool throttle() const { return bool_value(OPTION_THROTTLE); }
@@ -431,7 +570,7 @@ diff -Nru src/emu/emuopts.h src/emu/emuopts.h
  	bool sleep() const { return m_sleep; }
  	float speed() const { return float_value(OPTION_SPEED); }
  	bool refresh_speed() const { return m_refresh_speed; }
-@@ -356,6 +392,38 @@
+@@ -362,6 +398,38 @@
  	ui_option ui() const { return m_ui; }
  	const char *ram_size() const { return value(OPTION_RAMSIZE); }
  
@@ -471,20 +610,20 @@ diff -Nru src/emu/emuopts.h src/emu/emuopts.h
  	const char *comm_localhost() const { return value(OPTION_COMM_LOCAL_HOST); }
  	const char *comm_localport() const { return value(OPTION_COMM_LOCAL_PORT); }
 diff -Nru src/emu/machine.cpp src/emu/machine.cpp
---- src/emu/machine.cpp	2016-10-26 02:56:02.000000000 +0200
-+++ src/emu/machine.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -133,6 +133,7 @@
- 		m_scheduler(*this)
+--- src/emu/machine.cpp	2017-02-22 02:11:18.000000000 +0100
++++ src/emu/machine.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -137,6 +137,7 @@
+ 		m_dummy_space(_config, "dummy_space", &root_device(), 0)
  {
  	memset(&m_base_time, 0, sizeof(m_base_time));
 +	memset(&switchres, 0, sizeof(switchres));
  
- 	// set the machine on all devices
- 	device_iterator iter(root_device());
+ 	m_dummy_space.set_machine(*this);
+ 
 diff -Nru src/emu/machine.h src/emu/machine.h
---- src/emu/machine.h	2016-10-26 02:56:02.000000000 +0200
-+++ src/emu/machine.h	2016-10-29 21:28:11.000000000 +0200
-@@ -238,6 +238,9 @@
+--- src/emu/machine.h	2017-02-22 02:11:18.000000000 +0100
++++ src/emu/machine.h	2017-02-22 13:47:37.000000000 +0100
+@@ -267,6 +267,9 @@
  	const char *describe_context();
  	std::string compose_saveload_filename(const char *base_filename, const char **searchpath = nullptr);
  
@@ -495,13 +634,13 @@ diff -Nru src/emu/machine.h src/emu/machine.h
  	cpu_device *            firstcpu;           // first CPU
  
 diff -Nru src/emu/sound.cpp src/emu/sound.cpp
---- src/emu/sound.cpp	2016-10-26 02:56:02.000000000 +0200
-+++ src/emu/sound.cpp	2016-10-29 21:28:11.000000000 +0200
+--- src/emu/sound.cpp	2017-02-22 02:11:18.000000000 +0100
++++ src/emu/sound.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -840,16 +840,13 @@
- 	machine.add_notifier(MACHINE_NOTIFY_RESUME, machine_notify_delegate(FUNC(sound_manager::resume), this));
- 	machine.add_notifier(MACHINE_NOTIFY_RESET, machine_notify_delegate(FUNC(sound_manager::reset), this));
- 	machine.add_notifier(MACHINE_NOTIFY_EXIT, machine_notify_delegate(FUNC(sound_manager::stop_recording), this));
-+	machine.add_notifier(MACHINE_NOTIFY_FRAME, machine_notify_delegate(FUNC(sound_manager::update), this));
+ 	machine.add_notifier(MACHINE_NOTIFY_RESUME, machine_notify_delegate(&sound_manager::resume, this));
+ 	machine.add_notifier(MACHINE_NOTIFY_RESET, machine_notify_delegate(&sound_manager::reset, this));
+ 	machine.add_notifier(MACHINE_NOTIFY_EXIT, machine_notify_delegate(&sound_manager::stop_recording, this));
++	machine.add_notifier(MACHINE_NOTIFY_FRAME, machine_notify_delegate(&sound_manager::update, this));
  
  	// register global states
  	machine.save().save_item(NAME(m_last_update));
@@ -524,21 +663,47 @@ diff -Nru src/emu/sound.cpp src/emu/sound.cpp
  {
  	VPRINTF(("sound_update\n"));
  
-diff -Nru src/emu/sound.h src/emu/sound.h
---- src/emu/sound.h	2016-10-26 02:56:02.000000000 +0200
-+++ src/emu/sound.h	2016-10-29 21:28:11.000000000 +0200
-@@ -226,7 +226,7 @@
- 	void config_load(config_type cfg_type, xml_data_node *parentnode);
- 	void config_save(config_type cfg_type, xml_data_node *parentnode);
+@@ -1063,13 +1060,13 @@
+ 		speaker.mix(&m_leftmix[0], &m_rightmix[0], samples_this_update, (m_muted & MUTE_REASON_SYSTEM));
  
--	void update(void *ptr = nullptr, int32_t param = 0);
+ 	// now downmix the final result
+-	u32 finalmix_step = machine().video().speed_factor();
++	u32 finalmix_step = machine().video().speed_percent() * 100000;
+ 	u32 finalmix_offset = 0;
+ 	s16 *finalmix = &m_finalmix[0];
+ 	int sample;
+-	for (sample = m_finalmix_leftover; sample < samples_this_update * 1000; sample += finalmix_step)
++	for (sample = m_finalmix_leftover; sample < samples_this_update * 100000; sample += finalmix_step)
+ 	{
+-		int sampindex = sample / 1000;
++		int sampindex = sample / 100000;
+ 
+ 		// clamp the left side
+ 		s32 samp = m_leftmix[sampindex];
+@@ -1087,7 +1084,7 @@
+ 			samp = 32767;
+ 		finalmix[finalmix_offset++] = samp;
+ 	}
+-	m_finalmix_leftover = sample - samples_this_update * 1000;
++	m_finalmix_leftover = sample - samples_this_update * 100000;
+ 
+ 	// play the result
+ 	if (finalmix_offset > 0)
+diff -Nru src/emu/sound.h src/emu/sound.h
+--- src/emu/sound.h	2017-02-22 02:11:18.000000000 +0100
++++ src/emu/sound.h	2017-02-22 13:47:37.000000000 +0100
+@@ -226,7 +226,7 @@
+ 	void config_load(config_type cfg_type, util::xml::data_node const *parentnode);
+ 	void config_save(config_type cfg_type, util::xml::data_node *parentnode);
+ 
+-	void update(void *ptr = nullptr, s32 param = 0);
 +	void update();
  
  	// internal state
  	running_machine &   m_machine;              // reference to our machine
 diff -Nru src/emu/switchres/modeline.cpp src/emu/switchres/modeline.cpp
 --- src/emu/switchres/modeline.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ src/emu/switchres/modeline.cpp	2016-10-29 21:28:11.000000000 +0200
++++ src/emu/switchres/modeline.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -0,0 +1,685 @@
 +/**************************************************************
 +
@@ -1227,7 +1392,7 @@ diff -Nru src/emu/switchres/modeline.cpp src/emu/switchres/modeline.cpp
 +}
 diff -Nru src/emu/switchres/modeline.h src/emu/switchres/modeline.h
 --- src/emu/switchres/modeline.h	1970-01-01 01:00:00.000000000 +0100
-+++ src/emu/switchres/modeline.h	2016-10-29 21:28:11.000000000 +0200
++++ src/emu/switchres/modeline.h	2017-02-22 13:47:37.000000000 +0100
 @@ -0,0 +1,118 @@
 +/**************************************************************
 +
@@ -1349,7 +1514,7 @@ diff -Nru src/emu/switchres/modeline.h src/emu/switchres/modeline.h
 +#endif
 diff -Nru src/emu/switchres/monitor.cpp src/emu/switchres/monitor.cpp
 --- src/emu/switchres/monitor.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ src/emu/switchres/monitor.cpp	2016-10-29 21:28:11.000000000 +0200
++++ src/emu/switchres/monitor.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -0,0 +1,474 @@
 +/**************************************************************
 +
@@ -1827,7 +1992,7 @@ diff -Nru src/emu/switchres/monitor.cpp src/emu/switchres/monitor.cpp
 +}
 diff -Nru src/emu/switchres/monitor.h src/emu/switchres/monitor.h
 --- src/emu/switchres/monitor.h	1970-01-01 01:00:00.000000000 +0100
-+++ src/emu/switchres/monitor.h	2016-10-29 21:28:11.000000000 +0200
++++ src/emu/switchres/monitor.h	2017-02-22 13:47:37.000000000 +0100
 @@ -0,0 +1,66 @@
 +/**************************************************************
 +
@@ -1897,8 +2062,8 @@ diff -Nru src/emu/switchres/monitor.h src/emu/switchres/monitor.h
 +#endif
 diff -Nru src/emu/switchres/switchres.cpp src/emu/switchres/switchres.cpp
 --- src/emu/switchres/switchres.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ src/emu/switchres/switchres.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -0,0 +1,415 @@
++++ src/emu/switchres/switchres.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -0,0 +1,397 @@
 +/**************************************************************
 +
 +   switchres.cpp - SwichRes core routines
@@ -1928,8 +2093,6 @@ diff -Nru src/emu/switchres/switchres.cpp src/emu/switchres/switchres.cpp
 +//============================================================
 +
 +void set_option(running_machine &machine, const char *option_ID, bool state);
-+static void switchres_load(running_machine &machine, config_type cfg_type, xml_data_node *parentnode);
-+static void switchres_save(running_machine &machine, config_type cfg_type, xml_data_node *parentnode);
 +
 +//============================================================
 +//  switchres_get_video_mode
@@ -2084,9 +2247,6 @@ diff -Nru src/emu/switchres/switchres.cpp src/emu/switchres/switchres.cpp
 +		user_mode->type |= MODE_USER_DEF;
 +	}
 +
-+	// Register for configuration
-+	machine.configuration().config_register("switchres", config_saveload_delegate(FUNC(switchres_load), &machine), config_saveload_delegate(FUNC(switchres_save), &machine));
-+
 +	// Get monitor specs
 +	sprintf(cs->monitor, "%s", options.monitor());
 +	sprintf(cs->connector, "%s", options.connector());
@@ -2240,6 +2400,7 @@ diff -Nru src/emu/switchres/switchres.cpp src/emu/switchres/switchres.cpp
 +	config_settings *cs = &machine.switchres.cs;
 +	bool native_orientation = ((machine.system().flags & ORIENTATION_MASK) & ORIENTATION_SWAP_XY);
 +	bool must_rotate = effective_orientation(machine) ^ cs->desktop_rotated;
++	modeline *best_mode = &machine.switchres.best_mode;
 +
 +	// Set rotation options
 +	set_option(machine, OPTION_ROTATE, true);
@@ -2256,6 +2417,25 @@ diff -Nru src/emu/switchres/switchres.cpp src/emu/switchres/switchres.cpp
 +		set_option(machine, OPTION_AUTOROR, !must_rotate);
 +		set_option(machine, OPTION_ROL, false);
 +		set_option(machine, OPTION_AUTOROL, false);
++	}
++
++	// Set scaling/stretching options
++	set_option(machine, OPTION_KEEPASPECT, true);
++	set_option(machine, OPTION_UNEVENSTRETCH, best_mode->result.weight & R_RES_STRETCH);
++	set_option(machine, OPTION_UNEVENSTRETCHX, (!(best_mode->result.weight & R_RES_STRETCH) && (best_mode->width >= machine.options().super_width())));
++
++	// Update target if it's already initialized
++	render_target *target = machine.render().first_target();
++	if (target)
++	{
++		if (machine.options().uneven_stretch())
++			target->set_scale_mode(SCALE_FRACTIONAL);
++		else if(machine.options().uneven_stretch_x())
++			target->set_scale_mode(SCALE_FRACTIONAL_X);
++		else if(machine.options().uneven_stretch_y())
++			target->set_scale_mode(SCALE_FRACTIONAL_Y);
++		else
++			target->set_scale_mode(SCALE_INTEGER);
 +	}
 +}
 +
@@ -2279,44 +2459,11 @@ diff -Nru src/emu/switchres/switchres.cpp src/emu/switchres/switchres.cpp
 +	std::string error_string;
 +
 +	options.set_value(option_ID, state, OPTION_PRIORITY_SWITCHRES, error_string);
-+	osd_printf_verbose("SwitchRes: Setting option -%s%s\n", state?"":"no", option_ID);
-+}
-+
-+//============================================================
-+// switchres_load
-+//============================================================
-+
-+static void switchres_load(running_machine &machine, config_type cfg_type, xml_data_node *parentnode)
-+{
-+	// We don't do anything here yet.
-+}
-+
-+//============================================================
-+// switchres_save
-+//============================================================
-+
-+static void switchres_save(running_machine &machine, config_type cfg_type, xml_data_node *parentnode)
-+{
-+	modeline *mode = &machine.switchres.best_mode;
-+	char modeline_txt[256]={'\x00'};
-+
-+	// only care about game-specific data
-+	if (cfg_type != config_type::CONFIG_TYPE_GAME)
-+		return;
-+
-+	xml_data_node *switchresnode = xml_add_child(parentnode, "switchres", NULL);
-+	if (switchresnode != NULL)
-+	{
-+		if (mode && mode->htotal)
-+		{
-+			modeline_print(mode, modeline_txt, MS_PARAMS);
-+			xml_set_attribute(switchresnode, "modeline", modeline_txt);
-+		}
-+	}
++	osd_printf_verbose("SwitchRes: Setting option -%s%s\n", machine.options().bool_value(option_ID)?"":"no", option_ID);
 +}
 diff -Nru src/emu/switchres/switchres.h src/emu/switchres/switchres.h
 --- src/emu/switchres/switchres.h	1970-01-01 01:00:00.000000000 +0100
-+++ src/emu/switchres/switchres.h	2016-10-31 14:11:23.000000000 +0100
++++ src/emu/switchres/switchres.h	2017-03-07 20:14:46.000000000 +0100
 @@ -0,0 +1,80 @@
 +/**************************************************************
 +
@@ -2341,7 +2488,7 @@ diff -Nru src/emu/switchres/switchres.h src/emu/switchres/switchres.h
 +//  CONSTANTS
 +//============================================================
 +
-+#define SWITCHRES_VERSION "0.016_alpha3"
++#define SWITCHRES_VERSION "0.017c"
 +
 +//============================================================
 +//  TYPE DEFINITIONS
@@ -2400,7 +2547,7 @@ diff -Nru src/emu/switchres/switchres.h src/emu/switchres/switchres.h
 +#endif
 diff -Nru src/emu/switchres/switchres_proto.h src/emu/switchres/switchres_proto.h
 --- src/emu/switchres/switchres_proto.h	1970-01-01 01:00:00.000000000 +0100
-+++ src/emu/switchres/switchres_proto.h	2016-10-29 21:28:11.000000000 +0200
++++ src/emu/switchres/switchres_proto.h	2017-02-22 13:47:37.000000000 +0100
 @@ -0,0 +1,43 @@
 +/**************************************************************
 +
@@ -2447,7 +2594,7 @@ diff -Nru src/emu/switchres/switchres_proto.h src/emu/switchres/switchres_proto.
 +#endif
 diff -Nru src/emu/switchres/util.cpp src/emu/switchres/util.cpp
 --- src/emu/switchres/util.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ src/emu/switchres/util.cpp	2016-10-29 21:28:11.000000000 +0200
++++ src/emu/switchres/util.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -0,0 +1,34 @@
 +/**************************************************************
 +
@@ -2484,8 +2631,8 @@ diff -Nru src/emu/switchres/util.cpp src/emu/switchres/util.cpp
 +
 +int real_res(int x) {return (int) (x / 8) * 8;}
 diff -Nru src/emu/video.cpp src/emu/video.cpp
---- src/emu/video.cpp	2016-10-26 02:56:02.000000000 +0200
-+++ src/emu/video.cpp	2016-10-31 14:18:38.000000000 +0100
+--- src/emu/video.cpp	2017-02-22 02:11:18.000000000 +0100
++++ src/emu/video.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -86,6 +86,8 @@
  		m_overall_valid_counter(0),
  		m_throttled(machine.options().throttle()),
@@ -2578,8 +2725,8 @@ diff -Nru src/emu/video.cpp src/emu/video.cpp
  		m_speed_last_realtime = realtime;
  		m_speed_last_emutime = emutime;
 diff -Nru src/emu/video.h src/emu/video.h
---- src/emu/video.h	2016-10-26 02:56:02.000000000 +0200
-+++ src/emu/video.h	2016-10-29 21:28:11.000000000 +0200
+--- src/emu/video.h	2017-02-22 02:11:18.000000000 +0100
++++ src/emu/video.h	2017-02-22 13:47:37.000000000 +0100
 @@ -65,6 +65,7 @@
  	int frameskip() const { return m_auto_frameskip ? -1 : m_frameskip_level; }
  	bool throttled() const { return m_throttled; }
@@ -2595,12 +2742,12 @@ diff -Nru src/emu/video.h src/emu/video.h
 +	bool                m_syncrefresh;              // flag: TRUE if we're currently refresh-synced
 +	int32_t             m_framedelay;               // tenths of frame to delay emulation start
  	bool                m_fastforward;              // flag: true if we're currently fast-forwarding
- 	uint32_t              m_seconds_to_run;           // number of seconds to run before quitting
+ 	u32                 m_seconds_to_run;           // number of seconds to run before quitting
  	bool                m_auto_frameskip;           // flag: true if we're automatically frameskipping
 diff -Nru src/frontend/mame/clifront.cpp src/frontend/mame/clifront.cpp
---- src/frontend/mame/clifront.cpp	2016-10-26 02:56:02.000000000 +0200
-+++ src/frontend/mame/clifront.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -1584,6 +1584,7 @@
+--- src/frontend/mame/clifront.cpp	2017-02-22 02:11:18.000000000 +0100
++++ src/frontend/mame/clifront.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -1577,6 +1577,7 @@
  void cli_frontend::display_help(const char *exename)
  {
  	osd_printf_info("%s v%s\n%s\n\n", emulator_info::get_appname(),build_version,emulator_info::get_copyright_info());
@@ -2609,8 +2756,8 @@ diff -Nru src/frontend/mame/clifront.cpp src/frontend/mame/clifront.cpp
  					"of machines. But hardware is useless without software, so images of the ROMs and\n"
  					"other media which run on that hardware are also required.\n\n");
 diff -Nru src/frontend/mame/mameopts.h src/frontend/mame/mameopts.h
---- src/frontend/mame/mameopts.h	2016-10-26 02:56:02.000000000 +0200
-+++ src/frontend/mame/mameopts.h	2016-10-29 21:28:11.000000000 +0200
+--- src/frontend/mame/mameopts.h	2017-02-22 02:11:18.000000000 +0100
++++ src/frontend/mame/mameopts.h	2017-02-22 13:47:37.000000000 +0100
 @@ -29,6 +29,7 @@
  
  	// INI-based options are NORMAL priority, in increasing order:
@@ -2620,9 +2767,9 @@ diff -Nru src/frontend/mame/mameopts.h src/frontend/mame/mameopts.h
  	OPTION_PRIORITY_ORIENTATION_INI,
  	OPTION_PRIORITY_SYSTYPE_INI,
 diff -Nru src/frontend/mame/ui/info.cpp src/frontend/mame/ui/info.cpp
---- src/frontend/mame/ui/info.cpp	2016-10-26 02:56:02.000000000 +0200
-+++ src/frontend/mame/ui/info.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -303,6 +303,15 @@
+--- src/frontend/mame/ui/info.cpp	2017-02-22 02:11:18.000000000 +0100
++++ src/frontend/mame/ui/info.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -306,6 +306,15 @@
  		}
  	}
  
@@ -2639,8 +2786,8 @@ diff -Nru src/frontend/mame/ui/info.cpp src/frontend/mame/ui/info.cpp
  }
  
 diff -Nru src/frontend/mame/ui/submenu.cpp src/frontend/mame/ui/submenu.cpp
---- src/frontend/mame/ui/submenu.cpp	2016-10-26 02:56:02.000000000 +0200
-+++ src/frontend/mame/ui/submenu.cpp	2016-10-29 21:28:11.000000000 +0200
+--- src/frontend/mame/ui/submenu.cpp	2017-02-22 02:11:18.000000000 +0100
++++ src/frontend/mame/ui/submenu.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -109,7 +109,7 @@
  	{ submenu::option_type::OSD,  __("Window Mode"),                             OSDOPTION_WINDOW },
  	{ submenu::option_type::EMU,  __("Enforce Aspect Ratio"),                    OPTION_KEEPASPECT },
@@ -2650,9 +2797,52 @@ diff -Nru src/frontend/mame/ui/submenu.cpp src/frontend/mame/ui/submenu.cpp
  	{ submenu::option_type::OSD,  __("Wait Vertical Sync"),                      OSDOPTION_WAITVSYNC }
  };
  
+diff -Nru src/osd/modules/input/input_module.h src/osd/modules/input/input_module.h
+--- src/osd/modules/input/input_module.h	2017-02-22 02:11:50.000000000 +0100
++++ src/osd/modules/input/input_module.h	2017-02-22 13:47:37.000000000 +0100
+@@ -26,6 +26,7 @@
+ 
+ 	virtual void input_init(running_machine &machine) = 0;
+ 	virtual void poll_if_necessary(running_machine &machine) = 0;
++	virtual void poll(running_machine &machine) { };
+ 	virtual void pause() = 0;
+ 	virtual void resume() = 0;
+ };
+diff -Nru src/osd/modules/input/input_sdlcommon.cpp src/osd/modules/input/input_sdlcommon.cpp
+--- src/osd/modules/input/input_sdlcommon.cpp	2017-02-22 02:11:50.000000000 +0100
++++ src/osd/modules/input/input_sdlcommon.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -279,10 +279,10 @@
+ 
+ void sdl_osd_interface::poll_inputs(running_machine &machine)
+ {
+-	m_keyboard_input->poll_if_necessary(machine);
++	m_keyboard_input->poll(machine);
+ 	m_mouse_input->poll_if_necessary(machine);
+ 	m_lightgun_input->poll_if_necessary(machine);
+-	m_joystick_input->poll_if_necessary(machine);
++	m_joystick_input->poll(machine);
+ }
+ 
+ void sdl_osd_interface::release_keys()
+diff -Nru src/osd/modules/input/input_windows.cpp src/osd/modules/input/input_windows.cpp
+--- src/osd/modules/input/input_windows.cpp	2017-02-22 02:11:50.000000000 +0100
++++ src/osd/modules/input/input_windows.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -63,10 +63,10 @@
+ 
+ void windows_osd_interface::poll_input(running_machine &machine) const
+ {
+-	m_keyboard_input->poll_if_necessary(machine);
++	m_keyboard_input->poll(machine);
+ 	m_mouse_input->poll_if_necessary(machine);
+ 	m_lightgun_input->poll_if_necessary(machine);
+-	m_joystick_input->poll_if_necessary(machine);
++	m_joystick_input->poll(machine);
+ }
+ 
+ //============================================================
 diff -Nru src/osd/modules/lib/osdobj_common.cpp src/osd/modules/lib/osdobj_common.cpp
---- src/osd/modules/lib/osdobj_common.cpp	2016-10-26 02:56:29.000000000 +0200
-+++ src/osd/modules/lib/osdobj_common.cpp	2016-10-29 21:28:11.000000000 +0200
+--- src/osd/modules/lib/osdobj_common.cpp	2017-02-22 02:11:50.000000000 +0100
++++ src/osd/modules/lib/osdobj_common.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -55,7 +55,6 @@
  	{ OSDOPTION_WINDOW ";w",                  "0",              OPTION_BOOLEAN,   "enable window mode; otherwise, full screen mode is assumed" },
  	{ OSDOPTION_MAXIMIZE ";max",              "1",              OPTION_BOOLEAN,   "default to maximized windows; otherwise, windows will be minimized" },
@@ -2681,11 +2871,11 @@ diff -Nru src/osd/modules/lib/osdobj_common.cpp src/osd/modules/lib/osdobj_commo
 -	{ OSDOPTION_AUDIO_LATENCY "(1-5)",        "2",              OPTION_INTEGER,   "set audio latency (increase to reduce glitches, decrease for responsiveness)" },
 +	{ OSDOPTION_AUDIO_LATENCY "(0.1-5.0)",    "2.0",            OPTION_FLOAT,     "set audio latency (increase to reduce glitches, decrease for responsiveness)" },
  
- #ifdef SDLMAME_MACOSX
- 	{ nullptr,                                nullptr,          OPTION_HEADER,    "CoreAudio-SPECIFIC OPTIONS" },
+ #ifndef NO_USE_PORTAUDIO
+ 	{ nullptr,                                nullptr,          OPTION_HEADER,    "PORTAUDIO OPTIONS" },
 diff -Nru src/osd/modules/lib/osdobj_common.h src/osd/modules/lib/osdobj_common.h
---- src/osd/modules/lib/osdobj_common.h	2016-10-26 02:56:29.000000000 +0200
-+++ src/osd/modules/lib/osdobj_common.h	2016-10-29 21:28:11.000000000 +0200
+--- src/osd/modules/lib/osdobj_common.h	2017-02-22 02:11:50.000000000 +0100
++++ src/osd/modules/lib/osdobj_common.h	2017-02-22 13:47:37.000000000 +0100
 @@ -49,7 +49,6 @@
  #define OSDOPTION_WINDOW                "window"
  #define OSDOPTION_MAXIMIZE              "maximize"
@@ -2694,7 +2884,7 @@ diff -Nru src/osd/modules/lib/osdobj_common.h src/osd/modules/lib/osdobj_common.
  
  #define OSDOPTION_SCREEN                "screen"
  #define OSDOPTION_ASPECT                "aspect"
-@@ -115,7 +114,6 @@
+@@ -119,7 +118,6 @@
  	bool window() const { return bool_value(OSDOPTION_WINDOW); }
  	bool maximize() const { return bool_value(OSDOPTION_MAXIMIZE); }
  	bool wait_vsync() const { return bool_value(OSDOPTION_WAITVSYNC); }
@@ -2702,7 +2892,7 @@ diff -Nru src/osd/modules/lib/osdobj_common.h src/osd/modules/lib/osdobj_common.
  
  	// per-window options
  	const char *screen() const { return value(OSDOPTION_SCREEN); }
-@@ -146,7 +144,7 @@
+@@ -150,7 +148,7 @@
  
  	// sound options
  	const char *sound() const { return value(OSDOPTION_SOUND); }
@@ -2712,9 +2902,13 @@ diff -Nru src/osd/modules/lib/osdobj_common.h src/osd/modules/lib/osdobj_common.
  	// CoreAudio specific options
  	const char *audio_output() const { return value(OSDOPTION_AUDIO_OUTPUT); }
 diff -Nru src/osd/modules/osdwindow.h src/osd/modules/osdwindow.h
---- src/osd/modules/osdwindow.h	2016-10-26 02:56:29.000000000 +0200
-+++ src/osd/modules/osdwindow.h	2016-10-29 21:28:11.000000000 +0200
-@@ -207,6 +207,9 @@
+--- src/osd/modules/osdwindow.h	2017-02-22 02:11:50.000000000 +0100
++++ src/osd/modules/osdwindow.h	2017-02-22 13:47:37.000000000 +0100
+@@ -213,9 +213,13 @@
+ 	virtual void record() { };
+ 	virtual void toggle_fsfx() { };
+ 	virtual bool sliders_dirty() { return m_sliders_dirty; }
++	virtual int switch_video_mode() { return 0; }
  
  	static std::unique_ptr<osd_renderer> make_for_type(int mode, std::shared_ptr<osd_window> window, int extra_flags = FLAG_NONE);
  
@@ -2725,9 +2919,9 @@ diff -Nru src/osd/modules/osdwindow.h src/osd/modules/osdwindow.h
  	virtual void build_slider_list() { }
  
 diff -Nru src/osd/modules/render/bgfx/chainmanager.cpp src/osd/modules/render/bgfx/chainmanager.cpp
---- src/osd/modules/render/bgfx/chainmanager.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/modules/render/bgfx/chainmanager.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -274,7 +274,7 @@
+--- src/osd/modules/render/bgfx/chainmanager.cpp	2017-02-22 02:11:50.000000000 +0100
++++ src/osd/modules/render/bgfx/chainmanager.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -273,7 +273,7 @@
  {
  	if (screen >= m_screen_chains.size())
  	{
@@ -2737,8 +2931,8 @@ diff -Nru src/osd/modules/render/bgfx/chainmanager.cpp src/osd/modules/render/bg
  	else
  	{
 diff -Nru src/osd/modules/render/d3d/d3dhlsl.h src/osd/modules/render/d3d/d3dhlsl.h
---- src/osd/modules/render/d3d/d3dhlsl.h	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/modules/render/d3d/d3dhlsl.h	2016-10-29 21:28:11.000000000 +0200
+--- src/osd/modules/render/d3d/d3dhlsl.h	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/modules/render/d3d/d3dhlsl.h	2017-02-22 13:47:37.000000000 +0100
 @@ -280,7 +280,7 @@
  
  	bool init(d3d_base *d3dintf, running_machine *machine, renderer_d3d9 *renderer);
@@ -2749,9 +2943,18 @@ diff -Nru src/osd/modules/render/d3d/d3dhlsl.h src/osd/modules/render/d3d/d3dhls
  
  	void begin_draw();
 diff -Nru src/osd/modules/render/drawbgfx.cpp src/osd/modules/render/drawbgfx.cpp
---- src/osd/modules/render/drawbgfx.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/modules/render/drawbgfx.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -195,6 +195,22 @@
+--- src/osd/modules/render/drawbgfx.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/modules/render/drawbgfx.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -109,7 +109,7 @@
+ 		delete m_avi_writer;
+ 		delete [] m_avi_data;
+ 	}
+-
++//osd_printf_info("destroy\n");
+ 	// Cleanup.
+ 	delete m_chains;
+ 	delete m_effects;
+@@ -211,6 +211,22 @@
  	osd_dim wdim = win->get_size();
  	m_width[win->m_index] = wdim.width();
  	m_height[win->m_index] = wdim.height();
@@ -2774,7 +2977,7 @@ diff -Nru src/osd/modules/render/drawbgfx.cpp src/osd/modules/render/drawbgfx.cp
  	if (win->m_index == 0)
  	{
  		if (!s_window_set)
-@@ -244,7 +260,7 @@
+@@ -263,7 +279,7 @@
  			printf("Unknown backend type '%s', going with auto-detection\n", backend.c_str());
  			bgfx::init();
  		}
@@ -2783,7 +2986,7 @@ diff -Nru src/osd/modules/render/drawbgfx.cpp src/osd/modules/render/drawbgfx.cp
  		// Enable debug text.
  		bgfx::setDebug(m_options.bgfx_debug() ? BGFX_DEBUG_STATS : BGFX_DEBUG_TEXT);
  		m_dimensions = osd_dim(m_width[0], m_height[0]);
-@@ -748,8 +764,8 @@
+@@ -769,8 +785,8 @@
  	m_ui_view = -1;
  
  	osd_dim wdim = win->get_size();
@@ -2794,7 +2997,37 @@ diff -Nru src/osd/modules/render/drawbgfx.cpp src/osd/modules/render/drawbgfx.cp
  
  	// Set view 0 default viewport.
  	if (window_index == 0)
-@@ -885,15 +901,15 @@
+@@ -894,6 +910,29 @@
+ 	}
+ }
+ 
++int renderer_bgfx::switch_video_mode()
++{
++	auto win = assert_window();
++	bgfx::video_mode vm;
++
++	// only link window #0 to SwitchRes
++	if (win->m_index == 0)
++	{	
++		m_switchres_mode = &win->machine().switchres.best_mode;
++		if (m_switchres_mode)
++		{
++			vm.m_width = m_width[win->m_index] = m_switchres_mode->type & MODE_ROTATED? m_switchres_mode->height : m_switchres_mode->width;
++			vm.m_height = m_height[win->m_index] = m_switchres_mode->type & MODE_ROTATED? m_switchres_mode->width : m_switchres_mode->height;
++			vm.m_refresh = m_refresh = (int)m_switchres_mode->refresh;
++			vm.m_interlace = m_interlace = m_switchres_mode->interlace;
++		}
++	}
++	bgfx::preset(vm, (win->fullscreen()? BGFX_RESET_FULLSCREEN : BGFX_RESET_NONE) | (video_config.waitvsync ? BGFX_RESET_VSYNC : BGFX_RESET_NONE));	
++	update_dimensions();
++	
++	return 0;
++}
++
+ bool renderer_bgfx::update_dimensions()
+ {
+ 	auto win = assert_window();
+@@ -906,15 +945,15 @@
  	{
  		if ((m_dimensions != osd_dim(width, height)))
  		{
@@ -2814,9 +3047,17 @@ diff -Nru src/osd/modules/render/drawbgfx.cpp src/osd/modules/render/drawbgfx.cp
  
  			delete m_framebuffer;
 diff -Nru src/osd/modules/render/drawbgfx.h src/osd/modules/render/drawbgfx.h
---- src/osd/modules/render/drawbgfx.h	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/modules/render/drawbgfx.h	2016-10-29 21:28:11.000000000 +0200
-@@ -156,6 +156,15 @@
+--- src/osd/modules/render/drawbgfx.h	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/modules/render/drawbgfx.h	2017-02-22 13:47:37.000000000 +0100
+@@ -45,6 +45,7 @@
+ 	virtual void add_audio_to_recording(const int16_t *buffer, int samples_this_frame) override;
+ 	virtual std::vector<ui::menu_item> get_slider_list() override;
+ 	virtual void set_sliders_dirty() override;
++	virtual int switch_video_mode() override;
+ 
+ #ifdef OSD_SDL
+ 	virtual int xy_to_render_target(const int x, const int y, int *xt, int *yt) override;
+@@ -156,6 +157,15 @@
  	static const uint32_t PACKABLE_SIZE;
  	static const uint32_t WHITE_HASH;
  
@@ -2833,36 +3074,32 @@ diff -Nru src/osd/modules/render/drawbgfx.h src/osd/modules/render/drawbgfx.h
  	static uint32_t s_current_view;
  };
 diff -Nru src/osd/modules/render/drawd3d.cpp src/osd/modules/render/drawd3d.cpp
---- src/osd/modules/render/drawd3d.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/modules/render/drawd3d.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -47,7 +47,7 @@
+--- src/osd/modules/render/drawd3d.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/modules/render/drawd3d.cpp	2017-03-09 19:08:01.000000000 +0100
+@@ -45,7 +45,7 @@
  //  INLINES
  //============================================================
  
 -static inline BOOL GetClientRectExceptMenu(HWND hWnd, PRECT pRect, BOOL fullscreen)
-+static inline BOOL GetClientRectExceptMenu(HWND hWnd, PRECT pRect, BOOL fullscreen, modeline *mode)
++inline BOOL renderer_d3d9::GetClientRectExceptMenu(HWND hWnd, PRECT pRect, BOOL fullscreen)
  {
  	static HMENU last_menu;
  	static RECT last_rect;
-@@ -55,6 +55,12 @@
+@@ -53,6 +53,12 @@
  	HMENU menu = GetMenu(hWnd);
  	BOOL result = GetClientRect(hWnd, pRect);
  
-+	if (mode && mode->hactive)
++	if (m_switchres_mode && m_switchres_mode->hactive)
 +	{
-+		pRect->right = mode->type & MODE_ROTATED? mode->vactive : mode->hactive;
-+		pRect->bottom = mode->type & MODE_ROTATED? mode->hactive : mode->vactive;
++		pRect->right = m_switchres_mode->type & MODE_ROTATED? m_switchres_mode->vactive : m_switchres_mode->hactive;
++		pRect->bottom = m_switchres_mode->type & MODE_ROTATED? m_switchres_mode->hactive : m_switchres_mode->vactive;
 +	}
 +
  	if (!fullscreen || !menu)
  		return result;
  
-@@ -179,10 +185,17 @@
- 	if (win == nullptr)
- 		return nullptr;
- 
--	GetClientRectExceptMenu(win->platform_window<HWND>(), &client, win->fullscreen());
-+	GetClientRectExceptMenu(win->platform_window<HWND>(), &client, win->fullscreen(), m_switchres_mode);
+@@ -180,7 +186,14 @@
+ 	GetClientRectExceptMenu(std::static_pointer_cast<win_window_info>(win)->platform_window(), &client, win->fullscreen());
  	if (rect_width(&client) > 0 && rect_height(&client) > 0)
  	{
 -		win->target()->set_bounds(rect_width(&client), rect_height(&client), win->pixel_aspect());
@@ -2877,7 +3114,7 @@ diff -Nru src/osd/modules/render/drawd3d.cpp src/osd/modules/render/drawd3d.cpp
  		win->target()->set_max_update_rate((get_refresh() == 0) ? get_origmode().RefreshRate : get_refresh());
  	}
  	if (m_shaders != nullptr)
-@@ -730,10 +743,44 @@
+@@ -728,10 +741,44 @@
  	if (FAILED(result))
  		osd_printf_verbose("Direct3D: Error %08lX during device end_scene call\n", result);
  
@@ -2922,7 +3159,7 @@ diff -Nru src/osd/modules/render/drawd3d.cpp src/osd/modules/render/drawd3d.cpp
  }
  
  void renderer_d3d9::update_presentation_parameters()
-@@ -744,7 +791,7 @@
+@@ -742,7 +789,7 @@
  	m_presentation.BackBufferWidth = m_width;
  	m_presentation.BackBufferHeight = m_height;
  	m_presentation.BackBufferFormat = m_pixformat;
@@ -2930,8 +3167,8 @@ diff -Nru src/osd/modules/render/drawd3d.cpp src/osd/modules/render/drawd3d.cpp
 +	m_presentation.BackBufferCount = 1;
  	m_presentation.MultiSampleType = D3DMULTISAMPLE_NONE;
  	m_presentation.SwapEffect = D3DSWAPEFFECT_DISCARD;
- 	m_presentation.hDeviceWindow = win->platform_window<HWND>();
-@@ -753,10 +800,10 @@
+ 	m_presentation.hDeviceWindow = std::static_pointer_cast<win_window_info>(win)->platform_window();
+@@ -751,10 +798,10 @@
  	m_presentation.AutoDepthStencilFormat = D3DFMT_D16;
  	m_presentation.Flags = 0;
  	m_presentation.FullScreen_RefreshRateInHz = m_refresh;
@@ -2945,7 +3182,7 @@ diff -Nru src/osd/modules/render/drawd3d.cpp src/osd/modules/render/drawd3d.cpp
  			? D3DPRESENT_INTERVAL_ONE
  			: D3DPRESENT_INTERVAL_IMMEDIATE;
  }
-@@ -870,6 +917,43 @@
+@@ -868,6 +915,43 @@
  	m_create_error_count = 0;
  	osd_printf_verbose("Direct3D: Device created at %dx%d\n", m_width, m_height);
  
@@ -2989,7 +3226,42 @@ diff -Nru src/osd/modules/render/drawd3d.cpp src/osd/modules/render/drawd3d.cpp
  	update_gamma_ramp();
  
  	return device_create_resources();
-@@ -1179,6 +1263,9 @@
+@@ -1177,6 +1261,34 @@
+ 
+ 
+ //============================================================
++//  switch_video_mode
++//============================================================
++
++int renderer_d3d9::switch_video_mode()
++{
++	// free all existing resources
++	device_delete_resources();
++
++	// configure new video mode
++	pick_best_mode();
++	update_presentation_parameters();
++
++	// reset the device
++	HRESULT result = m_device->Reset(&m_presentation);
++	if (FAILED(result))
++	{
++		osd_printf_error("Unable to reset, result %08lX\n", result);
++		return 1;
++	}
++
++	// create the resources again
++	device_create_resources();
++
++	return 0;
++}
++
++
++//============================================================
+ //  config_adapter_mode
+ //============================================================
+ 
+@@ -1195,6 +1307,9 @@
  	}
  
  	osd_printf_verbose("Direct3D: Configuring adapter #%d = %s\n", m_adapter, id.Description);
@@ -2999,7 +3271,7 @@ diff -Nru src/osd/modules/render/drawd3d.cpp src/osd/modules/render/drawd3d.cpp
  
  	// get the current display mode
  	result = d3dintf->d3dobj->GetAdapterDisplayMode(m_adapter, &m_origmode);
-@@ -1195,8 +1282,11 @@
+@@ -1211,6 +1326,9 @@
  	{
  		RECT client;
  
@@ -3007,12 +3279,9 @@ diff -Nru src/osd/modules/render/drawd3d.cpp src/osd/modules/render/drawd3d.cpp
 +		m_switchres_mode = 0;
 +
  		// bounds are from the window client rect
--		GetClientRectExceptMenu(win->platform_window<HWND>(), &client, win->fullscreen());
-+		GetClientRectExceptMenu(win->platform_window<HWND>(), &client, win->fullscreen(), m_switchres_mode);
+ 		GetClientRectExceptMenu(std::static_pointer_cast<win_window_info>(win)->platform_window(), &client, win->fullscreen());
  		m_width = client.right - client.left;
- 		m_height = client.bottom - client.top;
- 
-@@ -1277,6 +1367,20 @@
+@@ -1294,6 +1412,20 @@
  
  	auto win = assert_window();
  
@@ -3033,7 +3302,7 @@ diff -Nru src/osd/modules/render/drawd3d.cpp src/osd/modules/render/drawd3d.cpp
  	// determine the refresh rate of the primary screen
  	const screen_device *primary_screen = win->machine().config().first_screen();
  	if (primary_screen != nullptr)
-@@ -1318,10 +1422,6 @@
+@@ -1335,10 +1467,6 @@
  		if (mode.Width < minwidth || mode.Height < minheight)
  			size_score *= 0.01f;
  
@@ -3044,7 +3313,7 @@ diff -Nru src/osd/modules/render/drawd3d.cpp src/osd/modules/render/drawd3d.cpp
  		// if we're looking for a particular mode, that's a winner
  		if (mode.Width == win->m_win_config.width && mode.Height == win->m_win_config.height)
  			size_score = 2.0f;
-@@ -1329,10 +1429,6 @@
+@@ -1346,10 +1474,6 @@
  		// compute refresh score
  		float refresh_score = 1.0f / (1.0f + fabs((double)mode.RefreshRate - target_refresh));
  
@@ -3055,19 +3324,19 @@ diff -Nru src/osd/modules/render/drawd3d.cpp src/osd/modules/render/drawd3d.cpp
  		// if we're looking for a particular refresh, make sure it matches
  		if (mode.RefreshRate == win->m_win_config.refresh)
  			refresh_score = 2.0f;
-@@ -1365,7 +1461,7 @@
- 
- 	// get the current window bounds
- 	RECT client;
--	GetClientRectExceptMenu(win->platform_window<HWND>(), &client, win->fullscreen());
-+	GetClientRectExceptMenu(win->platform_window<HWND>(), &client, win->fullscreen(), m_switchres_mode);
- 
- 	// if we have a device and matching width/height, nothing to do
- 	if (m_device != nullptr && rect_width(&client) == m_width && rect_height(&client) == m_height)
 diff -Nru src/osd/modules/render/drawd3d.h src/osd/modules/render/drawd3d.h
---- src/osd/modules/render/drawd3d.h	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/modules/render/drawd3d.h	2016-10-29 21:28:11.000000000 +0200
-@@ -135,9 +135,15 @@
+--- src/osd/modules/render/drawd3d.h	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/modules/render/drawd3d.h	2017-03-09 19:08:01.000000000 +0100
+@@ -67,6 +67,8 @@
+ 	virtual void add_audio_to_recording(const int16_t *buffer, int samples_this_frame) override;
+ 	virtual std::vector<ui::menu_item> get_slider_list() override;
+ 	virtual void set_sliders_dirty() override;
++	virtual int switch_video_mode() override;
++	inline BOOL GetClientRectExceptMenu(HWND hWnd, PRECT pRect, BOOL fullscreen);
+ 
+ 	int                     initialize();
+ 
+@@ -134,9 +136,15 @@
  
  private:
  	int                     m_adapter;                  // ordinal adapter number
@@ -3084,9 +3353,9 @@ diff -Nru src/osd/modules/render/drawd3d.h src/osd/modules/render/drawd3d.h
  
  	IDirect3DDevice9 *      m_device;                   // pointer to the Direct3DDevice object
 diff -Nru src/osd/modules/render/drawogl.cpp src/osd/modules/render/drawogl.cpp
---- src/osd/modules/render/drawogl.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/modules/render/drawogl.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -36,6 +36,14 @@
+--- src/osd/modules/render/drawogl.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/modules/render/drawogl.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -36,6 +36,13 @@
  #include "modules/opengl/gl_shader_tool.h"
  #include "modules/opengl/gl_shader_mgr.h"
  
@@ -3095,13 +3364,12 @@ diff -Nru src/osd/modules/render/drawogl.cpp src/osd/modules/render/drawogl.cpp
 +#include <xf86drm.h>
 +#include <xf86drmMode.h>
 +#include <fcntl.h>
-+extern bool set_mame_focus(SDL_Window * window);
 +#endif
 +
  #if defined(SDLMAME_MACOSX)
  #ifndef APIENTRY
  #define APIENTRY
-@@ -236,6 +244,10 @@
+@@ -236,6 +243,10 @@
  //  STATIC VARIABLES
  //============================================================
  
@@ -3112,7 +3380,7 @@ diff -Nru src/osd/modules/render/drawogl.cpp src/osd/modules/render/drawogl.cpp
  // OGL 1.3
  #ifdef GL_ARB_multitexture
  static PFNGLACTIVETEXTUREARBPROC pfn_glActiveTexture    = nullptr;
-@@ -277,6 +289,9 @@
+@@ -277,6 +288,9 @@
  bool renderer_ogl::s_shown_video_info = false;
  bool renderer_ogl::s_dll_loaded = false;
  
@@ -3122,7 +3390,7 @@ diff -Nru src/osd/modules/render/drawogl.cpp src/osd/modules/render/drawogl.cpp
  void renderer_ogl::init(running_machine &machine)
  {
  	s_dll_loaded = false;
-@@ -287,6 +302,11 @@
+@@ -287,6 +301,11 @@
  #else
  	osd_printf_verbose("Using SDL multi-window OpenGL driver (SDL 2.0+)\n");
  #endif
@@ -3134,7 +3402,7 @@ diff -Nru src/osd/modules/render/drawogl.cpp src/osd/modules/render/drawogl.cpp
  }
  
  //============================================================
-@@ -566,7 +586,7 @@
+@@ -566,7 +585,7 @@
  		osd_printf_error("%s\n", m_gl_context->LastErrorMsg());
  		return 1;
  	}
@@ -3143,7 +3411,7 @@ diff -Nru src/osd/modules/render/drawogl.cpp src/osd/modules/render/drawogl.cpp
  
  
  	m_blittimer = 0;
-@@ -593,6 +613,25 @@
+@@ -593,6 +612,25 @@
  	return 0;
  }
  
@@ -3169,7 +3437,7 @@ diff -Nru src/osd/modules/render/drawogl.cpp src/osd/modules/render/drawogl.cpp
  
  //============================================================
  //  drawsdl_xy_to_render_target
-@@ -1373,6 +1412,19 @@
+@@ -1373,6 +1411,19 @@
  	win->m_primlist->release_lock();
  	m_init_context = 0;
  
@@ -3189,7 +3457,7 @@ diff -Nru src/osd/modules/render/drawogl.cpp src/osd/modules/render/drawogl.cpp
  	m_gl_context->SwapBuffer();
  
  	return 0;
-@@ -1599,6 +1651,7 @@
+@@ -1599,6 +1650,7 @@
  	texture->rawheight_create = finalheight_create;
  }
  
@@ -3197,21 +3465,10 @@ diff -Nru src/osd/modules/render/drawogl.cpp src/osd/modules/render/drawogl.cpp
  //============================================================
  //  texture_create
  //============================================================
-@@ -2656,6 +2709,10 @@
- 	if (texture == nullptr && prim->texture.base != nullptr)
- 	{
- 		texture = texture_create(&prim->texture, prim->flags);
-+#ifdef SDLMAME_X11
-+		auto win = assert_window();
-+	    set_mame_focus(win->platform_window<SDL_Window*>());
-+#endif
- 	}
- 	else if (texture != nullptr)
- 	{
 diff -Nru src/osd/modules/sound/direct_sound.cpp src/osd/modules/sound/direct_sound.cpp
---- src/osd/modules/sound/direct_sound.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/modules/sound/direct_sound.cpp	2016-10-29 21:28:11.000000000 +0200
-@@ -435,6 +435,7 @@
+--- src/osd/modules/sound/direct_sound.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/modules/sound/direct_sound.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -432,6 +432,7 @@
  		stream_buffer_size = std::max(DWORD(1024), (stream_buffer_size / 1024) * 1024);
  
  		LOG(("stream_buffer_size = %u\n", (unsigned)stream_buffer_size));
@@ -3220,8 +3477,8 @@ diff -Nru src/osd/modules/sound/direct_sound.cpp src/osd/modules/sound/direct_so
  		// create the buffers
  		m_bytes_per_sample = stream_format.nBlockAlign;
 diff -Nru src/osd/modules/sound/sdl_sound.cpp src/osd/modules/sound/sdl_sound.cpp
---- src/osd/modules/sound/sdl_sound.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/modules/sound/sdl_sound.cpp	2016-10-29 21:28:11.000000000 +0200
+--- src/osd/modules/sound/sdl_sound.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/modules/sound/sdl_sound.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -405,7 +405,7 @@
  int sound_sdl::init(const osd_options &options)
  {
@@ -3232,8 +3489,8 @@ diff -Nru src/osd/modules/sound/sdl_sound.cpp src/osd/modules/sound/sdl_sound.cp
  	char audio_driver[16] = "";
  
 diff -Nru src/osd/osdcore.cpp src/osd/osdcore.cpp
---- src/osd/osdcore.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/osdcore.cpp	2016-10-31 00:09:04.000000000 +0100
+--- src/osd/osdcore.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/osdcore.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -167,13 +167,19 @@
  }
  #endif
@@ -3272,8 +3529,8 @@ diff -Nru src/osd/osdcore.cpp src/osd/osdcore.cpp
 +	std::this_thread::sleep_for(s_clock::duration(duration));
  }
 diff -Nru src/osd/osdepend.h src/osd/osdepend.h
---- src/osd/osdepend.h	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/osdepend.h	2016-10-29 21:28:11.000000000 +0200
+--- src/osd/osdepend.h	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/osdepend.h	2017-02-22 13:47:37.000000000 +0100
 @@ -64,6 +64,7 @@
  	// general overridables
  	virtual void init(running_machine &machine) = 0;
@@ -3283,8 +3540,8 @@ diff -Nru src/osd/osdepend.h src/osd/osdepend.h
  	// debugger overridables
  	virtual void init_debugger() = 0;
 diff -Nru src/osd/sdl/osdsdl.h src/osd/sdl/osdsdl.h
---- src/osd/sdl/osdsdl.h	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/sdl/osdsdl.h	2016-10-29 21:28:11.000000000 +0200
+--- src/osd/sdl/osdsdl.h	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/sdl/osdsdl.h	2017-02-22 13:47:37.000000000 +0100
 @@ -20,7 +20,6 @@
  #define SDLOPTION_SCALEMODE             "scalemode"
  
@@ -3319,9 +3576,9 @@ diff -Nru src/osd/sdl/osdsdl.h src/osd/sdl/osdsdl.h
  
  	sdl_options &m_options;
 diff -Nru src/osd/sdl/sdlmain.cpp src/osd/sdl/sdlmain.cpp
---- src/osd/sdl/sdlmain.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/sdl/sdlmain.cpp	2016-10-29 21:28:12.000000000 +0200
-@@ -62,6 +62,10 @@
+--- src/osd/sdl/sdlmain.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/sdl/sdlmain.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -61,6 +61,10 @@
  #endif // INI_PATH
  
  
@@ -3332,7 +3589,7 @@ diff -Nru src/osd/sdl/sdlmain.cpp src/osd/sdl/sdlmain.cpp
  //============================================================
  //  Global variables
  //============================================================
-@@ -254,6 +258,10 @@
+@@ -253,6 +257,10 @@
  	osd_common_t::osd_exit();
  
  	SDL_QuitSubSystem(SDL_INIT_VIDEO);
@@ -3343,7 +3600,7 @@ diff -Nru src/osd/sdl/sdlmain.cpp src/osd/sdl/sdlmain.cpp
  }
  
  //============================================================
-@@ -401,6 +409,10 @@
+@@ -400,6 +408,10 @@
  
  	const char *stemp;
  
@@ -3356,8 +3613,8 @@ diff -Nru src/osd/sdl/sdlmain.cpp src/osd/sdl/sdlmain.cpp
  	std::string error_string;
 diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 --- src/osd/sdl/switchres_sdl.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ src/osd/sdl/switchres_sdl.cpp	2016-10-29 21:28:12.000000000 +0200
-@@ -0,0 +1,473 @@
++++ src/osd/sdl/switchres_sdl.cpp	2017-02-22 16:26:18.000000000 +0100
+@@ -0,0 +1,615 @@
 +/**************************************************************
 +
 +   switchres_sdl.cpp - SDL OSD SwitchRes core routines
@@ -3370,7 +3627,7 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +               Some reworked patches from SailorSat's CabMAME
 +
 +   License     GPL-2.0+
-+   Copyright   2010-2016 - Chris Kennedy, Antonio Giner
++   Copyright   2010-2017 - Chris Kennedy, Antonio Giner, Alexandre W 
 +
 + **************************************************************/
 +
@@ -3389,6 +3646,9 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +#include "output.h"
 +#include "osdsdl.h"
 +#include "window.h"
++
++// X11 Xrandr headers
++#include <X11/extensions/Xrandr.h>
 +
 +#define XRANDR_ARGS ""
 +#define min(a,b)({ __typeof__ (a) _a = (a);__typeof__ (b) _b = (b);_a < _b ? _a : _b; })
@@ -3409,8 +3669,6 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +static bool set_custom_video_mode(modeline *mode, char *connector);
 +static int del_custom_video_mode(modeline *mode, char *connector);
 +static void set_option_osd(running_machine &machine, const char *option_ID, bool state);
-+static bool get_output(char *command, char *output);
-+int set_mame_focus(SDL_Window * window);
 +
 +//============================================================
 +//  LOCAL VARIABLES
@@ -3418,6 +3676,32 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +
 +char desktop_res[32]={'\x00'};
 +int mode_count = 1;
++
++//============================================================
++//  XRANDR 
++//============================================================
++
++static Display *dpy;
++static Window root;
++
++static short original_rate;
++static Rotation original_rotation;
++static SizeID original_size_id;
++static int width = 0;
++static int height = 0;
++
++static int gmoutput_primary = 0;
++static int gmoutput_mode = 0;
++
++static int (*old_error_handler)(Display *, XErrorEvent *); 
++
++static int xerrors = 0;
++
++static int error_handler (Display *dpy, XErrorEvent *err)
++{
++	xerrors++;
++	return 0;
++} /* xorg_error_handler() */
 +
 +//============================================================
 +//  switchres_init_osd
@@ -3433,8 +3717,6 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +	const char * aspect;
 +	char *connector = machine.switchres.cs.connector;
 +	char resolution[32]={'\x00'};
-+	char orientation[32]={'\x00'};
-+	char current_res[32]={'\x00'};
 +
 +	sdl_options &options = downcast<sdl_options &>(machine.options());
 +
@@ -3450,25 +3732,71 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +	cs->monitor_count = options.numscreens();
 +
 +	// Get current resolution
-+	get_output((char*)"xrandr -q | grep '[0-9]\\*'", current_res);
-+	sscanf(current_res, " %s ", desktop_res);
++	int screen = -1;
 +
-+	// Get current orientation
-+	if (get_output((char*)"xrandr -q | grep ' connected ' | awk '{print $4}' | head -1", orientation))
-+		if (!strcmp(orientation, "right") || !strcmp(orientation, "left"))
-+		{
-+			osd_printf_verbose("Switchres: desktop rotated %s\n", orientation);
-+			cs->desktop_rotated = 1;
-+		}
++	// dpy is global to reduce open/close calls, resource is freed when modeline is reset
++	dpy = XOpenDisplay(NULL);
++	int major_version, minor_version;
++	XRRQueryVersion(dpy, &major_version, &minor_version);
++	osd_printf_verbose("SwitchRes: xrandr version %d.%d\n",major_version,minor_version);
++	
++	// select current display and root window
++	// root is global to reduce open/close calls, resource is freed when modeline is reset
++	screen = DefaultScreen(dpy); // multiple screen ScreenCount (dpy)
++	root = RootWindow(dpy, screen);
++	XRRScreenResources *res = XRRGetScreenResourcesCurrent(dpy, root);
 +
-+	// Get connector name
-+	if (!strcmp(cs->connector, "auto"))
++	// get screen size, rate and rotation from screen configuration
++	XRRScreenConfiguration *sc = XRRGetScreenInfo(dpy, root); 
++	original_rate = XRRConfigCurrentRate(sc);
++	original_size_id = XRRConfigCurrentConfiguration(sc, &original_rotation);
++	XRRFreeScreenConfigInfo(sc);
++
++	Rotation current_rotation = 0;
++	for (int o = 0; o < res->noutput && !gmoutput_mode; o++)
 +	{
-+		if (get_output((char*)"xrandr -q | grep ' connected ' | awk '{print $1}' | head -1", connector))
-+			osd_printf_verbose("SwitchRes: Found output connector '%s'\n",	connector);
-+		else
-+			osd_printf_error("SwitchRes: Error getting connector with xrandr");
++		XRROutputInfo *output_info = XRRGetOutputInfo (dpy, res, res->outputs[o]);
++		if (!output_info) 
++			osd_printf_error("SwitchRes: error could not get output 0x%x information\n", (uint) res->outputs[o]);
++
++		// first connected output
++		if (output_info->connection == RR_Connected)
++		{
++			for (int j = 0; j < output_info->nmode && !gmoutput_mode; j++)
++			{
++				if ( output_info->crtc )
++				{
++					XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(dpy, res, output_info->crtc);
++					current_rotation = crtc_info->rotation;
++					if (!strcmp(cs->connector, "auto") || !strcmp(cs->connector,output_info->name))
++					{
++						// connector name is kept but not necessary due to global gmoutput_primary varial, optimization can happen here
++						sprintf(connector,"%s", output_info->name);
++						osd_printf_verbose("SwitchRes: Found output connector '%s'\n", connector);
++						gmoutput_primary = o;
++					}
++					for (int m = 0; m < res->nmode && !gmoutput_mode; m++)
++					{
++						XRRModeInfo *mode = &res->modes[m];
++						// get screen mode
++						if (crtc_info->mode == mode->id)
++						{
++							gmoutput_mode = mode->id;
++							width = crtc_info->x + crtc_info->width;
++							height = crtc_info->y + crtc_info->height;
++						}
++					}
++				}
++				if (current_rotation & 0xe) // screen rotation is left or right
++				{
++					osd_printf_verbose("Switchres: desktop rotation is %s\n",(current_rotation & 0x2)?"left":((current_rotation & 0x8)?"right":"inverted"));
++					cs->desktop_rotated = 1;
++				}
++			}
++		}
++		XRRFreeOutputInfo(output_info);
 +	}
++	XRRFreeScreenResources(res);
 +
 +	// Get per window resolution
 +	strcpy(resolution, strcmp(options.resolution(0), "auto")? options.resolution(0) : options.resolution());
@@ -3609,10 +3937,7 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +	set_option_osd(machine, OPTION_SYNCREFRESH, options.autosync()? sync_refresh_effective : options.sync_refresh());
 +	set_option_osd(machine, OSDOPTION_WAITVSYNC, options.autosync()? sync_refresh_effective : options.wait_vsync());
 +
-+	// Set scaling/stretching options
-+	set_option_osd(machine, OPTION_KEEPASPECT, true);
-+	set_option_osd(machine, OPTION_UNEVENSTRETCH, best_mode->result.weight & R_RES_STRETCH);
-+	set_option_osd(machine, OPTION_UNEVENSTRETCHX, (!(best_mode->result.weight & R_RES_STRETCH) && (best_mode->width >= options.super_width())));
++	// Set filter options
 +	set_option_osd(machine, OSDOPTION_FILTER, ((best_mode->result.weight & R_RES_STRETCH || best_mode->interlace)));
 +
 +	// Refresh video options
@@ -3644,12 +3969,18 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +{
 +	config_settings *cs = &machine.switchres.cs;
 +	modeline *mode_table = machine.switchres.video_modes;
-+	char cmd[256]={'\x00'};
 +
++	// Restore desktop resolution
 +	osd_printf_verbose("SwitchRes: Restoring desktop resolution: %s\n", desktop_res);
-+	sprintf(cmd, "xrandr --output %s --mode %s", cs->connector,  desktop_res);
-+	osd_printf_verbose("SwitchRes: Running '%s'\n", cmd);
-+	system(cmd);
++
++	XRRScreenResources *res = XRRGetScreenResourcesCurrent(dpy, root);
++	XRRScreenConfiguration *sc = XRRGetScreenInfo(dpy, root);
++	
++	XRRSetScreenConfigAndRate(dpy, sc, root, original_size_id, original_rotation, original_rate, CurrentTime);
++	XRRFreeScreenConfigInfo(sc);
++	XRRFreeScreenResources(res);
++
++	osd_printf_verbose("SwitchRes: xrandr original video mode restored.\n");
 +
 +	// Remove modelines
 +	while (mode_count > 1)
@@ -3658,6 +3989,7 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +		mode_count--;
 +	}
 +
++	XCloseDisplay(dpy);
 +	return true;
 +}
 +
@@ -3692,22 +4024,51 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +
 +static bool add_custom_video_mode(modeline *mode, char *connector)
 +{
-+	char modeline[256]={'\x00'};
-+	char cmd[512]={'\x00'};
-+
 +	if (!mode)
 +		return false;
 +
-+	// Add new modeline
-+	sprintf(cmd, "xrandr %s --newmode %s", XRANDR_ARGS, modeline_print(mode, modeline, MS_LABEL_SDL | MS_PARAMS));
-+	osd_printf_verbose("SwitchRes: Running '%s'\n", cmd);
-+	system(cmd);
-+
 +	// Add modeline to interface
-+	sprintf(cmd, "xrandr %s --addmode %s %s", XRANDR_ARGS, connector, modeline_print(mode, modeline, MS_LABEL_SDL));
-+	osd_printf_verbose("SwitchRes: Running '%s'\n", cmd);
-+	system(cmd);
++	char name[48];
++	sprintf(name,"GM-%dx%d_%.6f",mode->hactive, mode->vactive, mode->vfreq); // add ID
 +
++	// Setup the xrandr mode structure
++	XRRModeInfo xmode;
++	xmode.name       = name;
++	xmode.nameLength = strlen(name); 
++	xmode.dotClock   = float(mode->pclock);
++	xmode.width      = mode->hactive;
++	xmode.hSyncStart = mode->hbegin;
++	xmode.hSyncEnd   = mode->hend;
++	xmode.hTotal     = mode->htotal;
++	xmode.height     = mode->vactive;
++	xmode.vSyncStart = mode->vbegin;
++	xmode.vSyncEnd   = mode->vend;
++	xmode.vTotal     = mode->vtotal;
++	xmode.modeFlags  = (mode->interlace?RR_Interlace:0) | (mode->doublescan?RR_DoubleScan:0) | (mode->hsync?RR_HSyncPositive:RR_HSyncNegative) | (mode->vsync?RR_VSyncPositive:RR_VSyncNegative);
++
++	// Create the modeline
++	XSync(dpy, False);
++	xerrors = 0;
++	old_error_handler = XSetErrorHandler(error_handler);
++	RRMode gmid = XRRCreateMode(dpy, root, &xmode); 
++	XSync(dpy, False);
++	XSetErrorHandler(old_error_handler);
++	if (xerrors) 
++		osd_printf_error("Switchres: xrandr error in %s\n","XRRCreateMode");
++
++	// Add new modeline to primary output
++	XRRScreenResources *res = XRRGetScreenResourcesCurrent(dpy, root);
++
++	XSync(dpy, False);
++	xerrors = 0;
++	old_error_handler = XSetErrorHandler(error_handler);
++	XRRAddOutputMode(dpy, res->outputs[gmoutput_primary], gmid);
++	XSync(dpy, False);
++	XSetErrorHandler(old_error_handler);
++	if (xerrors) 
++		osd_printf_error("Switchres: xrandr error in %s\n","XRRAddOutputMode");
++
++	XRRFreeScreenResources(res);
 +	return true;
 +}
 +
@@ -3717,13 +4078,101 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +
 +static bool set_custom_video_mode(modeline *mode, char *connector)
 +{
-+	char modeline[256]={'\x00'};
-+	char cmd[512]={'\x00'};
-+
 +	// Use xrandr to switch to new mode. SDL_SetVideoMode doesn't work when (new_width, new_height)==(old_width, old_height)
-+	sprintf(cmd, "xrandr %s --output %s --mode %s", XRANDR_ARGS, connector, modeline_print(mode, modeline, MS_LABEL_SDL));
-+	osd_printf_verbose("SwitchRes: Running '%s'\n", cmd);
-+	system(cmd);
++	char name[48];
++	sprintf(name,"GM-%dx%d_%.6f",mode->hactive, mode->vactive, mode->vfreq); // add ID
++
++	XRRScreenResources *res = XRRGetScreenResourcesCurrent(dpy, root);
++	XRROutputInfo *output_info = XRRGetOutputInfo(dpy, res, res->outputs[gmoutput_primary]);
++	XRRCrtcInfo *crtc_info = XRRGetCrtcInfo(dpy, res, output_info->crtc);
++
++	// Select corresponding mode from modeline, can be enhanced by saving mode index to modeline structure
++	XRRModeInfo *xmode=0;
++	for (int m = 0; m < res->nmode; m++)
++	{
++		XRRModeInfo *tmp_mode = &res->modes[m];
++		if (!strcmp(name, tmp_mode->name))
++		{
++			xmode = &res->modes[m];
++		}
++	}
++
++	// Grab X server to prevent unwanted interaction from the window manager
++	XGrabServer(dpy);
++
++	// Disable all CRTCs
++	for (int i = 0; i < output_info->ncrtc; i++) 
++	{
++		if (XRRSetCrtcConfig(dpy, res, output_info->crtcs[i], CurrentTime, 0, 0, None, RR_Rotate_0, NULL, 0) != RRSetConfigSuccess)
++			osd_printf_error("Switchres: xrandr error when disabling CRTC.\n");
++	}
++	osd_printf_verbose("Switchres: CRTC %d: mode %#lx, %ux%u+%d+%d.\n", 0, crtc_info->mode,crtc_info->width, crtc_info->height, crtc_info->x, crtc_info->y);
++
++	// Check if framebuffer size is correct
++	int change_resolution = 0;
++	if (width < crtc_info->x + mode->hactive)
++	{
++		width = crtc_info->x + mode->hactive;
++		change_resolution = 1;
++	}
++	if (height < crtc_info->y + mode->vactive)
++	{
++		height = crtc_info->y + mode->vactive;
++		change_resolution = 1;
++	}
++
++	// Enlarge the screen size for the new mode
++	if (change_resolution)
++	{
++		osd_printf_verbose("Switchres: xrandr change screen size.\n");
++		XSync(dpy, False);
++		xerrors = 0;
++		old_error_handler = XSetErrorHandler(error_handler);
++		XRRSetScreenSize(dpy, root, width, height, (25.4 * width) / 96.0, (25.4 * height) / 96.0);
++		XSync(dpy, False);
++		XSetErrorHandler(old_error_handler);
++		if (xerrors) 
++			osd_printf_error("Switchres: xrandr error in %s\n","XRRSetScreenSize");
++	}
++
++	// Switch to new modeline
++	XSync(dpy, False);
++	xerrors = 0;
++	old_error_handler = XSetErrorHandler(error_handler);
++	XRRSetCrtcConfig(dpy, res, output_info->crtc, CurrentTime , crtc_info->x, crtc_info->y, xmode->id, original_rotation, crtc_info->outputs, crtc_info->noutput);
++	XSync(dpy, False);
++	XSetErrorHandler(old_error_handler);
++
++	XRRFreeCrtcInfo(crtc_info);
++
++	if (xerrors)
++		osd_printf_error("Switchres: xrandr error in %s\n","XRRSetCrtcConfig");
++
++	// Release X server, events can be processed now
++	XUngrabServer(dpy);
++
++	crtc_info = XRRGetCrtcInfo(dpy, res, output_info->crtc); // recall crtc to settle parameters
++
++	// If the crtc config modeline change fails, revert to original mode (prevents ending with black screen due to all crtc disabled)
++	if (crtc_info->mode == 0)
++	{
++		osd_printf_error("Switchres: xrandr resolution switch error, original mode restored\n");
++		XRRScreenConfiguration *sc = XRRGetScreenInfo(dpy, root); 
++		XRRSetScreenConfigAndRate(dpy, sc, root, original_size_id, original_rotation, original_rate, CurrentTime);
++		XRRFreeScreenConfigInfo(sc);
++	}
++
++	// check, verify current active mode
++	for (int m = 0; m < res->nmode; m++)
++	{
++		XRRModeInfo *mode = &res->modes[m];
++		if (mode->id == crtc_info->mode)
++		osd_printf_verbose("Switchres: xrandr mode (%s) (0x%x) %6.6fMHz\n", mode->name, (int)mode->id,(double)mode->dotClock / 1000000.0);
++	}
++
++	XRRFreeCrtcInfo(crtc_info);
++	XRRFreeOutputInfo(output_info);
++	XRRFreeScreenResources(res);
 +
 +	return true;
 +}
@@ -3734,21 +4183,37 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +
 +static int del_custom_video_mode(modeline *mode, char *connector)
 +{
-+	char modeline[256]={'\x00'};
-+	char cmd[512]={'\x00'};
-+
 +	if (!mode)
 +		return false;
 +
-+	// Delete modeline from interface
-+	sprintf(cmd, "xrandr %s --delmode %s %s", XRANDR_ARGS, connector, modeline_print(mode, modeline, MS_LABEL_SDL));
-+	osd_printf_verbose("SwitchRes: Running '%s'\n", cmd);
-+	system(cmd);
++	char name[48]; 
++	sprintf(name,"GM-%dx%d_%.6f",mode->hactive, mode->vactive, mode->vfreq); // add ID
 +
-+	// Remove modeline
-+	sprintf(cmd, "xrandr %s --rmmode %s", XRANDR_ARGS, modeline_print(mode, modeline, MS_LABEL_SDL));
-+	osd_printf_verbose("SwitchRes: Running '%s'\n", cmd);
-+	system(cmd);
++	XRRScreenResources *res = XRRGetScreenResourcesCurrent (dpy, root);
++
++	// Delete modeline
++	for (int m = 0; m < res->nmode; m++)
++	{
++		XRRModeInfo *xmode = &res->modes[m];
++		if (!strcmp(name, xmode->name))
++		{
++			XSync(dpy, False);
++			xerrors = 0;
++			old_error_handler = XSetErrorHandler(error_handler);
++			XRRDeleteOutputMode (dpy, res->outputs[gmoutput_primary], xmode->id);
++			if (xerrors)
++				osd_printf_error("Switchres: xrandr error in %s\n","XRRDeleteOutputMode");
++
++			xerrors = 0;
++			XRRDestroyMode (dpy, xmode->id);
++			XSync(dpy, False);
++			XSetErrorHandler(old_error_handler);
++			if (xerrors) 
++				osd_printf_error("Switchres: xrandr error in %s\n","XRRDestroyMode");
++		}
++	}
++
++	XRRFreeScreenResources(res);
 +
 +	return true;
 +}
@@ -3765,75 +4230,9 @@ diff -Nru src/osd/sdl/switchres_sdl.cpp src/osd/sdl/switchres_sdl.cpp
 +	options.set_value(option_ID, state, OPTION_PRIORITY_SWITCHRES, error_string);
 +	osd_printf_verbose("SwitchRes: Setting option -%s%s\n", machine.options().bool_value(option_ID)?"":"no", option_ID);
 +}
-+
-+//============================================================
-+//  get_output
-+//============================================================
-+
-+static bool get_output(char *command, char *output)
-+{
-+	FILE *pi;
-+	pi = popen(command, "r");
-+
-+	if (pi != NULL)
-+	{
-+		char c;
-+		int i = 0;
-+		c = fgetc(pi);
-+		while(c != '\n' && i < 255)
-+		{
-+			output[i++] = c;
-+			c = fgetc(pi);
-+		}
-+		output[i] = '\0';
-+		pclose(pi);
-+		return true;
-+
-+	}
-+	else
-+		return false;
-+}
-+
-+//============================================================
-+//  set_mame_focus
-+//============================================================
-+
-+int set_mame_focus(SDL_Window * window)
-+{
-+#ifdef SDLMAME_X11
-+	SDL_SysWMinfo info;
-+	SDL_VERSION(&info.version);
-+
-+	if (strncmp(SDL_GetCurrentVideoDriver(),"x11",3)==0) 
-+	{
-+		if (SDL_GetWindowWMInfo(window,&info))
-+		{
-+			Window focus;
-+			int revert = RevertToNone;
-+			XGetInputFocus(info.info.x11.display, &focus, &revert);
-+
-+			if ( focus != info.info.x11.window )
-+			{
-+				osd_printf_verbose("SwitchRes: possible loss of FocusIn event, force it to grab keyboard.\n");
-+				XSetInputFocus(info.info.x11.display, info.info.x11.window, RevertToNone, CurrentTime);
-+				XFlush(info.info.x11.display);
-+				XGetInputFocus(info.info.x11.display, &focus, &revert);
-+				osd_printf_verbose("SwitchRes: window handle is 0x%06x\n", (unsigned)focus);
-+			}
-+	}
-+	else
-+	{
-+		osd_printf_error("SwitchRes: error getting SDL window information.\n");
-+		return 1;
-+	}
-+}
-+#endif
-+	return 0;
-+}
-+
 diff -Nru src/osd/sdl/video.cpp src/osd/sdl/video.cpp
---- src/osd/sdl/video.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/sdl/video.cpp	2016-10-29 21:28:12.000000000 +0200
+--- src/osd/sdl/video.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/sdl/video.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -93,6 +93,18 @@
  }
  
@@ -3879,9 +4278,9 @@ diff -Nru src/osd/sdl/video.cpp src/osd/sdl/video.cpp
  	if (video_config.prescale < 1 || video_config.prescale > 3)
  	{
 diff -Nru src/osd/sdl/window.cpp src/osd/sdl/window.cpp
---- src/osd/sdl/window.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/sdl/window.cpp	2016-10-29 21:28:12.000000000 +0200
-@@ -81,6 +81,9 @@
+--- src/osd/sdl/window.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/sdl/window.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -80,6 +80,9 @@
  //  PROTOTYPES
  //============================================================
  
@@ -3891,7 +4290,7 @@ diff -Nru src/osd/sdl/window.cpp src/osd/sdl/window.cpp
  
  //============================================================
  //  window_init
-@@ -350,6 +353,23 @@
+@@ -349,6 +352,23 @@
  	}
  }
  
@@ -3915,7 +4314,7 @@ diff -Nru src/osd/sdl/window.cpp src/osd/sdl/window.cpp
  //============================================================
  //  sdlwindow_update_cursor_state
  //  (main or window thread)
-@@ -473,7 +493,6 @@
+@@ -472,7 +492,6 @@
  
  	// free the render target, after the textures!
  	machine().render().target_free(m_target);
@@ -3923,7 +4322,7 @@ diff -Nru src/osd/sdl/window.cpp src/osd/sdl/window.cpp
  }
  
  
-@@ -489,6 +508,14 @@
+@@ -488,6 +507,14 @@
  	float size_score, best_score = 0.0f;
  	osd_dim ret(0,0);
  
@@ -3938,7 +4337,7 @@ diff -Nru src/osd/sdl/window.cpp src/osd/sdl/window.cpp
  	// determine the minimum width/height for the selected target
  	m_target->compute_minimum_size(minimum_width, minimum_height);
  
-@@ -582,8 +609,15 @@
+@@ -581,8 +608,15 @@
  			}
  			else if (video_config.switchres)
  			{
@@ -3957,8 +4356,8 @@ diff -Nru src/osd/sdl/window.cpp src/osd/sdl/window.cpp
  		}
  
 diff -Nru src/osd/sdl/window.h src/osd/sdl/window.h
---- src/osd/sdl/window.h	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/sdl/window.h	2016-10-29 21:28:12.000000000 +0200
+--- src/osd/sdl/window.h	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/sdl/window.h	2017-02-22 13:47:37.000000000 +0100
 @@ -73,7 +73,6 @@
  	// Pointer to next window
  	sdl_window_info *   m_next;
@@ -3977,7 +4376,7 @@ diff -Nru src/osd/sdl/window.h src/osd/sdl/window.h
  	running_machine &   m_machine;
 diff -Nru src/osd/windows/custom_video.cpp src/osd/windows/custom_video.cpp
 --- src/osd/windows/custom_video.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ src/osd/windows/custom_video.cpp	2016-10-29 21:28:12.000000000 +0200
++++ src/osd/windows/custom_video.cpp	2017-02-22 13:47:37.000000000 +0100
 @@ -0,0 +1,355 @@
 +/**************************************************************
 +
@@ -3996,7 +4395,6 @@ diff -Nru src/osd/windows/custom_video.cpp src/osd/windows/custom_video.cpp
 + **************************************************************/
 +
 +// standard windows headers
-+#define WIN32_LEAN_AND_MEAN
 +#include <windows.h>
 +
 +#include "emu.h"
@@ -4071,7 +4469,8 @@ diff -Nru src/osd/windows/custom_video.cpp src/osd/windows/custom_video.cpp
 +			}
 +			else
 +			{
-+				if (adl_init())
++				memcpy(m_device_key, s_param, sizeof(m_device_key));
++				if (adl_init(m_device_name, m_device_key, device_id))
 +				{
 +					custom_method = CUSTOM_VIDEO_TIMING_ATI_ADL;
 +					return true;
@@ -4336,7 +4735,7 @@ diff -Nru src/osd/windows/custom_video.cpp src/osd/windows/custom_video.cpp
 +}
 diff -Nru src/osd/windows/custom_video.h src/osd/windows/custom_video.h
 --- src/osd/windows/custom_video.h	1970-01-01 01:00:00.000000000 +0100
-+++ src/osd/windows/custom_video.h	2016-10-29 21:28:12.000000000 +0200
++++ src/osd/windows/custom_video.h	2017-02-22 13:47:37.000000000 +0100
 @@ -0,0 +1,31 @@
 +/**************************************************************
 +
@@ -4371,8 +4770,8 @@ diff -Nru src/osd/windows/custom_video.h src/osd/windows/custom_video.h
 +modeline *custom_video_get_backup_mode();
 diff -Nru src/osd/windows/custom_video_adl.cpp src/osd/windows/custom_video_adl.cpp
 --- src/osd/windows/custom_video_adl.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ src/osd/windows/custom_video_adl.cpp	2016-10-29 21:28:12.000000000 +0200
-@@ -0,0 +1,334 @@
++++ src/osd/windows/custom_video_adl.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -0,0 +1,366 @@
 +/**************************************************************
 +
 +	custom_video_adl.cpp - ATI/AMD ADL library
@@ -4391,7 +4790,6 @@ diff -Nru src/osd/windows/custom_video_adl.cpp src/osd/windows/custom_video_adl.
 +
 +//	Constants and structures ported from AMD ADL SDK files
 +
-+#define WIN32_LEAN_AND_MEAN
 +#include <windows.h>
 +#include "emu.h"
 +#include "custom_video_adl.h"
@@ -4419,6 +4817,11 @@ diff -Nru src/osd/windows/custom_video_adl.cpp src/osd/windows/custom_video_adl.
 +LPAdapterInfo lpAdapterInfo = NULL;
 +LPAdapterList lpAdapter;
 +int iNumberAdapters;
++int cat_version, sub_version;
++
++int invert_pol(bool on_read) { return ((cat_version <= 12) || (cat_version >= 15 && on_read)); }
++int interlace_factor(bool interlace, bool on_read) { return interlace && ((cat_version <= 12) || (cat_version >= 15 && on_read))? 2 : 1; }
++
 +
 +//============================================================
 +//  memory allocation callbacks
@@ -4437,6 +4840,30 @@ diff -Nru src/osd/windows/custom_video_adl.cpp src/osd/windows/custom_video_adl.
 +		free(*lpBuffer);
 +		*lpBuffer = NULL;
 +	}
++}
++
++//============================================================
++//  adl_get_driver_version
++//============================================================
++
++bool adl_get_driver_version(char *device_key)
++{
++	HKEY hkey;
++	bool found = false;
++
++	if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, device_key, 0, KEY_READ , &hkey) == ERROR_SUCCESS)
++	{
++		BYTE cat_ver[32];
++		DWORD length = sizeof(cat_ver);
++		if (RegQueryValueExA(hkey, "Catalyst_Version", NULL, NULL, cat_ver, &length) == ERROR_SUCCESS)
++		{
++			found = true;
++			sscanf((char *)cat_ver, "%d.%d", &cat_version, &sub_version);
++			osd_printf_verbose("Catalyst Version %d.%d\n", cat_version, sub_version);
++		}		
++		RegCloseKey(hkey);
++	}
++	return found;
 +}
 +
 +//============================================================
@@ -4492,7 +4919,7 @@ diff -Nru src/osd/windows/custom_video_adl.cpp src/osd/windows/custom_video_adl.
 +//  adl_init
 +//============================================================
 +
-+bool adl_init()
++bool adl_init(char *device_name, char *device_key, char *device_id)
 +{
 +	int ADL_Err = ADL_ERR;
 +
@@ -4547,6 +4974,8 @@ diff -Nru src/osd/windows/custom_video_adl.cpp src/osd/windows/custom_video_adl.
 +		osd_printf_error("ADL error enumerating displays.\n");
 +		return false;
 +	}
++
++	adl_get_driver_version(device_key);
 +
 +	osd_printf_verbose("ADL functions retrieved successfully.\n");
 +	return true;
@@ -4627,13 +5056,13 @@ diff -Nru src/osd/windows/custom_video_adl.cpp src/osd/windows/custom_video_adl.
 +	m->vbegin    = dt.sVSyncStart;
 +	m->vend      = dt.sVSyncWidth + m->vbegin;
 +	m->interlace = (dt.sTimingFlags & ADL_DL_TIMINGFLAG_INTERLACED)? 1 : 0;
-+	m->hsync     = (dt.sTimingFlags & ADL_DL_TIMINGFLAG_H_SYNC_POLARITY)? 0 : 1;
-+	m->vsync     = (dt.sTimingFlags & ADL_DL_TIMINGFLAG_V_SYNC_POLARITY)? 0 : 1;
++	m->hsync     = ((dt.sTimingFlags & ADL_DL_TIMINGFLAG_H_SYNC_POLARITY)? 1 : 0) ^ invert_pol(1);
++	m->vsync     = ((dt.sTimingFlags & ADL_DL_TIMINGFLAG_V_SYNC_POLARITY)? 1 : 0) ^ invert_pol(1) ;
 +	m->pclock    = dt.sPixelClock * 10000;
 +
 +	m->height  = m->height? m->height : dmi->iPelsHeight;
 +	m->width   = m->width? m->width : dmi->iPelsWidth;
-+	m->refresh = m->refresh? m->refresh : dmi->iRefreshRate / (m->interlace? 2 : 1);
++	m->refresh = m->refresh? m->refresh : dmi->iRefreshRate / interlace_factor(m->interlace, 1);;
 +	m->hfreq = float(m->pclock / m->htotal);
 +	m->vfreq = float(m->hfreq / m->vtotal) * (m->interlace? 2 : 1);
 +
@@ -4655,7 +5084,7 @@ diff -Nru src/osd/windows/custom_video_adl.cpp src/osd/windows/custom_video_adl.
 +	mode_in.iPelsHeight       = m->height;
 +	mode_in.iPelsWidth        = m->width;
 +	mode_in.iBitsPerPel       = 32;
-+	mode_in.iDisplayFrequency = m->refresh * (m->interlace? 2 : 1);
++	mode_in.iDisplayFrequency = m->refresh * interlace_factor(m->interlace, 1);
 +
 +	if (!get_device_mapping_from_display_name(target_display, &adapter_index, &display_index)) return false;
 +	if (ADL_Display_ModeTimingOverride_Get(adapter_index, display_index, &mode_in, &mode_info_out) != ADL_OK) return false;
@@ -4677,13 +5106,15 @@ diff -Nru src/osd/windows/custom_video_adl.cpp src/osd/windows/custom_video_adl.
 +	//modeline to ADLDisplayModeInfo
 +	mode_info.iTimingStandard   = (update_mode & MODELINE_DELETE)? ADL_DL_MODETIMING_STANDARD_DRIVER_DEFAULT : ADL_DL_MODETIMING_STANDARD_CUSTOM;
 +	mode_info.iPossibleStandard = 0;
-+	mode_info.iRefreshRate      = m->refresh * (m->interlace? 2: 1);
++	mode_info.iRefreshRate      = m->refresh * interlace_factor(m->interlace, 0);
 +	mode_info.iPelsWidth        = m->width;
 +	mode_info.iPelsHeight       = m->height;
 +
 +	//modeline to ADLDetailedTiming
 +	dt = &mode_info.sDetailedTiming;
-+	dt->sTimingFlags     = (m->interlace? ADL_DL_TIMINGFLAG_INTERLACED : 0) | (m->hsync? 0 : ADL_DL_TIMINGFLAG_H_SYNC_POLARITY) | (m->vsync? 0 : ADL_DL_TIMINGFLAG_V_SYNC_POLARITY);
++	dt->sTimingFlags     = (m->interlace? ADL_DL_TIMINGFLAG_INTERLACED : 0) |
++						   (m->hsync ^ invert_pol(0)? ADL_DL_TIMINGFLAG_H_SYNC_POLARITY : 0) |
++						   (m->vsync ^ invert_pol(0)? ADL_DL_TIMINGFLAG_V_SYNC_POLARITY : 0);
 +	dt->sHTotal          = m->htotal;
 +	dt->sHDisplay        = m->hactive;
 +	dt->sHSyncStart      = m->hbegin;
@@ -4709,7 +5140,7 @@ diff -Nru src/osd/windows/custom_video_adl.cpp src/osd/windows/custom_video_adl.
 +}
 diff -Nru src/osd/windows/custom_video_adl.h src/osd/windows/custom_video_adl.h
 --- src/osd/windows/custom_video_adl.h	1970-01-01 01:00:00.000000000 +0100
-+++ src/osd/windows/custom_video_adl.h	2016-10-29 21:28:12.000000000 +0200
++++ src/osd/windows/custom_video_adl.h	2017-02-22 13:47:37.000000000 +0100
 @@ -0,0 +1,130 @@
 +/**************************************************************
 +
@@ -4837,14 +5268,14 @@ diff -Nru src/osd/windows/custom_video_adl.h src/osd/windows/custom_video_adl.h
 +	ADLDisplayInfo *m_display_list;
 +} AdapterList, *LPAdapterList;
 +
-+bool adl_init();
++bool adl_init(char *device_name, char *device_key, char *device_id);
 +void adl_close();
 +bool adl_get_modeline(char *target_display, modeline *m);
 +bool adl_set_modeline(char *target_display, modeline *m, int update_mode);
 diff -Nru src/osd/windows/custom_video_ati.cpp src/osd/windows/custom_video_ati.cpp
 --- src/osd/windows/custom_video_ati.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ src/osd/windows/custom_video_ati.cpp	2016-10-29 21:28:12.000000000 +0200
-@@ -0,0 +1,310 @@
++++ src/osd/windows/custom_video_ati.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -0,0 +1,309 @@
 +/**************************************************************
 +
 +   custom_video_ati.cpp - ATI legacy library
@@ -4860,7 +5291,6 @@ diff -Nru src/osd/windows/custom_video_ati.cpp src/osd/windows/custom_video_ati.
 +
 + **************************************************************/
 +
-+#define WIN32_LEAN_AND_MEAN
 +#include <windows.h>
 +
 +#include "emu.h"
@@ -5157,7 +5587,7 @@ diff -Nru src/osd/windows/custom_video_ati.cpp src/osd/windows/custom_video_ati.
 +}
 diff -Nru src/osd/windows/custom_video_ati.h src/osd/windows/custom_video_ati.h
 --- src/osd/windows/custom_video_ati.h	1970-01-01 01:00:00.000000000 +0100
-+++ src/osd/windows/custom_video_ati.h	2016-10-29 21:28:12.000000000 +0200
++++ src/osd/windows/custom_video_ati.h	2017-02-22 13:47:37.000000000 +0100
 @@ -0,0 +1,20 @@
 +/**************************************************************
 +
@@ -5181,8 +5611,8 @@ diff -Nru src/osd/windows/custom_video_ati.h src/osd/windows/custom_video_ati.h
 +void ati_refresh_timings(void);
 diff -Nru src/osd/windows/custom_video_ati_family.cpp src/osd/windows/custom_video_ati_family.cpp
 --- src/osd/windows/custom_video_ati_family.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ src/osd/windows/custom_video_ati_family.cpp	2016-10-29 21:28:12.000000000 +0200
-@@ -0,0 +1,846 @@
++++ src/osd/windows/custom_video_ati_family.cpp	2017-03-07 20:00:06.000000000 +0100
+@@ -0,0 +1,850 @@
 +/**************************************************************
 +
 +   custom_video_ati_family.cpp - ATI/AMD Radeon family
@@ -6016,6 +6446,10 @@ diff -Nru src/osd/windows/custom_video_ati_family.cpp src/osd/windows/custom_vid
 +			return (pciidlist[i].driver_data & RADEON_FAMILY_MASK);
 +		i++;
 +	}
++	// Not found, must be newer
++	if (vendor == 0x1002)
++		return CHIP_LAST;
++
 +	return 0;
 +}
 +
@@ -6032,8 +6466,8 @@ diff -Nru src/osd/windows/custom_video_ati_family.cpp src/osd/windows/custom_vid
 \ No newline at end of file
 diff -Nru src/osd/windows/custom_video_pstrip.cpp src/osd/windows/custom_video_pstrip.cpp
 --- src/osd/windows/custom_video_pstrip.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ src/osd/windows/custom_video_pstrip.cpp	2016-10-29 21:28:12.000000000 +0200
-@@ -0,0 +1,530 @@
++++ src/osd/windows/custom_video_pstrip.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -0,0 +1,529 @@
 +/**************************************************************
 +
 +   custom_video_pstrip.cpp - PowerStrip interface routines
@@ -6155,7 +6589,6 @@ diff -Nru src/osd/windows/custom_video_pstrip.cpp src/osd/windows/custom_video_p
 +	10 = 2D engine clock in hertz (if different from 3D) */
 +
 +// standard windows headers
-+#define WIN32_LEAN_AND_MEAN
 +#include <windows.h>
 +#include <stdio.h>
 +
@@ -6566,7 +6999,7 @@ diff -Nru src/osd/windows/custom_video_pstrip.cpp src/osd/windows/custom_video_p
 +}
 diff -Nru src/osd/windows/custom_video_pstrip.h src/osd/windows/custom_video_pstrip.h
 --- src/osd/windows/custom_video_pstrip.h	1970-01-01 01:00:00.000000000 +0100
-+++ src/osd/windows/custom_video_pstrip.h	2016-10-29 21:28:12.000000000 +0200
++++ src/osd/windows/custom_video_pstrip.h	2017-02-22 13:47:37.000000000 +0100
 @@ -0,0 +1,63 @@
 +/**************************************************************
 + 
@@ -6633,8 +7066,8 @@ diff -Nru src/osd/windows/custom_video_pstrip.h src/osd/windows/custom_video_pst
 +int ps_monitor_index (const char *display_name);
 diff -Nru src/osd/windows/switchres_windows.cpp src/osd/windows/switchres_windows.cpp
 --- src/osd/windows/switchres_windows.cpp	1970-01-01 01:00:00.000000000 +0100
-+++ src/osd/windows/switchres_windows.cpp	2016-10-29 21:28:12.000000000 +0200
-@@ -0,0 +1,521 @@
++++ src/osd/windows/switchres_windows.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -0,0 +1,517 @@
 +/**************************************************************
 +
 +   switchres_windows.cpp - Windows OSD SwitchRes core routines
@@ -6652,7 +7085,6 @@ diff -Nru src/osd/windows/switchres_windows.cpp src/osd/windows/switchres_window
 + **************************************************************/
 +
 +// standard windows headers
-+#define WIN32_LEAN_AND_MEAN
 +#include <windows.h>
 +
 +// MAME headers
@@ -6855,13 +7287,13 @@ diff -Nru src/osd/windows/switchres_windows.cpp src/osd/windows/switchres_window
 +		}
 +	}
 +
-+	// Set fullscreen resolution for the OpenGL case
-+	if (options.switch_res() && (!strcmp(options.video(), "opengl"))) display_set_desktop_mode(best_mode, CDS_FULLSCREEN);
-+
 +	// Set MAME common options
 +	switchres_set_options(machine);
 +
 +	// Set MAME OSD specific options
++
++	// Set fullscreen resolution for the OpenGL case
++	if (options.switch_res() && (!strcmp(options.video(), "opengl"))) display_set_desktop_mode(best_mode, CDS_FULLSCREEN);
 +
 +	// Black frame insertion / multithreading
 +	bool black_frame_insertion = options.black_frame_insertion() && best_mode->result.v_scale > 1 && best_mode->vfreq > 100;
@@ -6875,11 +7307,8 @@ diff -Nru src/osd/windows/switchres_windows.cpp src/osd/windows/switchres_window
 +	set_option_osd(machine, WINOPTION_TRIPLEBUFFER, options.autosync()? !sync_refresh_effective : (options.triple_buffer() && !options.sync_refresh()));
 +	set_option_osd(machine, OSDOPTION_WAITVSYNC, options.sync_refresh() || options.triple_buffer());
 +
-+	// Set scaling/stretching options
-+	set_option_osd(machine, OPTION_KEEPASPECT, true);
-+	set_option_osd(machine, OPTION_UNEVENSTRETCH, best_mode->result.weight & R_RES_STRETCH);
-+	set_option_osd(machine, OPTION_UNEVENSTRETCHX, (!(best_mode->result.weight & R_RES_STRETCH) && (best_mode->width >= options.super_width())));
-+	set_option_osd(machine, OSDOPTION_FILTER, ((best_mode->result.weight & R_RES_STRETCH || best_mode->interlace) && (!strcmp(options.video(), "auto") || !strcmp(options.video(), "d3d") || !strcmp(options.video(), "d3d9ex"))));
++	// Set filter options
++	set_option_osd(machine, OSDOPTION_FILTER, ((best_mode->result.weight & R_RES_STRETCH || best_mode->interlace) && (!strcmp(options.video(), "auto") || !strcmp(options.video(), "d3d"))));
 +
 +	// Refresh video options
 +	osd.extract_video_config();
@@ -7157,34 +7586,36 @@ diff -Nru src/osd/windows/switchres_windows.cpp src/osd/windows/switchres_window
 +	return 1;
 +}
 diff -Nru src/osd/windows/video.cpp src/osd/windows/video.cpp
---- src/osd/windows/video.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/windows/video.cpp	2016-10-29 21:28:12.000000000 +0200
-@@ -96,13 +96,21 @@
+--- src/osd/windows/video.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/windows/video.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -95,15 +95,22 @@
  //      profiler_mark(PROFILER_END);
  	}
  
-+	// if we're running, disable some parts of the debugger
-+	if ((machine().debug_flags & DEBUG_FLAG_OSD_ENABLED) != 0)
-+		debugger_update();
-+}
-+
+-	// poll the joystick values here
+-	winwindow_process_events(machine(), true, false);
+-	poll_input(machine());
+-	check_osd_inputs();
+ 	// if we're running, disable some parts of the debugger
+ 	if ((machine().debug_flags & DEBUG_FLAG_OSD_ENABLED) != 0)
+ 		debugger_update();
+ }
+ 
 +//============================================================
 +//  poll_input
 +//============================================================
 +
 +void windows_osd_interface::poll_input(void)
 +{
- 	// poll the joystick values here
- 	winwindow_process_events(machine(), TRUE, FALSE);
- 	poll_input(machine());
- 	check_osd_inputs();
--	// if we're running, disable some parts of the debugger
--	if ((machine().debug_flags & DEBUG_FLAG_OSD_ENABLED) != 0)
--		debugger_update();
- }
++	// poll the joystick values here
++	winwindow_process_events(machine(), true, false);
++	poll_input(machine());
++	check_osd_inputs();
++}
  
- 
-@@ -183,7 +191,7 @@
+ //============================================================
+ //  check_osd_inputs
+@@ -182,7 +189,7 @@
  		video_config.mode = VIDEO_MODE_GDI;
  	}
  	video_config.waitvsync     = options().wait_vsync();
@@ -7194,18 +7625,18 @@ diff -Nru src/osd/windows/video.cpp src/osd/windows/video.cpp
  	video_config.switchres     = options().switch_res();
  
 diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
---- src/osd/windows/window.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/windows/window.cpp	2016-10-29 21:28:12.000000000 +0200
-@@ -56,6 +56,8 @@
- #undef min
- #undef max
+--- src/osd/windows/window.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/windows/window.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -53,6 +53,8 @@
+ #define MAKE_DI_SCAN(scan, isextended) (scan & 0x7f) | (isextended ? 0x80 : 0x00)
+ #define WINOSD(machine) downcast<windows_osd_interface*>(&machine.osd())
  
 +extern bool switchres_resolution_change(win_window_info *window);
 +
  //============================================================
  //  PARAMETERS
  //============================================================
-@@ -93,7 +95,7 @@
+@@ -90,7 +92,7 @@
  static int win_physical_width;
  static int win_physical_height;
  
@@ -7214,7 +7645,7 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  
  //============================================================
  //  LOCAL VARIABLES
-@@ -323,6 +325,7 @@
+@@ -320,6 +322,7 @@
  		m_machine(machine)
  {
  	memset(m_title,0,sizeof(m_title));
@@ -7222,7 +7653,7 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  	m_non_fullscreen_bounds.left = 0;
  	m_non_fullscreen_bounds.top = 0;
  	m_non_fullscreen_bounds.right  = 0;
-@@ -785,6 +788,11 @@
+@@ -782,6 +785,11 @@
  	// handle error conditions
  	if (window->m_init_state == -1)
  		fatalerror("Unable to complete window creation\n");
@@ -7234,7 +7665,7 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  }
  
  std::shared_ptr<osd_monitor_info> win_window_info::monitor_from_rect(const osd_rect* proposed) const
-@@ -819,6 +827,10 @@
+@@ -816,6 +824,10 @@
  {
  	assert(GetCurrentThreadId() == main_threadid);
  
@@ -7245,7 +7676,7 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  	// remove us from the list
  	osd_common_t::s_window_list.remove(shared_from_this());
  
-@@ -833,6 +845,97 @@
+@@ -830,6 +842,97 @@
  
  
  //============================================================
@@ -7343,7 +7774,7 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  //  winwindow_video_window_update
  //  (main thread)
  //============================================================
-@@ -841,6 +944,7 @@
+@@ -838,6 +941,7 @@
  {
  	int targetview, targetorient;
  	render_layer_config targetlayerconfig;
@@ -7351,7 +7782,7 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  
  	assert(GetCurrentThreadId() == main_threadid);
  
-@@ -869,11 +973,7 @@
+@@ -866,11 +970,7 @@
  	{
  		bool got_lock = true;
  
@@ -7364,7 +7795,7 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  
  		// only render if we were able to get the lock
  		if (got_lock)
-@@ -883,13 +983,37 @@
+@@ -880,13 +980,36 @@
  			// don't hold the lock; we just used it to see if rendering was still happening
  			m_render_lock.unlock();
  
@@ -7384,7 +7815,7 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  			// post a redraw request with the primitive list as a parameter
  			last_update_time = timeGetTime();
  
--			SendMessage(platform_window<HWND>(), WM_USER_REDRAW, 0, (LPARAM)primlist);
+-			SendMessage(platform_window(), WM_USER_REDRAW, 0, (LPARAM)primlist);
 +			if (multithreading_enabled && !m_blit_lock && video_config.mode != VIDEO_MODE_GDI)
 +			{
 +				m_primlist = primlist;
@@ -7398,12 +7829,11 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
 +				m_primlist = primlist;
 +				draw_video_contents(NULL, FALSE);
 +				if (multithreading_enabled && frame_count++ > 5) blit_lock_release();
-+			}
-+
++			} 
  		}
  	}
  }
-@@ -1150,8 +1274,7 @@
+@@ -1147,8 +1270,7 @@
  		case WM_PAINT:
  		{
  			PAINTSTRUCT pstruct;
@@ -7411,9 +7841,9 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
 -			window->draw_video_contents(hdc, TRUE);
 +			BeginPaint(wnd, &pstruct);
  			if (window->win_has_menu())
- 				DrawMenuBar(window->platform_window<HWND>());
+ 				DrawMenuBar(window->platform_window());
  			EndPaint(wnd, &pstruct);
-@@ -1294,6 +1417,11 @@
+@@ -1291,6 +1413,11 @@
  			return DefWindowProc(wnd, message, wparam, lparam);
  		}
  
@@ -7425,7 +7855,7 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  		// track whether we are in the foreground
  		case WM_ACTIVATEAPP:
  			in_background = !wparam;
-@@ -1742,6 +1870,7 @@
+@@ -1739,6 +1866,7 @@
  }
  
  
@@ -7433,7 +7863,7 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  //============================================================
  //  set_fullscreen
  //  (window thread)
-@@ -1759,6 +1888,10 @@
+@@ -1756,6 +1884,10 @@
  	// reset UI to main menu
  	machine().ui().menu_reset();
  
@@ -7444,7 +7874,7 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  	// kill off the drawers
  	renderer_reset();
  
-@@ -1826,6 +1959,44 @@
+@@ -1823,6 +1955,50 @@
  	adjust_window_position_after_major_change();
  }
  
@@ -7464,22 +7894,28 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
 +	if (multithreading_enabled)
 +		blit_lock_set();
 +
++	if (video_config.mode == VIDEO_MODE_D3D || video_config.mode == VIDEO_MODE_BGFX)
++	{
++		renderer().switch_video_mode();
++		return;
++	}
++
 +	// kill off the drawers
 +	renderer_reset();
 +
 +	// hide ourself
-+	ShowWindow(platform_window<HWND>(), SW_HIDE);
++	ShowWindow(platform_window(), SW_HIDE);
 +
 +	// adjust the style
-+	SetWindowLong(platform_window<HWND>(), GWL_STYLE, WINDOW_STYLE);
-+	SetWindowLong(platform_window<HWND>(), GWL_EXSTYLE, WINDOW_STYLE_EX);
-+	SetWindowPos(platform_window<HWND>(), 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
++	SetWindowLong(platform_window(), GWL_STYLE, WINDOW_STYLE);
++	SetWindowLong(platform_window(), GWL_EXSTYLE, WINDOW_STYLE_EX);
++	SetWindowPos(platform_window(), 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 +
-+	SetWindowLong(platform_window<HWND>(), GWL_STYLE, FULLSCREEN_STYLE);
-+	SetWindowLong(platform_window<HWND>(), GWL_EXSTYLE, FULLSCREEN_STYLE_EX);
-+	SetWindowPos(platform_window<HWND>(), 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
++	SetWindowLong(platform_window(), GWL_STYLE, FULLSCREEN_STYLE);
++	SetWindowLong(platform_window(), GWL_EXSTYLE, FULLSCREEN_STYLE_EX);
++	SetWindowPos(platform_window(), 0, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 +
-+	ShowWindow(platform_window<HWND>(), SW_SHOW);
++	ShowWindow(platform_window(), SW_SHOW);
 +
 +	set_renderer(osd_renderer::make_for_type(video_config.mode, shared_from_this()));
 +	if (renderer().create())
@@ -7490,9 +7926,9 @@ diff -Nru src/osd/windows/window.cpp src/osd/windows/window.cpp
  bool winwindow_qt_filter(void *message)
  {
 diff -Nru src/osd/windows/window.h src/osd/windows/window.h
---- src/osd/windows/window.h	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/windows/window.h	2016-10-29 21:28:12.000000000 +0200
-@@ -87,6 +87,7 @@
+--- src/osd/windows/window.h	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/windows/window.h	2017-02-22 13:47:37.000000000 +0100
+@@ -86,6 +86,7 @@
  	// static
  
  	static void create(running_machine &machine, int index, std::shared_ptr<osd_monitor_info> monitor, const osd_window_config *config);
@@ -7500,7 +7936,7 @@ diff -Nru src/osd/windows/window.h src/osd/windows/window.h
  
  	// static callbacks
  
-@@ -122,6 +123,13 @@
+@@ -121,6 +122,13 @@
  	int                                    m_lastclickx;
  	int                                    m_lastclicky;
  
@@ -7514,7 +7950,7 @@ diff -Nru src/osd/windows/window.h src/osd/windows/window.h
  private:
  	void draw_video_contents(HDC dc, int update);
  	int complete_create();
-@@ -137,6 +145,12 @@
+@@ -136,6 +144,12 @@
  	void adjust_window_position_after_major_change();
  	void set_fullscreen(int fullscreen);
  	std::shared_ptr<osd_monitor_info> monitor_from_rect(const osd_rect* proposed) const;
@@ -7528,9 +7964,9 @@ diff -Nru src/osd/windows/window.h src/osd/windows/window.h
  	static POINT        s_saved_cursor_pos;
  
 diff -Nru src/osd/windows/winmain.cpp src/osd/windows/winmain.cpp
---- src/osd/windows/winmain.cpp	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/windows/winmain.cpp	2016-10-29 21:28:12.000000000 +0200
-@@ -42,6 +42,9 @@
+--- src/osd/windows/winmain.cpp	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/windows/winmain.cpp	2017-02-22 13:47:37.000000000 +0100
+@@ -45,6 +45,9 @@
  
  #define DEBUG_SLOW_LOCKS    0
  
@@ -7540,7 +7976,7 @@ diff -Nru src/osd/windows/winmain.cpp src/osd/windows/winmain.cpp
  //**************************************************************************
  //  MACROS
  //**************************************************************************
-@@ -476,6 +479,10 @@
+@@ -513,6 +516,10 @@
  	const char *stemp;
  	windows_options &options = downcast<windows_options &>(machine.options());
  
@@ -7551,7 +7987,7 @@ diff -Nru src/osd/windows/winmain.cpp src/osd/windows/winmain.cpp
  	// determine if we are benchmarking, and adjust options appropriately
  	int bench = options.bench();
  	std::string error_string;
-@@ -560,6 +567,9 @@
+@@ -597,6 +604,9 @@
  
  void windows_osd_interface::osd_exit()
  {
@@ -7562,9 +7998,9 @@ diff -Nru src/osd/windows/winmain.cpp src/osd/windows/winmain.cpp
  	g_current_machine = nullptr;
  
 diff -Nru src/osd/windows/winmain.h src/osd/windows/winmain.h
---- src/osd/windows/winmain.h	2016-10-26 02:56:30.000000000 +0200
-+++ src/osd/windows/winmain.h	2016-10-29 21:28:12.000000000 +0200
-@@ -269,6 +269,7 @@
+--- src/osd/windows/winmain.h	2017-02-22 02:11:51.000000000 +0100
++++ src/osd/windows/winmain.h	2017-02-22 13:47:37.000000000 +0100
+@@ -271,6 +271,7 @@
  	// general overridables
  	virtual void init(running_machine &machine) override;
  	virtual void update(bool skip_redraw) override;
