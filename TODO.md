@@ -14,7 +14,7 @@
 - [ ] Write documentation about `new X instance` layout
 - [ ] Configure the system to launch attractmode at boot, without
      desktop environment
-- [ ] Build Hatari 2.0.0 with the Makefile (2.0.0 added a vsync feature)
+- [x] Build Hatari 2.0.0 with the Makefile (2.0.0 added a vsync feature)
 - [ ] Fix switchres core dump (since 16.10) issue. 
 
     First, remove its use from the emulator wrappers: Either define the
