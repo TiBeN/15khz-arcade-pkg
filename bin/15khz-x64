@@ -4,10 +4,10 @@
 
 declare rootpath=$(readlink -f `dirname $0`)
 
-declare x64="$rootpath/../vendor/vice-2.4/src/x64"
+declare x64="$rootpath/../vendor/vice-3.0/src/x64"
 declare changeresbin="$rootpath/15khz-change-res-exec"
-declare rompath="$rootpath/../vendor/vice-2.4/data/C64"
-declare romdrivepath="$rootpath/../vendor/vice-2.4/data/DRIVES"
+declare rompath="$rootpath/../vendor/vice-3.0/data/C64"
+declare romdrivepath="$rootpath/../vendor/vice-3.0/data/DRIVES"
 
 $changeresbin 384 272 50.124545 $x64 \
     -directory "$rompath:$romdrivepath" \
