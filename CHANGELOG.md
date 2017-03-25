@@ -4,6 +4,8 @@ CHANGELOG
 Current
 -------
 
+- Now provide Hatari in version 2.0.0 (This version added a vsync feature
+  which can helps in some setups)
 - Upgraded VICE emulator to version 3.0
 - Upgraded Ubuntu version to 16.10 Yakkety Yak, kernel Ubuntu-4.8.0-39.42
 - Now embed the Groovymame patch since it is not possible to download
