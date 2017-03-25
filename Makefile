@@ -50,6 +50,11 @@ VICE_SRC_PKG_URL = https://downloads.sourceforge.net/project/vice-emu/releases/v
 VICE_SRC_PKG = vendor/vice.tar.gz
 VICE_BIN = vendor/vice-$(VICE_VERSION)/src/x64
 
+HATARI_VERSION = 2.0.0
+HATARI_SRC_PKG_URL = http://download.tuxfamily.org/hatari/$(HATARI_VERSION)/hatari-$(HATARI_VERSION).tar.bz2
+HATARI_SRC_PKG = vendor/hatari.tar.bz2
+HATARI_BIN = vendor/hatari-$(HATARI_VERSION)/src/hatari
+
 .PHONY: all install clean
 
 .NOTPARALLEL: $(LINUX_IMAGE_DEB)
@@ -58,6 +63,7 @@ all: linux-kernel \
      xserver-xorg-video-nouveau \
      groovymame \
      switchres \
+	 hatari \
      vice
 
 clean:
@@ -72,11 +78,12 @@ install:
 	mkdir -p $(DESTDIR)/lib/15khz-arcade-pkg
 	cp -r vendor/mame $(DESTDIR)/lib/15khz-arcade-pkg/groovymame
 	cp -r vendor/vice-$(VICE_VERSION) $(DESTDIR)/lib/15khz-arcade-pkg/vice
+	cp -r vendor/hatari-$(HATARI_VERSION) $(DESTDIR)/lib/15khz-arcade-pkg/hatari
 	cd $(DESTDIR)/lib/15khz-arcade-pkg/groovymame && make clean
 	cp vendor/switchres/switchres $(DESTDIR)/lib/15khz-arcade-pkg
 	mkdir -p $(DESTDIR)/bin
 	cp bin/15khz-* $(DESTDIR)/bin
-	# Adjust paths of binaries
+	# Adjust binaries paths in wrappers
 	# Mame
 	sed -i -e "7s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/groovymame/mame64 \"\$$@\"=" \
 		$(DESTDIR)/bin/15khz-mame
@@ -94,6 +101,9 @@ install:
 		$(DESTDIR)/bin/15khz-fs-uae
 	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-fs-uae
 	# Hatari
+	sed -i \
+		-e "7s=.*=declare hatari\=$(DESTDIR)/lib/15khz-arcade-pkg/hatari/src/hatari=" \
+		$(DESTDIR)/bin/15khz-hatari
 	sed -i \
 		-e "8s=.*=declare changeresbin\=$(DESTDIR)/bin/15khz-change-res-exec=" \
 		$(DESTDIR)/bin/15khz-hatari
@@ -140,6 +150,8 @@ groovymame: $(GROOVYMAME_BIN)
 switchres: $(SWITCHRES_BIN)
 
 vice: $(VICE_BIN)
+
+hatari: $(HATARI_BIN)
 
 $(LINUX_IMAGE_DEB): $(KERNEL_SRC_PKG)
 	mkdir -p vendor
@@ -225,3 +237,16 @@ $(VICE_SRC_PKG):
 	mkdir -p $(dir $(VICE_SRC_PKG))
 	wget -O $(VICE_SRC_PKG) "$(VICE_SRC_PKG_URL)"
 	touch $(VICE_SRC_PKG)
+
+$(HATARI_BIN): $(HATARI_SRC_PKG)
+	mkdir -p vendor
+	cd vendor \
+		&& tar xf $(realpath $(HATARI_SRC_PKG))
+	cd vendor/hatari-$(HATARI_VERSION) \
+		&& cmake . \
+		&& make
+
+$(HATARI_SRC_PKG):
+	mkdir -p $(dir $(HATARI_SRC_PKG))
+	wget -O $(HATARI_SRC_PKG) "$(HATARI_SRC_PKG_URL)"
+	touch $(HATARI_SRC_PKG)

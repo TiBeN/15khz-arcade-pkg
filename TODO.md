@@ -23,3 +23,5 @@
 
 - [ ] Write documentation on how to make a multiseat (2 graphics cards)
      setup.
+
+- [ ] Rename the project 15khz-ubuntu-pkg, or something like that

@@ -4,7 +4,7 @@
 
 declare rootpath=$(readlink -f `dirname $0`)
 
-declare hatari=/usr/bin/hatari
+declare hatari="$rootpath/../vendor/hatari-2.0.0/src/hatari"
 declare changeresbin="$rootpath/15khz-change-res-exec"
 
 $changeresbin 352 288 50.053 $hatari --borders on \

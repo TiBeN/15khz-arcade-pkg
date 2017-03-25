@@ -94,6 +94,8 @@ The provided makefile automates the build of the following:
 -   **Vice 3.0** — a Commodore 64 emulator — with the SDL support. 
     SDL version of vice has a better support for full screen native 
     resolution.
+-   **Hatari 2.0.0** — An Atari ST emulator. Version 2.0.0 adds a vsync
+    feature which can help reduce tearing issues on some setups
 -   **Switchres 1.52** — A tool used internally by the provided 
     `15khz-change-res-exec` script — see `usage`. 
 
@@ -101,10 +103,10 @@ The provided makefile automates the build of the following:
 
     ``` {.sourceCode .bash}
     $ sudo apt-get update
-    $ sudo apt-get build-dep linux-image-4.8.0-39.42-generic
+    $ sudo apt-get build-dep linux-image-4.8.0-42.45-generic
     $ sudo apt-get build-dep mame vice xserver-xorg-video-nouveau
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
-        qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev
+        qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev cmake
     ```
 
     You can also install theses optionnal packages if you
