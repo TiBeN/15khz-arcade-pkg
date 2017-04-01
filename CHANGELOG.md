@@ -8,7 +8,7 @@ Current
   which can helps in some setups) and improved its configuration in order
   to launch it real full screen and avoid tearing.
 - Upgraded VICE emulator to version 3.0
-- Upgraded Ubuntu version to 16.10 Yakkety Yak, kernel Ubuntu-4.8.0-39.42
+- Upgraded Ubuntu version to 16.10 Yakkety Yak, kernel Ubuntu-4.8.0-45.48
 - Now embed the Groovymame patch since it is not possible to download
   directly from its Google Drive since google doesn't allow direct link
   anymore.
