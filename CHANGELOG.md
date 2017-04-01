@@ -1,9 +1,10 @@
 CHANGELOG
 =========
 
-Current
--------
+yakkety_Ubuntu-4.8.0-45.48_0.183_1
+----------------------------------
 
+- Upgraded to Groovymame 0.183
 - Now provide Hatari in version 2.0.0 (This version added a vsync feature
   which can helps in some setups) and improved its configuration in order
   to launch it real full screen and avoid tearing.
