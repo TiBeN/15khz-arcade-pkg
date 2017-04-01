@@ -592,7 +592,7 @@ The provided example `xorg.conf` file is available
 Usage
 -----
 
-Most of the wrappers and scripts provided by this package need the 
+Some of the wrappers and scripts provided by this package need the 
 environment variable `OUTPUT15KHZ` to be set to the xrandr output 
 where the CRT screen is connected. So, i recommend you
 to put this variable in your `~/.bashrc` or `~/.profile` file and set it
@@ -620,16 +620,69 @@ $ DISPLAY=:0.1 15khz-zaphod-mame <mame-command-line-args>
 
 ### Hatari
 
-This Hatari wrapper switches the screen resolution to native Atari ST 
-resolution before launching it.
+Hatari is an Atari ST Emulator. It is available from the Ubuntu APT
+repositories but the newer 2.0.0 version is build with the Makefile because
+it includes a Vsync option that can be needed on some setups to avoid
+tearing. 
+
+#### Setup
+
+In order to make Hatari to perform in fullscreen with a good resolution, some
+configuration is required. First, for usage on a real CRT screen, one of
+theses modelines need to be added on the `Monitor` section matching your
+CRT screen of your `xorg.conf` file, depending on the ST roms used:
+
+```
+# 50Hz Low/Medium resolution (European machine)
+ModeLine       "352x288x50.00" 7.386800 352 368 408 472 288 292 295 313 -HSync -VSync
+
+# 60Hz Low/Medium resolution (US machine)
+ModeLine       "352x200x60.00" 7.391520 352 368 408 472 200 222 225 261 -HSync -VSync
+```
+
+Next, add or update theses option values into the Hatari configuration
+file (default sits at `$HOME/.config/hatari/hatari.cfg`, create it if it
+doesnt already exists): 
+
+```
+[Screen]
+nMonitorType = 1
+nFrameSkips = 0
+bFullScreen = TRUE
+bKeepResolution = FALSE
+bAllowOverscan = TRUE
+nSpec512Threshold = 1
+nForceBpp = 0
+bAspectCorrect = FALSE
+bUseExtVdiResolutions = FALSE
+nVdiWidth = 640
+nVdiHeight = 480
+nVdiColors = 2
+bMouseWarp = TRUE
+bShowStatusbar = FALSE
+bShowDriveLed = TRUE
+bCrop = FALSE
+bForceMax = FALSE
+nMaxWidth = 352
+nMaxHeight = 288
+nRenderScaleQuality = 0
+bUseVsync = 0
+``` 
+
+Hatari will now makes use of the resolution matching the modeline set on
+the `xorg.conf` file.
+
+If you notice some tearing, try to set bUseVsync option to 1. 
+
+To launch the provided hatari:
 
 ```bash
 $ 15khz-hatari <hatari-command-line-args>
 ```
 
-Note: This emulator has no v-sync option or like. Despite all my efforts
-to find the perfect vertical refresh rate, there is a small horizontal 
-tearing artifact on my setup i have not managed to remove completelly.
+See [Hatari User's
+Manual](https://hg.tuxfamily.org/mercurialroot/hatari/hatari/raw-file/tip/doc/manual.html)
+for more information about Hatari configuration and usage.
 
 ### FS-UAE
 

@@ -4,13 +4,4 @@
 
 declare rootpath=$(readlink -f `dirname $0`)
 
-declare hatari="$rootpath/../vendor/hatari-2.0.0/src/hatari"
-declare changeresbin="$rootpath/15khz-change-res-exec"
-
-$changeresbin 352 288 50.053 $hatari --borders on \
-    --statusbar off \
-    --max-width 352 \
-    --max-height 288 \
-    --desktop-st off \
-    --frameskips 0 \
-    "$@"
+$rootpath/../vendor/hatari-2.0.0/src/hatari

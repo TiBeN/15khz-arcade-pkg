@@ -33,6 +33,7 @@ MAME_VERSION = 0183
 MAME_SRC_PKG_URL = https://github.com/mamedev/mame/archive/mame$(MAME_VERSION).tar.gz
 MAME_SRC_PKG = vendor/mame$(MAME_VERSION).tar.gz
 GROOVYMAME_PATCH = src/0183_groovymame_017c.diff 
+
 GROOVYMAME_BIN = vendor/mame/mame64
 
 XSERVER_XORG_VIDEO_NOUVEAU_VERSION = 1.0.12
@@ -101,11 +102,7 @@ install:
 		$(DESTDIR)/bin/15khz-fs-uae
 	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-fs-uae
 	# Hatari
-	sed -i \
-		-e "7s=.*=declare hatari\=$(DESTDIR)/lib/15khz-arcade-pkg/hatari/src/hatari=" \
-		$(DESTDIR)/bin/15khz-hatari
-	sed -i \
-		-e "8s=.*=declare changeresbin\=$(DESTDIR)/bin/15khz-change-res-exec=" \
+	sed -i -e "7s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/hatari/src/hatari \"\$$@\"=" \
 		$(DESTDIR)/bin/15khz-hatari
 	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-hatari
 	# Vice
