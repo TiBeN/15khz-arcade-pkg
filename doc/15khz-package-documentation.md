@@ -98,6 +98,8 @@ The provided makefile automates the build of the following:
     feature which can help reduce tearing issues on some setups
 -   **Switchres 1.52** — A tool used internally by the provided 
     `15khz-change-res-exec` script — see `usage`. 
+-   **Attract-Mode** — A full-screen emulators frontend ideal for use with
+    a Joystick and a CRT Screen.
 
 1.  Install the following required packages using APT:
 
@@ -106,7 +108,15 @@ The provided makefile automates the build of the following:
     $ sudo apt-get build-dep linux-image-4.8.0-45.48-generic
     $ sudo apt-get build-dep mame vice xserver-xorg-video-nouveau
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
-        qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev cmake
+        qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev cmake \
+        libarchive13 libavcodec57 libavformat57 libavutil55 libc6 libexpat1 \
+        libfontconfig1 libfreetype6 libgcc1 libgl1-mesa-glx libjpeg8 \
+        libopenal1 libsfml-graphics2.4 libsfml-network2.4 libsfml-system2.4 \
+        libsfml-window2.4 libstdc++6 libswresample2 libswscale4 libx11-6 \
+        libxinerama1 zlib1g libarchive-dev libavcodec-dev libavformat-dev \
+        libavresample-dev libavutil-dev libfontconfig-dev libfreetype6-dev \
+        libglu-dev libjpeg-turbo8-dev libopenal-dev libsfml-dev \
+        libswscale-dev libxinerama-dev
     ```
 
     You can also install theses optionnal packages if you
@@ -621,7 +631,7 @@ $ DISPLAY=:0.1 15khz-zaphod-mame <mame-command-line-args>
 ### Hatari
 
 Hatari is an Atari ST Emulator. It is available from the Ubuntu APT
-repositories but the newer 2.0.0 version is build with the Makefile because
+repositories but the newer 2.0.0 version is provided by the Makefile because
 it includes a Vsync option that can be needed on some setups to avoid
 tearing. 
 
@@ -717,6 +727,81 @@ $ 15khz-x64 <x64-command-line-args>
 Note: This emulator has no v-sync option or like. Despite all my efforts
 to find the perfect vertical refresh rate, there is a small horizontal 
 tearing artifact on my setup i have not managed to remove completelly.
+
+### Attract-Mode
+
+`Attract-Mode` is a fullscreen emulators frontend that can be used with
+joystick/pads and works well with a CRT Screen. It is built and provided by
+the Makefile. 
+
+#### Configuration directory initialization
+
+Attract-Mode stores its configuration into `$HOME/.attract`. As mentionned
+in the official documentation, this directory must be copied from the
+source tree first:
+
+```
+$ cp -r /usr/local/lib/15khz-arcade-pkg/attract/config $HOME/.attract
+```
+
+If you altered the `$(DESTDIR)` variable of the Makefile, source
+directory must be adapted: `$(DESTDIR)/lib/15khz-arcade-pkg/attract/config`.
+
+Once done, `Attract-Mode` can be launched:
+
+```
+$ 15khz-attract
+```
+
+Documentation for Attract-Mode can be found on the [official
+webside](http://attractmode.org/about.html).
+
+#### Make Attract-Mode start on boot
+
+If you planned to dedicate your machine to arcade gaming (CRT screen only
+Xorg setup), or one of your seats in a multi-seat setup, you can configure
+your system to make Attract-Mode to start automatically on system boot.
+Please note that there are many ways to do that. The following method makes
+use of the `Lightdm` session-manager and the `Openbox` Windows Manager.
+
+Note: Despite `Lightdm` is able to launch Attract-Mode (or simply Mame)
+directly, a window manager is required to avoid input event handling issues
+causing keyboard to not respond etc. See this [ArcadeControls forum
+thread](http://forum.arcadecontrols.com/index.php?topic=150716.0) for more
+information about this issue. We use Openbox here because it is really
+lightweight but any windows manager that can start a command automatically
+at start can be used.
+
+1.  Install Openbox
+   
+    ```
+    $ sudo apt-get install openbox
+    ```
+
+2.  Tell `Lightdm` to auto-logon (if desired) and define `Openbox` as the
+    default window manager by adding theses configuration lines on
+    `/etc/lightdm/lightdm.conf`:
+
+    ```
+    [Seat:*]
+    autologin-user=<username>
+    user-session=openbox
+    ```
+
+    If you have a multi-seat setup you can constrain the application of
+    theses rule to a specific seat. Exemple for a `seat-1`, place theses
+    rule below `[Seat:seat-1]`.
+ 
+3.  Tell `Openbox` to launch `Attract-Mode` on startup. Create the file
+    `$HOME/.config/openbox/autostart` and put the following into:
+
+    ```
+    # Launch Attract Mode
+    /usr/local/bin/15khz-attract &
+    ```
+
+    Don't forget to add the `&` char in the end. More information in the
+    [official documentation](http://openbox.org/wiki/Help:Autostart).
 
 ### Change screen resolution and execute a command
 

@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+Current
+-------
+
+- Now provides Attract-Mode emulators frontend
+
 yakkety_Ubuntu-4.8.0-45.48_0.183_1
 ----------------------------------
 

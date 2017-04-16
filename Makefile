@@ -56,12 +56,19 @@ HATARI_SRC_PKG_URL = http://download.tuxfamily.org/hatari/$(HATARI_VERSION)/hata
 HATARI_SRC_PKG = vendor/hatari.tar.bz2
 HATARI_BIN = vendor/hatari-$(HATARI_VERSION)/src/hatari
 
+ATTRACT_MODE_VERSION = 2.2.1
+#ATTRACT_MODE_SRC_PKG_URL = https://github.com/mickelson/attract/archive/v$(ATTRACT_MODE_VERSION).tar.gz
+ATTRACT_MODE_GIT_URL = https://github.com/mickelson/attract.git	
+ATTRACT_MODE_SRC_PKG = vendor/attract.tar.gz
+ATTRACT_MODE_BIN = vendor/attract/attract
+
 .PHONY: all install clean
 
 .NOTPARALLEL: $(LINUX_IMAGE_DEB)
 
 all: linux-kernel \
      xserver-xorg-video-nouveau \
+	 attract \
      groovymame \
      switchres \
 	 hatari \
@@ -82,6 +89,8 @@ install:
 	cp -r vendor/hatari-$(HATARI_VERSION) $(DESTDIR)/lib/15khz-arcade-pkg/hatari
 	cd $(DESTDIR)/lib/15khz-arcade-pkg/groovymame && make clean
 	cp vendor/switchres/switchres $(DESTDIR)/lib/15khz-arcade-pkg
+	cp -r vendor/attract-$(ATTRACT_MODE_VERSION) \
+		$(DESTDIR)/lib/15khz-arcade-pkg/attract
 	mkdir -p $(DESTDIR)/bin
 	cp bin/15khz-* $(DESTDIR)/bin
 	# Adjust binaries paths in wrappers
@@ -119,6 +128,10 @@ install:
 		-e "10s=.*=declare romdrivepath\=$(DESTDIR)/lib/15khz-arcade-pkg/vice/data/DRIVES=" \
 		$(DESTDIR)/bin/15khz-x64
 	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-x64
+	# Attract mode
+	sed -i -e "7s=.*=$(DESTDIR)/lib/15khz-arcade-pkg/attract/attract \"\$$@\"=" \
+		$(DESTDIR)/bin/15khz-attract
+	sed -i -re "4,5d" $(DESTDIR)/bin/15khz-attract
 	@echo "Install finished"
 	@echo "Please reboot your computer to the new patched kernel"
 
@@ -149,6 +162,8 @@ switchres: $(SWITCHRES_BIN)
 vice: $(VICE_BIN)
 
 hatari: $(HATARI_BIN)
+
+attract: $(ATTRACT_MODE_BIN)
 
 $(LINUX_IMAGE_DEB): $(KERNEL_SRC_PKG)
 	mkdir -p vendor
@@ -247,3 +262,17 @@ $(HATARI_SRC_PKG):
 	mkdir -p $(dir $(HATARI_SRC_PKG))
 	wget -O $(HATARI_SRC_PKG) "$(HATARI_SRC_PKG_URL)"
 	touch $(HATARI_SRC_PKG)
+
+$(ATTRACT_MODE_BIN): $(ATTRACT_MODE_SRC_PKG)
+	mkdir -p vendor
+	cd vendor && tar xf $(realpath $(ATTRACT_MODE_SRC_PKG))
+	cd vendor/attract-$(ATTRACT_MODE_VERSION) && make
+	
+$(ATTRACT_MODE_SRC_PKG):
+	mkdir -p vendor
+	git clone --depth 1 --branch v$(ATTRACT_MODE_VERSION) \
+	    $(ATTRACT_MODE_GIT_URL) vendor/attract-$(ATTRACT_MODE_VERSION)
+	cd vendor \
+		&& tar cvf attract.tar.gz attract-$(ATTRACT_MODE_VERSION)
+	rm -rf vendor/attract-$(ATTRACT_MODE_VERSION)
+
