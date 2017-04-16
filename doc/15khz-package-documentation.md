@@ -98,7 +98,7 @@ The provided makefile automates the build of the following:
     feature which can help reduce tearing issues on some setups
 -   **Switchres 1.52** — A tool used internally by the provided 
     `15khz-change-res-exec` script — see `usage`. 
--   **Attract-Mode** — A full-screen emulators frontend ideal for use with
+-   **Attract-Mode 2.2.1** — A full-screen emulators frontend ideal for use with
     a Joystick and a CRT Screen.
 
 1.  Install the following required packages using APT:
