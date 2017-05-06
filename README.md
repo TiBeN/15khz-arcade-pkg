@@ -1,19 +1,39 @@
 15khz Arcade Package
 ====================
 
-This repository provides 
-[documentation](doc/15khz-package-documentation.md) and a set of 
-scripts to connect an analog CRT monitor on Ubuntu and use commons 
-emulators (mame, fs-uae...) at real native resolution to make the 
-"pixel perfect" experience. 
+This package provides [instructions](doc/15khz-package-documentation.md),
+packages and tools needed to use a TV or arcade monitor — or any other
+monitor with an horizontal scan rate at 15khz — on Ubuntu.
 
-Supported Ubuntu version: **16.10** (Yakkety Yak).
+The main objective of this package is to use commons emulators, like Mame,
+at real native resolution of the emulated system to make the "pixel
+perfect" experience. 
+
+Among others things, this packages provides a patched Linux Kernel and
+patched Xorg nouveau drivers that allow the graphic stack to display very
+low resolutions used by old consoles, arcades machines and computers,
+theses resolutions beeing not allowed by the system by default. A patched Mame
+version named `Groovymame` is provided too. This customized Mame version
+automatically switchs the resolution of the monitor to the resolution of the
+original emulated system. Instructions are provided to reproduce this
+behavior with emulators — used by myself — Hatari, FS-UAE and VICE and a
+generic tool is provided too to configure others emulators or any other 
+software.
+
+This package can be used as a starter to build an arcade cab but is it not
+focused on this objective. Different kind of setups are covered like using
+the 15khz monitor alone (arcade cab use case), or as a slave of a primary
+desktop LCD screen.
+
+The documentation is software oriented. Some tips about hardware are given but 
+the setup is up to the user. 
+
+Tools and packages are not directly provided but a Makefile to build them.
+
+Current Ubuntu version supported: **16.10** (Yakkety Yak).
 
 Installation
 ------------
-
-This repository comes with a Makefile that downloads and builds required
-pieces of softwares.
 
 1.  Install needed pre-requisites:
 
@@ -62,27 +82,22 @@ pieces of softwares.
     $ sudo make install
     ```
 
-Usage
------
+Configuration
+-------------
 
-This package comes with a set of wrapper scripts for some emulators and
-others tools. For example:
+Please refer to the [documentation](doc/15khz-package-documentation.md) to
+configure your system.
 
--   To launch the provided mame: 
+Contribution
+------------
 
-    ```bash
-    $ 15khz-mame <mame-args>
-    ```
-
--   To change the resolution of the screen and launch a program
-    
-    ```bash
-    $ 15khz-change-res-exec 320 240 50 <program>
-    ```
-
-More information
-----------------
-
-Please refer to the [documentation](doc/15khz-package-documentation.md) 
-to know what is exactly built and installed and to setup properly your 
-system.
+This project was initially a heap of personal notes to document how to
+connect a 15khz screen and to easily reconfigure my system after Ubuntu OS
+and kernel upgrades. I decided to automate things a little with a Makefile
+because the entire process of rebuild manually needed pieces takes times
+and is annoying to repeat after each system or kernel upgrade. But what
+works for my system could not in another — i tried successfully with two
+Nvidia and one Radeon card). So any contributions that can make this
+project more tested and viable for a wider range of
+systems/configurations/setups are welcome. As you can read i am not english
+native so contributions is this field are welcome too!

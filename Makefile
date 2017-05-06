@@ -146,7 +146,7 @@ uninstall:
 	# release the system without any kernel (!!). This should 
 	# happen if the patched installed kernel is of the same version
 	# as the distribution's current one.
-	-sudo apt-get install linux-image-generic linux-headers-generic
+	-apt-get install linux-image-generic linux-headers-generic
 	@echo "Uninstall finished. Please reboot your computer now"
 
 dist: 

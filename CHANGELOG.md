@@ -4,6 +4,8 @@ CHANGELOG
 Current
 -------
 
+- Rewritten parts of the documentation and modified slightly its structure
+- Upgraded Kernel to version Ubuntu-4.8.0-51.54
 - Now provides Attract-Mode emulators frontend
 
 yakkety_Ubuntu-4.8.0-45.48_0.183_1
