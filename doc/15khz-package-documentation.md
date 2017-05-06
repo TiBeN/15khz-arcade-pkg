@@ -821,7 +821,7 @@ $ 15khz-attract
 ```
 
 Documentation for Attract-Mode can be found on the [official
-webside](http://attractmode.org/about.html).
+website](http://attractmode.org/about.html).
 
 #### Make Attract-Mode start on boot
 
