@@ -5,7 +5,7 @@ Abstract
 --------
 
 This documentation explains how to build required packages and tools and
-setup your system to make use of a Monitor with an [horizontal scan
+setup your system to make use of a monitor with an [horizontal scan
 rate](https://en.wikipedia.org/wiki/Horizontal_scan_rate) at 15khz on
 Ubuntu with the main goal of using commons emulators, like Mame, at the real
 resolution of the emulated systems.
@@ -20,11 +20,11 @@ Doing this is actually harder than it sounds because:
 
 -   This setup requires manual, and not so obvious, Xorg Server configuration
 
--   15khz monitor are, for most, pretty old and does not provide [EDID
+-   15khz monitors are, for most, pretty old and does not provide [EDID
     information](https://en.wikipedia.org/wiki/Extended_Display_Identification_Data)
-    so the kernel must be forced to enable the display and, at least one,
-    [modelines](https://en.wikipedia.org/wiki/XFree86_Modeline) that suits
-    such monitors must be manually provided to Xorg.
+    so the kernel must be forced to enable the display and
+    [modelines](https://en.wikipedia.org/wiki/XFree86_Modeline), at least one
+    that suits such monitors must be manually provided to Xorg.
 
 Note: If your goal is to dedicate a machine for this purpose (into a 
 physical arcade cabinet for example) and doesn't not want to use Ubuntu
@@ -57,7 +57,7 @@ S-video or yellow RCA composite outputs cannot be used for what we want to
 achieve because the signal that is output by these connectors is converted
 to PAL or NTSC standards. Because of that it is not possible to make use of
 custom modelines in order to tweak the resolution/refresh rate to match
-native resolutions of emulated systems (Please correct if i'm wrong).
+native resolutions of emulated systems. (Please correct me if i'm wrong).
 
 I have tested with success with two Nvidia cards and a Radeon. ArcadeVGA cards
 seems to be supported too. `Calamity`, a prolific developper is this field
@@ -70,8 +70,9 @@ card](http://forum.arcadecontrols.com/index.php/topic,151459.0.html) for this us
 > work, both AGP and PCIe models. As far as we know, there is nothing that
 > can remotely compare to these cards in terms of flexibility.
 
-I can relate some tearing issue with nvidia cards i am able to fight with
-`vsync` related options of emulators. This issue does not affect the Radeon.
+I can relate some tearing issue with nvidia cards i was able to fight with
+`vsync` related options of emulators. This issue does not affect Radeon
+cards.
 
 -   Ubuntu 16.10 (Yakkety Yak)
 
@@ -81,20 +82,20 @@ version of this distribution. I try to release new versions of this
 packages as new versions of Ubuntu or new kernel updates are released.
 
 I think it won't be too hard to adapt the process to others Debian based
-distributions. I provide in this documentation a guide to build essentials
-parts manually too. 
+distributions. I provide in the end of this documentation [a guide to build
+essentials parts manually](#doing-things-by-yourself).
 
 -   Obviously, a 15khz monitor screen with proper cables and adapters to
     connect it to a DVI or VGA adapter.
 
-See `Hardware setup` below.
+See [Hardware setup](#hardware-setup) below.
 
 Build and installation of packages and tools
 --------------------------------------------
 
 The provided makefile builds the following packages and tools:
 
--   **Linux kernel Ubuntu-4.8.0-51.54** patched to support low
+-   **Linux kernel Ubuntu-4.8.0-51.54**, patched to support low
     resolutions
 -   **nouveau drivers 1.0.12**, patched to support low resolutions.  Note:
     it is not possible to use the officials Nvidia drivers because they are
@@ -118,10 +119,10 @@ The provided makefile builds the following packages and tools:
 All theses programs are installed by default on
 `/usr/local/lib/15khz-arcade-pkg/*`. Bash wrappers launchers of theses
 programs, that are prefixed by `15khz-<program>` are copied to `/usr/local/bin`
-so there will be no clash with some of theses programs eventually already
+so there will be no clash with the same programs eventually already
 installed on your system.
 
-1.  Install the following required deb packages needed for the build:
+1.  Install the following deb packages required for the build:
 
     ``` {.sourceCode .bash}
     $ sudo apt-get update
@@ -151,7 +152,7 @@ installed on your system.
 2.  Go to the
     [releases](https://github.com/TiBeN/15khz-arcade-pkg/releases)
     page and download the lastest version matching your Ubuntu version.
-    Extract the files from the distribution file then go the extracted
+    Extract the files from the distribution file then go to the extracted
     directory: 
 
     ```
@@ -163,7 +164,7 @@ installed on your system.
     (Change the \<version\> to the downloaded one from the lines above)
 
     Alternatively you can clone this repository using git but beware
-    the master branch may be in a "Work in progress" state and can
+    the master branch may be in a "work in progress" state and can
     not compile nor work as expected, or could not be syncronised with this 
     documentation:
 
@@ -171,7 +172,7 @@ installed on your system.
     $ git clone https://github.com/TiBeN/15khz-arcade-pkg.git
     ```
 
-3.  Go the source dir of the project and launch the build:
+3.  Go the source directory of the project and launch the build:
 
     ``` {.sourceCode .bash}
     $ cd ./15khz-arcade-package
@@ -179,7 +180,8 @@ installed on your system.
     ```
 
     Be warned that this step can take many hours because it triggers the
-    compilation of the Linux Kernel and the MAME emulator among others.
+    compilation of the Linux Kernel and the MAME emulator among others
+    programs.
 
     Once done, built items are available inside the `vendor` directory. 
     The kernel and nouveau drivers are available as Debian packages.
@@ -208,11 +210,9 @@ installed on your system.
     Here you have the choice of installing everything automatically and
     properly, or just installing the required pieces (Kernel and nvidia
     drivers) manually and make use of the provided tools directly from the
-    source tree by launching them from the `bin` directory.
+    build tree by launching them from the `bin` directory.
 
-    Install everything automatically:
-
-    Simply type: 
+    To install everything automatically, simply type: 
 
     ``` {.sourceCode .bash}
     $ sudo make install
@@ -220,11 +220,11 @@ installed on your system.
 
     The command above triggers the installation of the kernel and nouveau 
     drivers package, and copy everything else (compiled programs and 
-    provided scripts) on /usr/local/* to make them available in your $PATH.
+    provided scripts) on `/usr/local/lib/15khz-arcade-pkg`. Bash launchers
+    are copied into `/usr/local/bin` to make them available in your $PATH.
 
-    Install only required parts:
-
-    Go to the `vendors/` directory and type
+    To install only required parts manually, go to the `vendors` directory
+    and type:
 
     ``` {.sourceCode bash}
 
@@ -234,18 +234,18 @@ installed on your system.
         linux-image-extra-<version>+patched15khz_amd64.deb
     ```
 
-    If you have a Nvidia card type additionally: 
+    If you have a Nvidia card, you have to installed patched Xorg drivers too: 
 
     ``` {.sourceCode bash}
     $ sudo dpkg -i xserver-xorg-video-nouveau_<version>+patched15khz_amd64.deb
     ```
 
 5.  Reboot your computer with the newly installed patched kernel. To be
-    sure to boot on the new kernel, hold `<shift>` during boot to make
-    the Grub boot menu to appear and select the good kernel. Once done, check 
-    if you have booted on the good kernel by type `uname -a`. It should
-    match the version specified on the list above, suffixed by
-    'patched15khz'.
+    sure to boot on the new kernel, hold `<shift>` during boot to make the
+    Grub boot menu to appear and select the good kernel. When your system is
+    ready, you can check if you have booted on the good kernel by typing `uname
+    -a`. It should match the version specified on the list above, suffixed by
+    `patched15khz`.
 
 ### Uninstallation 
 
@@ -264,7 +264,7 @@ installed.
 
 Additionnaly, it replaces the patched `nouveau` drivers package
 by the original one available on the APT Repository. If you used the
-official binary drivers, you have to reinstall them manually.
+official binary drivers before, you have to reinstall them manually.
 
 Because it uninstalls the patched kernel packages, you should reboot 
 your computer after uninstall finished.
@@ -292,7 +292,8 @@ Configuration
 ### Hardware setup
 
 This documentation does not covers hardware part of the configuration
-because it depends on your actual system and your goals.
+because it depends on your actual system are hardware components you
+possess.
 
 Here are however some tips: 
 
@@ -319,13 +320,14 @@ Almost all recent monitors communicates [EDID
 data](https://en.wikipedia.org/wiki/Extended_Display_Identification_Data)
 to the kernel at initialisation. Theses metadatas contain technical data
 about the screen like the min/max resolutions, supported frequencies etc.
-that are used by the Kernel and Xorg to know to allowed modelines for the
-monitor. Old 15khz monitors don't communicate theses informations. This
-results the kernel to ignore the screen at boot. The following
-configuration will force the kernel to activate the graphic card's output
-where the 15khz monitor is connected — despite the lack of EDID data — and
-sets it to the 640x480 15khz modeline provided by the patch. This is done
-by adding theses parameters to the kernel at boot:
+that are used by the Kernel and Xorg to know what allowed modelines are for
+the monitor. Old 15khz monitors don't communicate theses informations. This
+results the kernel to ignore theses monitor at boot and disable the
+connector. The following configuration will force the kernel to activate
+the graphic card's connector where the 15khz monitor is connected — despite
+the lack of EDID data — and sets it to the 640x480 15khz modeline provided
+by the patch. This is done by adding theses parameters to the kernel at
+boot:
 
 1.  Edit the grub configuration file `/etc/default/grub` and add
     `vga=0x311 video=<connector>:640x480@60ec` to the kernel options
@@ -355,15 +357,15 @@ It seems to have another path to achieve this: Generate EDID data and
 inject it to the kernel using the `drm_kms_helper` kernel  module.
 Unfortunately this only seems to work with ATI drivers. I tried myself
 using NVIDIA wihout any luck. More information in this [arcadecontrol forum
-thread](<http://forum.arcadecontrols.com/index.php?topic=140215.0) , and
+thread](http://forum.arcadecontrols.com/index.php?topic=140215.0) , and
 [in this github repository](https://github.com/Ansa89/linux-15khz-patch).
 
 ### Define the patched kernel as default to boot on
 
 If the patched kernel version is the same as the current in Ubuntu
-repositories, it will be choosen by default because it replaces the
+repositories, it will be chosen by default because it replaces the
 official. But if the patched kernel is anterior to the current official,
-[Grub](https://en.wikipedia.org/wiki/GNU_GRUB) will boot by default on the
+[Grub](https://en.wikipedia.org/wiki/GNU_GRUB) will boot by default the
 last one.
 
 Grub can be forced to boot a specific kernel.  Defining the default Kernel
@@ -424,16 +426,16 @@ the key configuration to make your 15khz monitor to display something by
 default — emulators provided by this package handle their own modelines.
 
 Using these examples as templates, you will essentially need to check 
-and replace the outputname (common names are DVI-I-1, VGA-1 or HDMI-1) 
+and replace the output name (common names are DVI-I-1, VGA-1 or HDMI-1) 
 or the BusID. 
 
-Outputnames of your system can be known using `xrandr`:
+Output names of your system can be known using `xrandr`:
 
 ```bash
 $ xrandr
 ```
 
-It is important to note the output name used by `Xorg` may differs to the
+It is important to note the output names used by `Xorg` may differs to the
 ones used by the kernel.
 
 Bus id can be known with the following command: 
@@ -449,16 +451,16 @@ This is the layout to use when you only want your CRT screen connected.
 I strongly recommend you to use a patched kernel and KMS configured 
 properly to allow you to debug your system without X instance.
 The provided example `xorg.conf` file is available 
-[here](doc/xorg-crt-only-example.conf).
+[here](xorg-crt-only-example.conf).
 
 #### Dualhead using Xrandr
 
 This layout is the standard used today by default when you connect two
-screens on Ubuntu. After many tests this mode is definitelly to avoid in
+screens on Ubuntu. After many tests this mode is definitely to avoid in
 our case. During my tests i noticed fullscreen conflicts with the desktop
 like side bar percisting or flickering in front of the emulator window
 screen, or resizing issue or, worst, programs launching on the wrong screen
-with no real solutions make it to launch on the CRT.
+with no real solutions make it to launch on the 15khz monitor.
 
 #### Zaphodheads mode
 
@@ -468,29 +470,29 @@ outputs. Display :0 can be used for your desktop/LCD screen, and display :1
 can be used for the 15khz monitor. 
 
 In this layout, applications/emulators can be launched on specific screen
-by exported the DISPLAY environment variable. Example:
+by using the DISPLAY environment variable. Example:
 
 ```
 $ DISPLAY=:0.1 firefox
 ```
 
-This layout has unfortunatelly a drawback: It not possible (or at least i
+This layout has some drawbacks unfortunately: It not possible (or at least i
 have not found how ) to configure the inputs (keyboard/mouse/joystick). I
 was only able to make Groovymame to work on display :1. Other emulators
-start but keyboard and mouse input does not responds. I think it is related
+start but keyboard and mouse inputs do not respond. I think it is related
 to Xorg input to screen assignation but i have not managed to configure
-them properly. What's more, when an application is launch on display :1,
+them properly. What's more, when an application is launched on display :1,
 display :0 can't be used.
 
-The instructions to configure the X server in Zaphodhead for nouveau drivers 
-is explained on the official `nouveau drivers` website at 
+The instructions to configure the Xorg server in Zaphodhead is explained on
+the official `nouveau drivers` website at
 <https://nouveau.freedesktop.org/wiki/MultiMonitorDesktop/>.
 
 It is recommended to delete the file `~/.config/monitors.xml` because it
 seems to override Xorg options and makes debugging harder.
 
 The provided example `xorg.conf` file is available
-[here](doc/xorg-zaphodhead-example.conf). In this example, 15khz monitor
+[here](xorg-zaphodheads-example.conf). In this example, 15khz monitor
 is set on the output "DVI-I-1". 
 
 Once done, the 15Khz monitor is made available as a separate X screen 
@@ -514,7 +516,7 @@ system), and the second for the 15khz monitor. The second is only activated
 on demand by launching a new Xserver instance with the `startx` wrapper. 
 
 An `xorg.conf` example file for this layout is available 
-[here](doc/xorg-separate-layouts-example.conf). 
+[here](xorg-separate-layouts-example.conf). 
 
 To ease things, a launcher `15khz-startx` is provided with this package.
 This launcher solves a command line argument limitation encountered with
@@ -548,25 +550,25 @@ configuration solves the `main screen unusable` issue encountered with
 `zaphodhead mode` and `on demand new X instance`. It however
 requires one graphic card per seat, so at least two graphics cards.
 
-For non decicated machine usage, like `15khz monitor only` layout, this is
+For non dedicated machine usage, like `15khz monitor only` layout, this is
 the more manageable layout. This is the one i use now with this setup: 
 
 - Seat 0 is for desktop usage: An LCD monitor, one mouse, one keyboard, 
-  integrated sound card in graphic card through HDMI all others usb ports.
+  integrated sound card in graphic card through HDMI and all others usb ports.
 
 - Seat 1 is for arcade gaming usage: A 15khz TV set, a X-Arcade controller,
-  sound card integrated on the motherboard and optionnal pair of
+  sound card integrated on the motherboard and optional pair of
   mouse/keyboard i hotplug when i need to configure something. Session
   is configured to boot on `attract-mode` frontend (This frontend is
   provided by the package, see below to see how to configure it).
 
 An `xorg.conf` example file for this layout is available
-[here](doc/xorg-multiseat-example.conf). The important configuration
+[here](xorg-multiseat-example.conf). The important configuration
 parameter is `MatchSeat`. Each device section (one per graphic card) must
 have a different seat. `seat0` is the one launched by default by the
 system.
 
-Now you have to groups your available device by `seat`. `systemd` init
+Now you have to group your available devices by `seat`. `systemd` init
 system includes a tool named `loginctl` that really simplifies the
 configuration of multiseats.
 
@@ -576,7 +578,7 @@ First, list all the devices attached to the default `seat0`:
 $ loginctl seat-status seat0
 ```
 
-This will outputs something like this:
+This will output something like this:
 
 ```
 seat0
@@ -606,6 +608,7 @@ seat0
                   │ usb:usb1
                   │ └─/sys/devices/pci0000:00/0000:00:1a.0/usb1/1-1
 
+[...]
 ```
 
 You have to find the graphic card device you want to attach to your second
@@ -633,25 +636,27 @@ seat:
 $ loginctl seat-status seat-1
 ```
 
-A seat must at least have a graphic device attached. If the seat does not
-appears, something is wrong with the commands above.
+A seat must have at least a graphic card device attached to be enabled. If
+the seat does not appears, something is wrong with the commands above.
 
 Now, you have to identify the others devices you want to attach to your
-seat. It is usually easy because devices names are given. For example, i
-want to attach my Logitech keyboard to seat-1: 
-
-Extract of ```$ loginctl seat-status seat0```
+seat. It is usually easy because devices names are given. For example, if i
+want to attach my Logitech keyboard to seat-1, i search for this on the output 
+of ```$ loginctl seat-status seat0```:
 ```
 │   ├─/sys/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.2/1-1.2:1.0/0003:046D:C31C.0004/input/input8
 │   │ input:input8 "Logitech USB Keyboard"
 ```
+
+and a attach it to the `seat-1`:
 
 ```
 $ loginctl seat-status /sys/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.2/1-1.2:1.0/0003:046D:C31C.0004/input/input8
 ```
 
 Repeat this operation for all the devices you want to attach.
-Once done, reboot your computer. I should see two distincts user sessions.
+Once done, reboot your computer. You should see two distincts user sessions on
+each monitors.
 
 For more information about multiseat, please refer to
 [systemd](https://www.freedesktop.org/wiki/Software/systemd/multiseat/)
@@ -776,7 +781,7 @@ $ 15khz-fs-uae [-m {1,2,3}] <fs-uae-command-line-args>
 
 ### Vice
 
-Despite its presence on the APT repository, We will use a custom build 
+Despite its presence on the APT repository, we will use a custom build 
 provided by the Makefile to make use of the SDL version which works 
 better is this context.
 
@@ -897,9 +902,9 @@ version.
 Doing things by yourself
 ------------------------
 
-This last section contains somes guides to patch and compiles things by
+This last section contains some guides to patch and compiles things by
 yourself, without the use of the provided Makefile. This can be useful if
-you target another operating system or your system specifications is not
+you target another operating system or your system specifications are not
 covered by this package.
 
 ### Patch and build the kernel
@@ -1029,7 +1034,7 @@ Follow theses step to patch the `nouveau` drivers and install them:
 
 [Groovymame](http://forum.arcadecontrols.com/index.php/topic,135823.0.html?PHPSESSID=sblf9jfedgk1eg60i8l0524kq5) 
 is a patched version of Mame which generates and sets on-the-fly accurates
-15Khz modelines to aproximatelly fit the native resolution of the 
+15Khz modelines to approximately fit the native resolution of the 
 emulated game.
 
 Groovymame is distributed as compiled binary packages or as a diff patch to 

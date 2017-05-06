@@ -1,6 +1,7 @@
 15khz-arcade-pkg TODO
 =====================
 
+- [ ] Create a launcher for switchres tool
 - [ ] Add some links and references at the end of the documentation
 - [ ] Makefile: Create `dist` target 
 - [ ] Do some photos of the results
