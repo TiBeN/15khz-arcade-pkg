@@ -88,7 +88,7 @@ is not easier but can be adjusted to fit setups which differ a little.
 
 The provided makefile automates the build of the following:
 
--   **Linux kernel Ubuntu-4.8.0-45.48**, patched using 15khz patchs.
+-   **Linux kernel Ubuntu-4.8.0-51.54**, patched using 15khz patchs.
 -   **nouveau drivers 1.0.11**, patched to support low resolutions
 -   **Mame 0.183**, patched with the groovymame patch.
 -   **Vice 3.0** — a Commodore 64 emulator — with the SDL support. 
@@ -105,7 +105,7 @@ The provided makefile automates the build of the following:
 
     ``` {.sourceCode .bash}
     $ sudo apt-get update
-    $ sudo apt-get build-dep linux-image-4.8.0-45.48-generic
+    $ sudo apt-get build-dep linux-image-4.8.0-51-generic
     $ sudo apt-get build-dep mame vice xserver-xorg-video-nouveau
     $ sudo apt-get install fakeroot qt5-default qtbase5-dev \
         qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev cmake \

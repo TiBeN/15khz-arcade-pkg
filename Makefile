@@ -10,8 +10,8 @@ DESTDIR = /usr/local
 
 UBUNTU_VERSION = yakkety
 KERNEL_BASE_VERSION = 4.8.0
-KERNEL_ABI_NUMBER = 45
-KERNEL_UPLOAD_NUMBER = 48
+KERNEL_ABI_NUMBER = 51
+KERNEL_UPLOAD_NUMBER = 54
 KERNEL_GIT_URL = git://kernel.ubuntu.com/ubuntu/ubuntu-$(UBUNTU_VERSION).git
 KERNEL_GIT_TAG = Ubuntu-$(KERNEL_BASE_VERSION)-$(KERNEL_ABI_NUMBER).$(KERNEL_UPLOAD_NUMBER)
 
@@ -32,7 +32,7 @@ LINUX_AVGA3000_PATCH = src/avga3000-4.4.diff
 MAME_VERSION = 0183
 MAME_SRC_PKG_URL = https://github.com/mamedev/mame/archive/mame$(MAME_VERSION).tar.gz
 MAME_SRC_PKG = vendor/mame$(MAME_VERSION).tar.gz
-GROOVYMAME_PATCH = src/0183_groovymame_017c.diff 
+GROOVYMAME_PATCH = src/0183_groovymame_017c.diff
 
 GROOVYMAME_BIN = vendor/mame/mame64
 
@@ -60,7 +60,7 @@ ATTRACT_MODE_VERSION = 2.2.1
 #ATTRACT_MODE_SRC_PKG_URL = https://github.com/mickelson/attract/archive/v$(ATTRACT_MODE_VERSION).tar.gz
 ATTRACT_MODE_GIT_URL = https://github.com/mickelson/attract.git	
 ATTRACT_MODE_SRC_PKG = vendor/attract.tar.gz
-ATTRACT_MODE_BIN = vendor/attract/attract
+ATTRACT_MODE_BIN = vendor/attract-$(ATTRACT_MODE_VERSION)/attract
 
 .PHONY: all install clean
 
