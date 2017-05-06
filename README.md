@@ -9,10 +9,10 @@ The main objective of this package is to use commons emulators, like Mame,
 at real native resolution of the emulated system to make the "pixel
 perfect" experience. 
 
-Among others things, this packages provides a patched Linux Kernel and
-patched Xorg nouveau drivers that allow the graphic stack to display very
+Among others things, this package provides a patched Linux kernel and
+patched Xorg nouveau drivers that allow the graphic stack to switch to very
 low resolutions used by old consoles, arcades machines and computers,
-theses resolutions beeing not allowed by the system by default. A patched Mame
+theses resolutions being not allowed by the system by default. A patched Mame
 version named `Groovymame` is provided too. This customized Mame version
 automatically switchs the resolution of the monitor to the resolution of the
 original emulated system. Instructions are provided to reproduce this
@@ -26,7 +26,8 @@ the 15khz monitor alone (arcade cab use case), or as a slave of a primary
 desktop LCD screen.
 
 The documentation is software oriented. Some tips about hardware are given but 
-the setup is up to the user. 
+this part of the setup is up to the user. Resources are available online
+for that. 
 
 Tools and packages are not directly provided but a Makefile to build them.
 
@@ -92,12 +93,12 @@ Contribution
 ------------
 
 This project was initially a heap of personal notes to document how to
-connect a 15khz screen and to easily reconfigure my system after Ubuntu OS
-and kernel upgrades. I decided to automate things a little with a Makefile
-because the entire process of rebuild manually needed pieces takes times
-and is annoying to repeat after each system or kernel upgrade. But what
-works for my system could not in another — i tried successfully with two
-Nvidia and one Radeon card). So any contributions that can make this
-project more tested and viable for a wider range of
+connect and use a 15khz monitor on Ubuntu and to easily reconfigure my
+system after Ubuntu OS and kernel upgrades. I decided to automate things a
+little with a Makefile because the entire process of rebuild manually
+needed pieces takes time and is annoying to repeat after each system or
+kernel upgrade. But what works for my system could not in another — i tried
+successfully with two Nvidia and one Radeon card). So any contributions
+that can make this project more tested and viable for a wider range of
 systems/configurations/setups are welcome. As you can read i am not english
 native so contributions is this field are welcome too!

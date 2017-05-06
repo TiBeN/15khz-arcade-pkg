@@ -36,6 +36,18 @@ box and is well supported by a community.
 Compared to Groovyarcade, `15khz-arcade-pkg` is more of a tutorial in order
 to accomplish manually a similar goal for Ubuntu specifically.
 
+Table of contents
+-----------------
+
+-   [Prerequites](#prerequisites)
+-   [Build and installation of packages and tools](#build-and-installation-of-packages-and-tools)
+-   [Configuration](#configuration)
+-   [Provided tools configuration and usage](#provided-tools-configuration-and-usage)
+-   [Version scheme](#version-scheme)
+-   [Doing things by yourself](#doing-things-by-yourself)
+-   [Thanks](#thanks)
+
+
 Prerequisites
 -------------
 
