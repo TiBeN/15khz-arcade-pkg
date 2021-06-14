@@ -28,7 +28,8 @@ jobs:
       # Runs a single command using the runners shell
       - name: Install requirements 
         run: |
-          sudo apt-get update && apt-get build-dep linux-image-4.8.0-51-generic 
+          sudo apt-get update 
+          sudo apt-get build-dep linux-image-4.8.0-51-generic 
           sudo apt-get build-dep mame vice xserver-xorg-video-nouveau 
           sudo apt-get install fakeroot qt5-default qtbase5-dev qtbase5-dev-tools git unrar libxml2-dev libsdl1.2-dev cmake libarchive13 libavcodec57 libavformat57 libavutil55 libc6 libexpat1 libfontconfig1 libfreetype6 libgcc1 libgl1-mesa-glx libjpeg8 libopenal1 libsfml-graphics2.4 libsfml-network2.4 libsfml-system2.4 libsfml-window2.4 libstdc++6 libswresample2 libswscale4 libx11-6 libxinerama1 zlib1g libarchive-dev libavcodec-dev libavformat-dev libavresample-dev libavutil-dev libfontconfig-dev libfreetype6-dev libglu-dev libjpeg-turbo8-dev libopenal-dev libsfml-dev libswscale-dev libxinerama-dev
           make
